@@ -1,5 +1,6 @@
 import healpix.essentials.HealpixBase
 import healpix.essentials.Pointing
+import healpix.essentials.Vec3
 import healpix.essentials.Scheme.{NESTED,RING}
 
 
@@ -20,6 +21,10 @@ case class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) {
   {
     val p:Pointing=hp.pix2ang(ipix)
     Array(p.theta,p.phi)
+  }
+  def pix2vec(ipix:Long):Array[Double]= {
+    val pos:Vec3=hp.pix2vec(ipix)
+    Array(pos.x,pos.y,pos.z)
   }
 
 }
