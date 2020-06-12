@@ -1,4 +1,4 @@
-//spark-shell --jars jhealpix.jar -I hpgrid.scala -I Timer.scala
+//spark-shell --jars jhealpix.jar -I hpgrid.scala
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.{functions=>F}
@@ -12,7 +12,7 @@ Locale.setDefault(Locale.US)
 val N:Long=1000000
 
 //healpix
-val nside:Int=32
+val nside:Int=8
 val grid = HealpixGrid(new HealpixBase(nside, NESTED), new ExtPointing)
 def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.index(theta,phi))
 val Pix2Ang=spark.udf.register("PixAang",(ipix:Long)=> grid.pix2ang(ipix))
