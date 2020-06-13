@@ -16,7 +16,7 @@ Locale.setDefault(Locale.US)
 
 //val args = sc.getConf.get("spark.driver.args").split("\\s+")
 
-val tmax:Double=args(1).toDouble
+val tmax:Double=2.5
 val rmax=toRadians(tmax/60)
 val r2max=rmax*rmax
 
