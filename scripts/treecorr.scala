@@ -1,4 +1,3 @@
-
 //spark-shell $SPARKOPTS --jars $JARS -I hpgrid.scala -I Timer.scala
 
 import org.apache.spark.sql.DataFrame
