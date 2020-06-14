@@ -1,4 +1,5 @@
-//spark-shell --jars jhealpix.jar -I hpgrid.scala -I Timer.scala
+
+//spark-shell $SPARKOPTS --jars $JARS -I hpgrid.scala -I Timer.scala
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.{functions=>F}
@@ -40,8 +41,7 @@ val r2min=rmin*rmin
 val r2max=rmax*rmax
 
 //input////////////////
-//parquet
-val input=spark.read.parquet(System.getenv("INPUT")).drop("ipix","z")
+//input in theta phi
 
 val timer=new Timer
 val start=timer.time
@@ -49,38 +49,56 @@ val start=timer.time
 
 import spark.implicits._
 
-def makeCell(nside1:Int,df:DataFrame,theta:String="theta",phi:String="phi"):DataFrame ={
+val input=spark.read.parquet(System.getenv("INPUT")).drop("ipix","z")
+  .withColumn("theta",F.radians(F.lit(90)-F.col("DEC")))
+  .withColumn("phi",F.radians("RA"))
+  .drop("RA","DEC")
 
-  println("making cell  with nside="+nside1)
+input.cache.count
+
+//add multiresol indices
+val nsides=List(32,64,128,256)
+var multi=input
+for (nside1 <- nsides) {
   val grid1 = HealpixGrid(new HealpixBase(nside1, NESTED), new ExtPointing)
   val Ang2Pix1=spark.udf.register("Ang2Pix1",(theta:Double,phi:Double)=>grid1.index(theta,phi))
+ multi=multi.withColumn(s"id$nside1",Ang2Pix1($"theta",$"phi"))
+}
+
+multi.cache.count
+
+//construct cell at given resolution (colpix)
+def makeCell(df:DataFrame,nside1:Int,colpix:String):DataFrame ={
+
+  println("making cell  with nside="+nside1)
+  val pixmap=df.groupBy(F.col(colpix)).count().withColumnRenamed("count","N")
+
+  //add pixel centers
+  val grid1 = HealpixGrid(new HealpixBase(nside1, NESTED), new ExtPointing)
+
+  /*
   val Pix2Ang1=spark.udf.register("Pix2Ang1",(ipix:Long)=> grid1.pix2ang(ipix))
+  pixmap.withColumn("ptg",Pix2Ang1(F.col(colpix)))
+    .withColumn("theta1",$"ptg"(0))
+    .withColumn("phi1",$"ptg"(1))
+    .drop("ptg")
+    .withColumn(s"x$nside1",F.sin($"theta1")*F.cos($"phi1"))
+    .withColumn(s"y$nside1",F.sin($"theta1")*F.sin($"phi1"))
+    .withColumn(s"z$nside1",F.cos($"theta1"))
+    .drop("theta1","phi1")
+   */
   val Pix2Vec1=spark.udf.register("Pix2Vec1",(ipix:Long)=> grid1.pix2ang(ipix))
 
-  val addpix=df.withColumn("ipix",Ang2Pix1($theta,$phi))
-  val pixmap=addpix.groupBy("ipix").count().withColumnRenamed("count","N1")
+  pixmap.withColumn("pos",Pix2Vec1(F.col(colpix)))
+    .withColumn(s"x$nside1",$"pos"(0))
+    .withColumn(s"y$nside1",$"pos"(1))
+    .withColumn(s"z$nside1",$"pos"(2))
+    .drop("pos")
 
-  pixmap.withColumn("ptg",Pix2Ang1($"cell1"))
-    .select($"ipix",$"ptg"(0) as "theta1",$"ptg"(1) as "phi1",$"N1")
-    .withColumn("x1",F.sin($"theta1")*F.cos($"phi1"))
-    .withColumn("y1",F.sin($"theta1")*F.sin($"phi1"))
-    .withColumn("z1",F.cos($"theta1"))
 }
 
 /////////////////////////////////////////
 //1 reduce data
-
-//add bigpix index
-val input1=input
-  .withColumn("theta",F.radians(F.lit(90)-F.col("DEC")))
-  .withColumn("phi",F.radians("RA"))
-  .withColumn("cell1",Ang2Pix1($"theta",$"phi"))
-  .drop("RA","DEC")
-  .withColumn("x",F.sin($"theta")*F.cos($"phi"))
-  .withColumn("y",F.sin($"theta")*F.sin($"phi"))
-  .withColumn("z",F.cos($"theta"))
-  .drop("theta","phi")
-  .cache
 
 //ou direct
 /*
