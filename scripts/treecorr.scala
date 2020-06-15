@@ -57,6 +57,9 @@ input.cache.count
 
 //add multiresol indices
 val nsides=List(32,64,128,256)
+val s=nsides.map(sqrt(Pi/3)/_)
+
+
 var multi=input
 for (nside1 <- nsides) {
   val grid1 = HealpixGrid(new HealpixBase(nside1, NESTED), new ExtPointing)
@@ -86,6 +89,8 @@ def makeCell(df:DataFrame,nside1:Int,colpix:String):DataFrame ={
     .withColumn(s"z$nside1",F.cos($"theta1"))
     .drop("theta1","phi1")
    */
+
+  //verifier que ca marche
   val Pix2Vec1=spark.udf.register("Pix2Vec1",(ipix:Long)=> grid1.pix2ang(ipix))
 
   pixmap.withColumn("pos",Pix2Vec1(F.col(colpix)))
