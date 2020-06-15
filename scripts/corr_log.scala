@@ -21,6 +21,7 @@ val imin:Double=args(0).toDouble
 val imax:Double=args(1).toDouble
 
 //constant log binning
+val Nbins=20
 val b_arcmin:Double = (log(250)-log(2.5))/Nbins
 val b=toRadians(b_arcmin/60.0)
 
@@ -28,21 +29,19 @@ println("logbw="+b_arcmin+" arcmin ="+b+" rad")
 
 
 //en arcmin
-val logt=List.tabulate(Nbins+1)(i=>log(2.5)+i*b_arcmin)
+val logt=List.tabulate(Nbins+1)(i=>log(2.5)+i*b_arcmin).slice(imin,imax+2)
 val t=logt.map(exp)
 val bins=t.sliding(2).toList
 val tmin=t.head
 val tmax=t.last
 
-val binning=sc.parallelize(bins.zipWithIndex).toDF("interval","ibin").withColumn("width",$"interval"(1)-$"interval"(0)).filter($"ibin".between(imin,imax)).select("ibin","interval","width")
+val binning=sc.parallelize(bins.zipWithIndex).toDF("interval","ibin").withColumn("width",$"interval"(1)-$"interval"(0)).select("ibin","interval","width")
 binning.cache.count
 binning.show(truncate=false)
 
 //extrait!
-val r=t.map(x=>toRadians(x/60))
-
-val rmin=r.head
-val rmax=r.last
+val rmin=toRadians(bins.head(0)/60.0)
+val rmax=toRadians(bins.last(1)/60.0)
 val r2min=rmin*rmin
 val r2max=rmax*rmax
 
