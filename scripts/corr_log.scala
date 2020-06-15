@@ -23,7 +23,7 @@ val imax=args(1).toInt
 //constant log binning
 val Nbins=20
 val b_arcmin:Double = (log(250)-log(2.5))/Nbins
-val b=toRadians(b_arcmin/60.0)
+val b=b_arcmin
 
 println("logbw="+b_arcmin+" arcmin ="+b+" rad")
 
