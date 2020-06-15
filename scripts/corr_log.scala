@@ -169,11 +169,13 @@ timer.print("join")
 ///////////////////////////////////
 //4 binning
 
-val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("ibin").cache
+val binned=edges.groupBy("ibin").count
+  .withColumnRenamed("count","Nbin")
+  .sort("ibin").cache
 
 //val binned=edges.rdd.map(r=>(r.getInt(0),r.getLong(1))).reduceByKey(_+_).toDF("ibin","Nbin")
 binned.count
-//binned.show
+binned.show(100)
 //binned.agg(F.sum($"Nbin")).show
 //joli output
 
@@ -207,12 +209,12 @@ val nodes=System.getenv("SLURM_JOB_NUM_NODES")
 
 println("Summary: ************************************")
 println("@| t0 | t1 | Nbins | log(bW) | nside | Ns |  Ne  | time")
-println(f"@| $tmin | $tmax | ${imax-imin+1} | $b_arcmin | $nside2 | $Ns%g | $nedges%g | $fulltime%.2f")
+println(f"@| $tmin | $tmax | ${imax-imin+1} | $b_arcmin%g | $nside2 | $Ns%g | $nedges%g | $fulltime%.2f")
 println(f"@ nodes=$nodes parts=($np1 | $np2 | $np3): source=${tsource.toInt}s dups=${tdup.toInt}s join=${tjoin.toInt}s bins=${tbin.toInt} |  tot=$fulltime%.2f mins")
 
 
 //nice output+sum
-binning.join(binned,"ibin").show(Nbins)
+binning.join(binned,"ibin").show(Nbins,truncate=false)
 sumbins.show
 
 
