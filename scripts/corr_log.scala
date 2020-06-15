@@ -17,8 +17,8 @@ Locale.setDefault(Locale.US)
 //args from --conf spark.driver.args="sepcut zmax numpart"
 val args = sc.getConf.get("spark.driver.args").split("\\s+")
 
-val imin:Double=args(0).toDouble
-val imax:Double=args(1).toDouble
+val imin=args(0).toInt
+val imax=args(1).toInt
 
 //constant log binning
 val Nbins=20
@@ -206,8 +206,8 @@ println(s"TOT TIME=${fulltime} mins")
 val nodes=System.getenv("SLURM_JOB_NUM_NODES")
 
 println("Summary: ************************************")
-println("@| t0 | t1 | Nbins | bW | nside | Ns |  Ne  | time")
-println(f"@| $tmin | $tmax | $Nbins | $binSize | $nside2 | $Ns%g | $nedges%g | $fulltime%.2f")
+println("@| t0 | t1 | Nbins | log(bW) | nside | Ns |  Ne  | time")
+println(f"@| $tmin | $tmax | ${imax-imin+1} | $b_arcmin | $nside2 | $Ns%g | $nedges%g | $fulltime%.2f")
 println(f"@ nodes=$nodes parts=($np1 | $np2 | $np3): source=${tsource.toInt}s dups=${tdup.toInt}s join=${tjoin.toInt}s bins=${tbin.toInt} |  tot=$fulltime%.2f mins")
 
 
