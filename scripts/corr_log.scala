@@ -174,8 +174,9 @@ val binned=edges.groupBy("ibin").count
   .sort("ibin").cache
 
 //val binned=edges.rdd.map(r=>(r.getInt(0),r.getLong(1))).reduceByKey(_+_).toDF("ibin","Nbin")
-binned.count
-binned.show(100)
+println("#bins="+binned.count)
+
+//binned.show(100)
 //binned.agg(F.sum($"Nbin")).show
 //joli output
 
