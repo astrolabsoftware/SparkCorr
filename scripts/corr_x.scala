@@ -46,7 +46,8 @@ val r2max=rmax*rmax
 
 // automatic
 val i=floor(-log(rmax)/log(2.0)).toInt
-val nside2=pow(2,i-1).toInt
+//val nside2=pow(2,i-1).toInt
+val nside2=pow(2,i).toInt
 println(s"$tmax arcmin -> nside=$nside2")
 
 val grid = HealpixGrid(new HealpixBase(nside2, NESTED), new ExtPointing)
@@ -104,7 +105,6 @@ val cols=dups(0).columns
 dups(8)=source.select(cols.head,cols.tail:_*)
 
 val dup=dups.reduceLeft(_.union(_))
-  .withColumnRenamed("w","w2")
   .withColumnRenamed("id","id2")
   .withColumnRenamed("x_s","x_t")
   .withColumnRenamed("y_s","y_t")
@@ -125,8 +125,8 @@ println("dup partitions="+np2)
 //3 build PAIRS with cuts
 val pairs=source.join(dup,"ipix")
   .drop("ipix")
-  .filter($"id"=!=$"id2")
-  .drop("id2")
+  .filter($"id"<$"id2")
+  .drop("id","id2")
 
 println("pairs:")
 pairs.printSchema
@@ -177,6 +177,7 @@ timer.print("binning")
 val sumbins=binned.agg(F.sum($"Nbin"))
 val nedges=sumbins.take(1)(0).getLong(0)
 
+/*
 //degree
 val deg=edges.groupBy("id").count
 dup.unpersist
@@ -185,9 +186,9 @@ println("waiting for deg...")
 println(deg.cache.count)
 //stats
 deg.describe("count").show()
-
 val tdeg=timer.step
 timer.print("degree")
+ */
 
 
 val fulltime=(timer.time-start)*1e-9/60

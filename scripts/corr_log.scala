@@ -106,7 +106,6 @@ val cols=dups(0).columns
 dups(8)=source.select(cols.head,cols.tail:_*)
 
 val dup=dups.reduceLeft(_.union(_))
-  .withColumnRenamed("w","w2")
   .withColumnRenamed("id","id2")
   .withColumnRenamed("x_s","x_t")
   .withColumnRenamed("y_s","y_t")
@@ -144,11 +143,9 @@ val edges=pairs
   .filter(F.col("r2").between(r2min,r2max))
   .drop("dx","dy","dz","x_t","x_s","y_s","y_t","z_s","z_t")
   .withColumn("logr",F.log($"r2")/2.0)
+  .drop("r2")
   .withColumn("ibin",(($"logr"-lrmin)/b).cast(IntegerType))
-  .drop("logr","r2")
-  //.withColumn("r",F.sqrt($"r2"))
-  //.withColumn("ibin",(($"r"-rmin)/dr).cast(IntegerType))
-  //.drop("r2","r")
+  .drop("logr")
 //  .persist(StorageLevel.MEMORY_AND_DISK)
 
 println("edges:")
@@ -169,12 +166,11 @@ timer.print("join")
 ///////////////////////////////////
 //4 binning
 
-val binned=edges.groupBy("ibin").count
-  .withColumnRenamed("count","Nbin")
-  .sort("ibin").cache
+val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("ibin").cache
 
 //val binned=edges.rdd.map(r=>(r.getInt(0),r.getLong(1))).reduceByKey(_+_).toDF("ibin","Nbin")
-println("#bins="+binned.count)
+//println("#bins="+binned.count)
+binned.count
 
 //binned.show(100)
 //binned.agg(F.sum($"Nbin")).show

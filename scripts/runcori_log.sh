@@ -3,10 +3,10 @@
 declare -i nargs
 nargs=$#
 
-if [ $nargs -lt 3 ]; then
+if [ $nargs -lt 2 ]; then
 echo "##################################################################################"
 echo "usage: "
-echo "./${0##*/} tmin tmax Nbins "
+echo "./${0##*/} imin imax "
 echo "##################################################################################"
 exit
 fi
@@ -14,7 +14,7 @@ fi
 export SPARKVERSION=2.4.4
 IMG=registry.services.nersc.gov/plaszczy/spark_desc:v$SPARKVERSION
 
-prefix="x"
+prefix="log"
 slfile="run_$prefix.sl"
 echo $slfile
 cat > $slfile <<EOF
@@ -40,7 +40,7 @@ JARS=\$LIBS/jhealpix.jar,\$LIBS/spark-fits.jar,\$LIBS/spark3d.jar
 export INPUT="/global/cscratch1/sd/plaszczy/tomo100M.parquet"
 
 #pas de coalesce
-shifter spark-shell $SPARKOPTS --jars \$JARS --conf spark.driver.args="$1 $2 $3" -I hpgrid.scala -I Timer.scala -i corr_x.scala
+shifter spark-shell $SPARKOPTS --jars \$JARS --conf spark.driver.args="${@:1}" -I hpgrid.scala -I Timer.scala -i corr_log.scala
 
 stop-all.sh
 
