@@ -6,7 +6,7 @@ nargs=$#
 if [ $nargs -lt 2 ]; then
 echo "##################################################################################"
 echo "usage: "
-echo "./${0##*/} imin imax "
+echo "./${0##*/} imin imax (nside)"
 echo "##################################################################################"
 exit
 fi
@@ -39,8 +39,12 @@ JARS=\$LIBS/jhealpix.jar,\$LIBS/spark-fits.jar,\$LIBS/spark3d.jar
 #export FITSSOURCE="/global/cscratch1/sd/plaszczy/LSST10Y"
 export INPUT="/global/cscratch1/sd/plaszczy/tomo100M.parquet"
 
-#pas de coalesce
-shifter spark-shell $SPARKOPTS --jars \$JARS --conf spark.driver.args="${@:1}" -I hpgrid.scala -I Timer.scala -i corr_log.scala
+#partitions
+nodes=\$((\$SLURM_JOB_NUM_NODES-1))
+ncores=\$((\$nodes*32))
+part=\$ncores
+
+shifter spark-shell $SPARKOPTS --jars \$JARS --conf spark.driver.args="${@:1} \$part" -I hpgrid.scala -I Timer.scala -i corr_loga.scala
 
 stop-all.sh
 
