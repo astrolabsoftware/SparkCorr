@@ -20,6 +20,7 @@ val args = sc.getConf.get("spark.driver.args").split("\\s+")
 val imin=args(0).toInt
 val imax=args(1).toInt
 val nside1=args(2).toInt
+val numPart=args(3).toInt
 
 //constant log binning
 val Nbins=20
@@ -55,6 +56,8 @@ import spark.implicits._
 //input
 val input=spark.read.parquet(System.getenv("INPUT")).drop("ipix","z")
 
+//println("Input data size="+input.count+" part="+input.rdd.getNumPartitions)
+
 //1-data reduction
 println("reducing data with nside1="+nside1)
 
@@ -63,29 +66,27 @@ val Ang2Pix1=spark.udf.register("Ang2Pix1",(theta:Double,phi:Double)=>grid1.inde
 val Pix2Ang1=spark.udf.register("Pix2Ang1",(ipix:Long)=> grid1.pix2ang(ipix))
 
 
-//add cell index
-val input1=input
+//create cell
+val pixmap=input
   .withColumn("theta",F.radians(F.lit(90)-F.col("DEC")))
   .withColumn("phi",F.radians("RA"))
   .withColumn("cellpix",Ang2Pix1($"theta",$"phi"))
   .drop("RA","DEC","theta","phi")
-  .cache
-
-
-//reduce to weighted pixmap
-val pixmap=input1.groupBy("cellpix").count()
+  .groupBy("cellpix").count()
+  //.repartition(numPart)
 
 //add pixel centers
 val newinput=pixmap
   .withColumn("ptg",Pix2Ang1($"cellpix"))
-  .select($"cellpix",$"ptg"(0) as "theta_s",$"ptg"(1) as "phi_s",$"count" as "w")
-  .drop("ptg","RA","DEC")
-  .cache
+  .withColumn("theta_s",$"ptg"(0))
+  .withColumn("phi_s",$"ptg"(1))
+  .withColumnRenamed("count","w")
+  .drop("ptg")
 
-val Nin=newinput.count
-println(f"-> new size=${Nin/1e6}%3.2f M")
-timer.step
-timer.print(s" nside=$nside1 data reduction")
+val Nin=newinput.cache.count
+println(f"new size=${Nin/1e6}%3.2f M part="+newinput.rdd.getNumPartitions)
+val tred=timer.step
+timer.print("reduction")
 
 // 2- JOIN depending on rmax
 val i=floor(-log(rmax)/log(2.0)).toInt
@@ -97,17 +98,7 @@ val grid = HealpixGrid(new HealpixBase(NSIDE, NESTED), new ExtPointing)
 def Ang2pix=spark.udf.register("Ang2pix",(theta:Double,phi:Double)=>grid.index(theta,phi))
 def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Long)=>grid.neighbours(ipix))
 
-//val zmin:Double=1.0
-
-//input
-/*
-//fits+cut
-val df_all=spark.read.format("fits").option("hdu",1).load(System.getenv("FITSSOURCE")).select($"RA",$"DEC",$"Z_COSMO"+$"DZ_RSD" as "z")
-
-val input=df_all.filter($"z".between(zmin,zmax)).drop("z")
- */
-//parquet
-
+//
 val source=newinput
   .withColumnRenamed("cellpix","id")
   .withColumn("ipix",Ang2pix($"theta_s",$"phi_s"))
@@ -115,17 +106,21 @@ val source=newinput
   .withColumn("y_s",F.sin($"theta_s")*F.sin($"phi_s"))
   .withColumn("z_s",F.cos($"theta_s"))
   .drop("theta_s","phi_s")
-//  .repartition(numPart,$"ipix")
+  .repartition(numPart,$"ipix")
   .cache()
 
+
+val np1=source.rdd.getNumPartitions
+println("source #part="+np1)
 
 println("*** caching source: "+source.columns.mkString(", "))
 val Ns=source.count
 println(f"Source size=${Ns/1e6}%3.2f M")
 val tsource=timer.step
-val np1=source.rdd.getNumPartitions
-println("source #part="+np1)
+
 source.show(5)
+
+newinput.unpersist()
 
 //////////////////////////////////////////////
 //2 build duplicates
@@ -189,9 +184,9 @@ val edges=pairs
 //  .persist(StorageLevel.MEMORY_AND_DISK)
 
 println("edges:")
-edges.printSchema
 val np3=edges.rdd.getNumPartitions
-println("edges numParts="+np3)
+println("edges #part="+np3)
+edges.printSchema
 
 println("==> joining with NSIDE="+NSIDE+" output="+edges.columns.mkString(", "))
 
@@ -244,7 +239,7 @@ val nodes=System.getenv("SLURM_JOB_NUM_NODES")
 println("Summary: ************************************")
 println("@| t0 | t1 | Nbins | log(bW) | nside | Ns |  Ne  | time")
 println(f"@| $tmin%.2f | $tmax%.2f | ${imax-imin+1} | $b_arcmin%g | $NSIDE | $Ns%g | $nedges%g | $fulltime%.2f")
-println(f"@ nodes=$nodes parts=($np1 | $np2 | $np3): source=${tsource.toInt}s dups=${tdup.toInt}s join=${tjoin.toInt}s bins=${tbin.toInt} |  tot=$fulltime%.2f mins")
+println(f"@ nodes=$nodes parts=($np1 | $np2 | $np3): red=${tred.toInt}s source=${tsource.toInt}s dups=${tdup.toInt}s join=${tjoin.toInt}s bins=${tbin.toInt} |  tot=$fulltime%.2f mins")
 
 
 //nice output+sum

@@ -81,13 +81,13 @@ val source=input.withColumn("id",F.monotonicallyIncreasingId)
 //  .repartition(numPart,$"ipix")
   .cache()
 
+val np1=source.rdd.getNumPartitions
+println("source #part="+np1)
 
 println("*** caching source: "+source.columns.mkString(", "))
 val Ns=source.count
 println(f"Source size=${Ns/1e6}%3.2f M")
 val tsource=timer.step
-val np1=source.rdd.getNumPartitions
-println("source #part="+np1)
 source.show(5)
 
 //////////////////////////////////////////////
