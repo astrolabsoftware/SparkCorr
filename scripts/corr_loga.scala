@@ -19,13 +19,14 @@ val args = sc.getConf.get("spark.driver.args").split("\\s+")
 
 val imin=args(0).toInt
 val imax=args(1).toInt
+val nside1=args(2).toInt
 
 //constant log binning
 val Nbins=20
 val b_arcmin:Double = (log(250)-log(2.5))/Nbins
 val b=b_arcmin
 
-println("logbw="+b_arcmin+" arcmin ="+b+" rad")
+println("logbw="+b)
 
 
 //en arcmin
@@ -45,13 +46,54 @@ val rmax=toRadians(bins.last(1)/60.0)
 val r2min=rmin*rmin
 val r2max=rmax*rmax
 
-// automatic join nside on rmax
-val i=floor(-log(rmax)/log(2.0)).toInt
-val nside2=pow(2,i).toInt
-//val nside2=pow(2,i-1).toInt
-println(s"$tmax arcmin -> nside=$nside2")
 
-val grid = HealpixGrid(new HealpixBase(nside2, NESTED), new ExtPointing)
+val timer=new Timer
+val start=timer.time
+
+import spark.implicits._
+
+//input
+val input=spark.read.parquet(System.getenv("INPUT")).drop("ipix","z")
+
+//1-data reduction
+println("reducing data with nside1="+nside1)
+
+val grid1 = HealpixGrid(new HealpixBase(nside1, NESTED), new ExtPointing)
+val Ang2Pix1=spark.udf.register("Ang2Pix1",(theta:Double,phi:Double)=>grid1.index(theta,phi))
+val Pix2Ang1=spark.udf.register("Pix2Ang1",(ipix:Long)=> grid1.pix2ang(ipix))
+
+
+//add cell index
+val input1=input
+  .withColumn("theta",F.radians(F.lit(90)-F.col("DEC")))
+  .withColumn("phi",F.radians("RA"))
+  .withColumn("cellpix",Ang2Pix1($"theta",$"phi"))
+  .drop("RA","DEC","theta","phi")
+  .cache
+
+
+//reduce to weighted pixmap
+val pixmap=input1.groupBy("cellpix").count()
+
+//add pixel centers
+val newinput=pixmap
+  .withColumn("ptg",Pix2Ang1($"cellpix"))
+  .select($"cellpix",$"ptg"(0) as "theta_s",$"ptg"(1) as "phi_s",$"count" as "w")
+  .drop("ptg","RA","DEC")
+  .cache
+
+val Nin=newinput.count
+println(f"-> new size=${Nin/1e6}%3.2f M")
+timer.step
+timer.print(s" nside=$nside1 data reduction")
+
+// 2- JOIN depending on rmax
+val i=floor(-log(rmax)/log(2.0)).toInt
+val NSIDE=pow(2,i).toInt
+//val NSIDE=pow(2,i-1).toInt
+println(s"$tmax arcmin -> nside=$NSIDE")
+
+val grid = HealpixGrid(new HealpixBase(NSIDE, NESTED), new ExtPointing)
 def Ang2pix=spark.udf.register("Ang2pix",(theta:Double,phi:Double)=>grid.index(theta,phi))
 def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Long)=>grid.neighbours(ipix))
 
@@ -65,19 +107,14 @@ val df_all=spark.read.format("fits").option("hdu",1).load(System.getenv("FITSSOU
 val input=df_all.filter($"z".between(zmin,zmax)).drop("z")
  */
 //parquet
-val input=spark.read.parquet(System.getenv("INPUT")).drop("ipix","z")
 
-val timer=new Timer
-val start=timer.time
-
-val source=input.withColumn("id",F.monotonicallyIncreasingId)
-  .withColumn("theta_s",F.radians(F.lit(90)-F.col("DEC")))
-  .withColumn("phi_s",F.radians("RA"))
+val source=newinput
+  .withColumnRenamed("cellpix","id")
   .withColumn("ipix",Ang2pix($"theta_s",$"phi_s"))
   .withColumn("x_s",F.sin($"theta_s")*F.cos($"phi_s"))
   .withColumn("y_s",F.sin($"theta_s")*F.sin($"phi_s"))
   .withColumn("z_s",F.cos($"theta_s"))
-  .drop("RA","DEC","theta_s","phi_s")
+  .drop("theta_s","phi_s")
 //  .repartition(numPart,$"ipix")
   .cache()
 
@@ -110,6 +147,7 @@ val dup=dups.reduceLeft(_.union(_))
   .withColumnRenamed("x_s","x_t")
   .withColumnRenamed("y_s","y_t")
   .withColumnRenamed("z_s","z_t")
+  .withColumnRenamed("w","w2")
   .cache
 
 println("*** caching duplicates: "+dup.columns.mkString(", "))
@@ -146,6 +184,8 @@ val edges=pairs
   .drop("r2")
   .withColumn("ibin",(($"logr"-lrmin)/b).cast(IntegerType))
   .drop("logr")
+  .withColumn("prod",$"w"*$"w2")
+  .drop("w","w2")
 //  .persist(StorageLevel.MEMORY_AND_DISK)
 
 println("edges:")
@@ -153,7 +193,7 @@ edges.printSchema
 val np3=edges.rdd.getNumPartitions
 println("edges numParts="+np3)
 
-println("==> joining with nside2="+nside2+" output="+edges.columns.mkString(", "))
+println("==> joining with NSIDE="+NSIDE+" output="+edges.columns.mkString(", "))
 
 //val nedges=edges.count()
 //println(f"#edges=${nedges/1e9}%3.2f G")
@@ -165,8 +205,7 @@ timer.print("join")
 
 ///////////////////////////////////
 //4 binning
-
-val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("ibin").cache
+val binned=edges.groupBy("ibin").agg(F.sum($"prod") as "Nbin").sort("ibin").cache
 
 //val binned=edges.rdd.map(r=>(r.getInt(0),r.getLong(1))).reduceByKey(_+_).toDF("ibin","Nbin")
 
@@ -204,7 +243,7 @@ val nodes=System.getenv("SLURM_JOB_NUM_NODES")
 
 println("Summary: ************************************")
 println("@| t0 | t1 | Nbins | log(bW) | nside | Ns |  Ne  | time")
-println(f"@| $tmin%.2f | $tmax%.2f | ${imax-imin+1} | $b_arcmin%g | $nside2 | $Ns%g | $nedges%g | $fulltime%.2f")
+println(f"@| $tmin%.2f | $tmax%.2f | ${imax-imin+1} | $b_arcmin%g | $NSIDE | $Ns%g | $nedges%g | $fulltime%.2f")
 println(f"@ nodes=$nodes parts=($np1 | $np2 | $np3): source=${tsource.toInt}s dups=${tdup.toInt}s join=${tjoin.toInt}s bins=${tbin.toInt} |  tot=$fulltime%.2f mins")
 
 
@@ -212,5 +251,6 @@ println(f"@ nodes=$nodes parts=($np1 | $np2 | $np3): source=${tsource.toInt}s du
 binning.join(binned,"ibin").show(Nbins,truncate=false)
 sumbins.show
 
+spark.close
 
 System.exit(0)
