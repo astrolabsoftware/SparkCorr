@@ -169,22 +169,20 @@ timer.print("join")
 val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("ibin").cache
 
 //val binned=edges.rdd.map(r=>(r.getInt(0),r.getLong(1))).reduceByKey(_+_).toDF("ibin","Nbin")
+
+
 //println("#bins="+binned.count)
-binned.count
-
-//binned.show(100)
-//binned.agg(F.sum($"Nbin")).show
-//joli output
-
-val tbin=timer.step
-timer.print("binning")
+binned.show(Nbins)
 
 //nedges
 val sumbins=binned.agg(F.sum($"Nbin"))
 val nedges=sumbins.take(1)(0).getLong(0)
 
-/*
+val tbin=timer.step
+timer.print("binning")
 
+
+/*
 //degree
 val deg=edges.groupBy("id").count
 dup.unpersist
