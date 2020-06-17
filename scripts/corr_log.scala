@@ -204,7 +204,7 @@ val nodes=System.getenv("SLURM_JOB_NUM_NODES")
 
 println("Summary: ************************************")
 println("@| t0 | t1 | Nbins | log(bW) | nside | Ns |  Ne  | time")
-println(f"@| $tmin | $tmax | ${imax-imin+1} | $b_arcmin%g | $nside2 | $Ns%g | $nedges%g | $fulltime%.2f")
+println(f"@| $tmin%.2f | $tmax%.2f | ${imax-imin+1} | $b_arcmin%g | $nside2 | $Ns%g | $nedges%g | $fulltime%.2f")
 println(f"@ nodes=$nodes parts=($np1 | $np2 | $np3): source=${tsource.toInt}s dups=${tdup.toInt}s join=${tjoin.toInt}s bins=${tbin.toInt} |  tot=$fulltime%.2f mins")
 
 
