@@ -171,7 +171,7 @@ val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("i
 //val binned=edges.rdd.map(r=>(r.getInt(0),r.getLong(1))).reduceByKey(_+_).toDF("ibin","Nbin")
 
 
-//println("#bins="+binned.count)
+println("#bins="+binned.count)
 binned.show(Nbins)
 
 //nedges
