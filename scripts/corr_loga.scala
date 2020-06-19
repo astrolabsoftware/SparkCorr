@@ -37,8 +37,12 @@ val bins=t.sliding(2).toList
 val tmin=t.head
 val tmax=t.last
 
-val binning=sc.parallelize(bins.zipWithIndex).toDF("interval","ibin").withColumn("width",$"interval"(1)-$"interval"(0)).select("ibin","interval","width")
-binning.cache.count
+val binning=sc.parallelize(bins.zipWithIndex).toDF("interval","ibin")
+  .withColumn("bin",$"ibin"+imin)
+  .withColumn("width",$"interval"(1)-$"interval"(0))
+  .select("ibin","bin","interval","width")
+
+println(binning.cache.count)
 binning.show(truncate=false)
 
 //extrait!
@@ -237,13 +241,13 @@ println(s"TOT TIME=${fulltime} mins")
 val nodes=System.getenv("SLURM_JOB_NUM_NODES")
 
 println("Summary: ************************************")
-println("@| t0 | t1 | Nbins | log(bW) | nside1 | nsideJ | Ns |  Ne  | time")
-println(f"@| $tmin%.2f | $tmax%.2f | ${imax-imin+1} | $b_arcmin%g | $nside1 | $NSIDE | $Ns%g | $nedges%g | $fulltime%.2f")
+println("@ imin | imax | tmin | tmax | Nbins | log(bW) | nside1 | nsideJ | Ns |  Ne  | nodes | time")
+println(f"@@ $imin | $imax | $tmin%.2f | $tmax%.2f | ${imax-imin+1} | $b_arcmin%g | $nside1 | $NSIDE | $Ns%g | $nedges%g | $nodes | $fulltime%.2f")
 println(f"@ nodes=$nodes parts=($np1 | $np2 | $np3): red=${tred.toInt}s source=${tsource.toInt}s dups=${tdup.toInt}s join=${tjoin.toInt}s bins=${tbin.toInt} |  tot=$fulltime%.2f mins")
 
 
 //nice output+sum
-binning.join(binned,"ibin").show(Nbins,truncate=false)
+binning.join(binned,"ibin").drop("ibin").show(Nbins,truncate=false)
 sumbins.show
 
 spark.close

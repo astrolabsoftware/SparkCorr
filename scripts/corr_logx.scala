@@ -47,11 +47,11 @@ val r2max=rmax*rmax
 
 // automatic join nside on rmax
 val i=floor(-log(rmax)/log(2.0)).toInt
-val nside2=pow(2,i).toInt
-//val nside2=pow(2,i-1).toInt
-println(s"$tmax arcmin -> nside=$nside2")
+val NSIDE=pow(2,i).toInt
+//val NSIDE=pow(2,i-1).toInt
+println(s"$tmax arcmin -> nside=$NSIDE")
 
-val grid = HealpixGrid(new HealpixBase(nside2, NESTED), new ExtPointing)
+val grid = HealpixGrid(new HealpixBase(NSIDE, NESTED), new ExtPointing)
 def Ang2pix=spark.udf.register("Ang2pix",(theta:Double,phi:Double)=>grid.index(theta,phi))
 def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Long)=>grid.neighbours(ipix))
 
@@ -153,7 +153,7 @@ edges.printSchema
 val np3=edges.rdd.getNumPartitions
 println("edges numParts="+np3)
 
-println("==> joining with nside2="+nside2+" output="+edges.columns.mkString(", "))
+println("==> joining with NSIDE="+NSIDE+" output="+edges.columns.mkString(", "))
 
 //val nedges=edges.count()
 //println(f"#edges=${nedges/1e9}%3.2f G")
@@ -202,10 +202,12 @@ println(s"TOT TIME=${fulltime} mins")
 
 val nodes=System.getenv("SLURM_JOB_NUM_NODES")
 
+
 println("Summary: ************************************")
-println("@| t0 | t1 | Nbins | log(bW) | nside | Ns |  Ne  | time")
-println(f"@| $tmin%.2f | $tmax%.2f | ${imax-imin+1} | $b_arcmin%g | $nside2 | $Ns%g | $nedges%g | $fulltime%.2f")
+println("@ imin | imax | tmin | tmax | Nbins | log(bW) | nside1 | nsideJ | Ns |  Ne  | time")
+println(f"@@ $imin | $imax | $tmin%.2f | $tmax%.2f | ${imax-imin+1} | NaN | NaN  | $NSIDE | $Ns%g | $nedges%g | $nodes | $fulltime%.2f")
 println(f"@ nodes=$nodes parts=($np1 | $np2 | $np3): source=${tsource.toInt}s dups=${tdup.toInt}s join=${tjoin.toInt}s bins=${tbin.toInt} |  tot=$fulltime%.2f mins")
+
 
 
 //nice output+sum
