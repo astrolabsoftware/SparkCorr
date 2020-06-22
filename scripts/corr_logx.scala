@@ -19,6 +19,7 @@ val args = sc.getConf.get("spark.driver.args").split("\\s+")
 
 val imin=args(0).toInt
 val imax=args(1).toInt
+val numPart=args(2).toInt
 
 //constant log binning
 val Nbins=20
@@ -78,7 +79,8 @@ val source=input.withColumn("id",F.monotonicallyIncreasingId)
   .withColumn("y_s",F.sin($"theta_s")*F.sin($"phi_s"))
   .withColumn("z_s",F.cos($"theta_s"))
   .drop("RA","DEC","theta_s","phi_s")
-//  .repartition(numPart,$"ipix")
+  //.repartition(numPart,$"ipix")
+  .repartitionByCol("ipix",preLabeled=false, numPartitions=12*NSIDE*NSIDE)
   .cache()
 
 val np1=source.rdd.getNumPartitions
@@ -110,6 +112,8 @@ val dup=dups.reduceLeft(_.union(_))
   .withColumnRenamed("x_s","x_t")
   .withColumnRenamed("y_s","y_t")
   .withColumnRenamed("z_s","z_t")
+  //.repartition(numPart,$"ipix")
+  .repartitionByCol("ipix",preLabeled=false, numPartitions=12*NSIDE*NSIDE)
   .cache
 
 println("*** caching duplicates: "+dup.columns.mkString(", "))
