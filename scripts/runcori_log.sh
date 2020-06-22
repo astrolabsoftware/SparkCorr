@@ -53,7 +53,7 @@ JARS=\$LIBS/jhealpix.jar,\$LIBS/spark-fits.jar,\$LIBS/spark3d.jar
 
 #partitions
 nodes=\$((\$SLURM_JOB_NUM_NODES-1))
-ncores=\$((\$nodes*32))
+ncores=\$((3*\$nodes*32))
 part=\$ncores
 
 shifter spark-shell $SPARKOPTS --jars \$JARS --conf spark.driver.args="${@:1} \$part" -I hpgrid.scala -I Timer.scala -i $myexec
