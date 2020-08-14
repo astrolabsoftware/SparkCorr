@@ -1,10 +1,10 @@
 name := "SparkCorr"
-version := "1.0"
+version := "0.1"
+
 scalaVersion := "2.11.12"
 
 organization := "com.github.astrolabsoftware"
 
-version := "4.1"
 
 //mainClass in Compile := Some("com.jec.rpdbscan.Demo")
 
