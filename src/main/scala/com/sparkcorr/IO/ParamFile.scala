@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.astrolabsoftware.sparkcorr.IO
+package com.sparkcorr.IO
+
+import org.apache.spark.sql.{SparkSession}
+import org.apache.spark.SparkContext
+import org.apache.log4j.{Level, Logger}
+
 
 import scala.io.Source
 import collection.mutable.Map
@@ -51,10 +56,34 @@ object ParamFile {
     m
   }
 
-  def main(args:Array[String])= {
-    require(args.size==1)
+  def main(args:Array[String]):Unit= {
+
+    require(args.size==1 && scala.reflect.io.File(args(0)).exists)
+    val file=args(0)
+
+   // Set verbosity
+    Logger.getLogger("org").setLevel(Level.OFF)
+    Logger.getLogger("akka").setLevel(Level.OFF)
+
+    /*
+    val spark = SparkSession
+      .builder()
+      .appName("random_rgg")
+      .getOrCreate()
+
+    val sc: SparkContext = spark.sparkContext
+     */
+
+    println(s"reading $file")
     val params=new ParamFile(args(0))
     println(params)
+    val a=params.find("a",0L)
+    val b=params.find("b","nice")
+    val c=params.find("c",1.0)
+    println(s"a=$a b=$b c=$c")
+
+
+
   }
 
 }
