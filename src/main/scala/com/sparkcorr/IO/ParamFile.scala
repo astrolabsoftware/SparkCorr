@@ -62,8 +62,8 @@ object ParamFile {
     val file=args(0)
 
    // Set verbosity
-    Logger.getLogger("org").setLevel(Level.OFF)
-    Logger.getLogger("akka").setLevel(Level.OFF)
+    Logger.getLogger("org").setLevel(Level.WARN)
+    Logger.getLogger("akka").setLevel(Level.WARN)
 
     /*
     val spark = SparkSession
