@@ -1,6 +1,6 @@
 #!/bin/bash
 
-myexec="ParamFile"
+myexec="Tiling.Point"
 args=$*
 
 # Package it
@@ -17,7 +17,7 @@ SPARKOPTS="--master local[*] --driver-class-path=$PWD "
 fi
 
 cmd="spark-submit $SPARKOPTS \
-     --class com.sparkcorr.IO.$myexec \
+     --class com.sparkcorr.$myexec \
      $PWD/target/scala-${SCALA_VERSION_SPARK}/sparkcorr_${SCALA_VERSION_SPARK}-$VERSION.jar $args"
 
 
