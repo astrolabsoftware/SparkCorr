@@ -17,7 +17,7 @@ package com.sparkcorr.Geometry
 
 import org.apache.log4j.{Level, Logger}
 
-import scala.math.{atan2,acos}
+import scala.math.{atan2,acos,sqrt}
 
 //point nD
 class Point (val coord:List[Double]){
@@ -33,7 +33,7 @@ class Point (val coord:List[Double]){
   def / (s:Double):Point= new Point(coord.map(x=>x/s))
   def dot(p:Point):Double=(coord,p.coord).zipped.map(_ * _).sum
 
-  def norm():Double=coord.map(x=>x*x).sum
+  def norm():Double=sqrt(coord.map(x=>x*x).sum)
   //def norm():Double=coord.reduceLeft((x1,x2)=>x1*x1+x2*x2)
 
   def dist2(p:Point)={

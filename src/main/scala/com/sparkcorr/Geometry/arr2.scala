@@ -16,19 +16,19 @@
 package com.sparkcorr.Geometry
 
 
-//@ val m=Map[Int,(Double,Double)=>(Double,Double,Double)]() 
+//@ val projector=Map[Int,(Double,Double)=>(Double,Double,Double)]() 
 
-//* a simple utility for 2D squared arrays */
+//* a utility for 2D squared arrays of objects*/
 
-class arr2(N:Int) {
+class arr2[A: Manifest](N:Int) {
   val size=N
-  val a=Array.ofDim[Double](N,N)
+  val a=Array.ofDim[A](N,N)
 
-  //elements access through parentheses
-  def apply(i:Int):Array[Double]=a(i)
-  def apply(i:Int,j:Int):Double=a(i)(j)
+  //rw elements with parentheses
+  def apply(i:Int,j:Int):A=a(i)(j)
+  def update(i:Int,j:Int,v:A)=a(i)(j)=v
 
 }
 object arr2 {
-  def apply(n:Int)=new arr2(n)
+  def apply[A:Manifest](n:Int)=new arr2[A](n)
 }
