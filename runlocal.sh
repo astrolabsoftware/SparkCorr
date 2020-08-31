@@ -1,6 +1,6 @@
 #!/bin/bash
 
-myexec="Geometry.Point"
+myexec="Tiling.CubedSphere"
 args=$*
 
 # Package it
