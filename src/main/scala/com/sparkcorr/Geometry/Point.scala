@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.sparkcorr.Tiling
+package com.sparkcorr.Geometry
 
 import org.apache.log4j.{Level, Logger}
 
