@@ -51,9 +51,12 @@ class Point2D(val x:Double,val y:Double) extends Point(x::y::Nil)
   */
 class Point3D(val x:Double,val y:Double,val z:Double) extends Point(x::y::z::Nil) {
 
-  /** spherical coordinates : theta [0,pi] ,phi [0,2pi]
-    * when you are sure point lies on unit sphere
+  /** conversion from Point to Point3D */
+  def this(p:Point)=this(p(0),p(1),p(2))
+
+  /** get spherical coordinates : theta [0,pi] ,phi [0,2pi]
     */
+   /** when you are sure point lies on unit sphere */
   def unitAngle():Tuple2[Double,Double]={
   (atan2(y,x),acos(z))
   }
@@ -69,9 +72,11 @@ class Point3D(val x:Double,val y:Double,val z:Double) extends Point(x::y::z::Nil
 
 
 
-//use companion factory method to create objects
+//companion for creation, test and static methods
 object Point {
   def apply(c:Double*)=new Point(c.toList)
+
+  def barycenter(l:List[Point]):Point = l.reduceLeft(_+_)/l.size
 
   //test
   def main(args:Array[String]):Unit= {
