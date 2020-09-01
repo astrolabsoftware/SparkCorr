@@ -46,15 +46,8 @@ class CubedSphere(n:Int) {
 
   /** use this function to get the list of valid pixels 
     */
-  def pixNums():Array[Int]={  
-    val pixnum=new Array[Int](6*N*N) 
-    var ic=0
-    for (f <- 0 to 5; i<-0 until N; j<-0 until N){
-      pixnum(ic)=coord2pix(f,i,j)
-      ic+=1
-    }
-    pixnum
-  }
+  def pixNums()=for {f <- 0 to 5; i<-0 until N; j<-0 until N} yield coord2pix(f,i,j)
+
 
   // array for fast access
   val pixcenter=new Array[(Double,Double)](Nmax+1)
