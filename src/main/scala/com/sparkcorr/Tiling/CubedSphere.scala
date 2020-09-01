@@ -31,7 +31,6 @@ class CubedSphere(n:Int) {
   val nodes=new Array[arr2[Point]](6)
   val centers=new Array[arr2[Point3D]](6)
 
-
   // pixel numbering
 
   /**transformationm to/from (face,i,j) */
@@ -42,15 +41,23 @@ class CubedSphere(n:Int) {
     * but better use pixNums function
     */
   val Nmax=N*N*10-5
-  def isPixValid(ipix:Int):Boolean={val (f,i,j)=pix2coord(ipix); f<6 & i<N & j<N}
+  def isValidPix(ipix:Int):Boolean={val (f,i,j)=pix2coord(ipix); f<6 & i<N & j<N}
 
   /** use this function to get the list of valid pixels 
     */
   def pixNums()=for {f <- 0 to 5; i<-0 until N; j<-0 until N} yield coord2pix(f,i,j)
 
-
   // array for fast access
   val pixcenter=new Array[(Double,Double)](Nmax+1)
+
+  /** get pixel centers 
+  * output is a (theta,phi) tuple
+    */ 
+  def ang2pix(ipix:Int):(Double,Double)= pixcenter(ipix)
+
+
+
+
 
   buildEqualAngleNodes()
   buildCenters()
@@ -109,10 +116,6 @@ class CubedSphere(n:Int) {
 
     val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fn,false)))
     for (f <- 0 to 5; i<-0 until N; j<-0 until N){
-      val ipix=coord2pix(f,i,j)
-      val (fb,ib,jb)=pix2coord(ipix)
-      println(f,fb,i,ib,j,jb,ipix,isPixValid(ipix))
-
       val p=centers(f)(i,j)
       val x=p.x
       val y=p.y
@@ -128,38 +131,16 @@ class CubedSphere(n:Int) {
     //pixels numbering
   def writeAngles(fn:String):Unit={
 
-    //val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fn,false)))
-    for ( ipix <- 0 to Nmax; if isPixValid(ipix)){
-      //val (tet,phi)=pixcenter(ipix)
-      println("ipix"+ipix)
-      //val s=f"$ipix%d\t$tet%f\t$phi%f\n"
-      //writer.write(s)
+    val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fn,false)))
+    for ( ipix <- pixNums) {
+      val (tet,phi)=ang2pix(ipix)
+      val s=f"$ipix%d\t$tet%f\t$phi%f\n"
+      writer.write(s)
     }
-
-  //writer.close
-  //println(fn+ " written")
+  writer.close
+  println(fn+ " written")
 
   }
-
-  def testPix()={
-
-    for (f <- 0 to 5; i<-0 until N; j<-0 until N){
-      val ipix=coord2pix(f,i,j)
-      val (fb,ib,jb)=pix2coord(ipix)
-      println(f,fb,i,ib,j,jb,ipix,isPixValid(ipix))
-
-    }
-    println("Nmax="+Nmax)
-    println("test ipix")
-    for (ipix <- pixNums()) {
-      require(isPixValid(ipix)) 
-      println(ipix,pix2coord(ipix))
-    }
-
-
-  }
-
-
 
 }
 
@@ -173,9 +154,8 @@ object CubedSphere {
 
     println("hello from CubedSphere")
     val tiling=new CubedSphere(args(0).toInt)
-    //tiling.writeCenters("centers.txt")
-    //tiling.writeAngles("tetphi.txt")
-    tiling.testPix()
+    tiling.writeCenters("centers.txt")
+    tiling.writeAngles("tetphi.txt")
 
 
 
