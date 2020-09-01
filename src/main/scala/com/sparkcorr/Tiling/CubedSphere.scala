@@ -22,9 +22,9 @@ import org.apache.log4j.{Level, Logger}
 import java.io._
 import java.util.Locale
 
-class CubedSphere(n:Int) {
+class CubedSphere(Nface:Int) {
 
-  val N:Int=n
+  val N:Int=Nface
   val a=1/sqrt(3.0)
 
   //grid
