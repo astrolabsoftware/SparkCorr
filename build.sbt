@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-
-name := "SparkCorr"
-version := "0.1"
-
-scalaVersion := "2.11.12"
-
-organization := "com.github.astrolabsoftware"
+import Dependencies._
 
 
-//mainClass in Compile := Some("com.jec.rpdbscan.Demo")
-
-libraryDependencies ++= Seq(
-  "org.apache.spark" %% "spark-core" % "2.4.5" % "provided",
-  "org.apache.spark" %% "spark-sql" % "2.4.5" % "provided",
-  "com.github.scopt" % "scopt_2.11" % "4.0.0-RC2"
-)
+lazy val root = (project in file(".")).
+ settings(
+   inThisBuild(List(
+     version      := "0.1"
+   )),
+   organization := "com.github.astrolabsoftware",
+   name := "SparkCorr",
+   scalaVersion := "2.11.12",
+   libraryDependencies ++= Seq(
+     "org.apache.spark" %% "spark-core" % "2.4.5" % "provided",
+     "org.apache.spark" %% "spark-sql" % "2.4.5" % "provided",
+     scalaTest % Test
+   )
+ )
 
 licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
