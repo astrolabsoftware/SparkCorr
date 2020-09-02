@@ -57,18 +57,18 @@ class CubedSphere(Nface:Int) {
   /** find pixel number corresponding to a given direction */
   def ang2pix(theta:Double,phi:Double):Int = {
     val face=getFace(theta,phi)
-    val (x,y)=ang2cube(face)(Pi/2-theta,phi)
+    val (x,y)=ang2Local(face)(Pi/2-theta,phi)
     0
   }
 
   /** (lat,lambda)=>(x,y)/a */
-  val ang2cube=new Array[(Double,Double)=>(Double,Double)](6)
-  ang2cube(0)=(t,l)=>(tan(l),tan(t)/cos(l))
-  ang2cube(1)=(t,l)=>(-1/tan(l),tan(t)/sin(l))
-  ang2cube(2)=(t,l)=>(tan(l),-tan(t)/cos(l))
-  ang2cube(3)=(t,l)=>(-1/tan(l),-tan(t)/sin(l))
-  ang2cube(4)=(t,l)=>(sin(l)/tan(t),-cos(l)/tan(t))
-  ang2cube(5)=(t,l)=>(-sin(l)/tan(t),-cos(l)/tan(t))
+  val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
+  ang2Local(0)=(t,l)=>(tan(l),tan(t)/cos(l))
+  ang2Local(1)=(t,l)=>(-1/tan(l),tan(t)/sin(l))
+  ang2Local(2)=(t,l)=>(tan(l),-tan(t)/cos(l))
+  ang2Local(3)=(t,l)=>(-1/tan(l),-tan(t)/sin(l))
+  ang2Local(4)=(t,l)=>(sin(l)/tan(t),-cos(l)/tan(t))
+  ang2Local(5)=(t,l)=>(-sin(l)/tan(t),-cos(l)/tan(t))
 
   /** (X,Y,Z)=>(x,y)/a */
 
