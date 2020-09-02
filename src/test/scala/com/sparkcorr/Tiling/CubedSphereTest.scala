@@ -21,19 +21,38 @@ import org.scalatest.{BeforeAndAfterAll, FunSuite}
   */
 class CubedSphereTest extends FunSuite with BeforeAndAfterAll {
 
+  var c: CubedSphere = _
+  val N:Int= 10
+
   override protected def beforeAll(): Unit = {
     super.beforeAll()
-    //val env=new CubedSphere(10)
+    c= new CubedSphere(N)
   }
 
-
-
-  test("Can you create the cube?") {
-
+  test("cubed sphere creation") {
     val cube=new CubedSphere(10)
-    assert(cube.N==10)
+    assert(cube.N==N)
 
   }
+
+  test("valid pixel numbers"){
+    for (ipix<-c.pixNums) {
+      assert(c.isValidPix(ipix)==true)
+    }
+
+  }
+
+
+  test("local coords to/from pixel number") {
+    for (ipix<-c.pixNums) {
+      val (f,i,j)=c.pix2coord(ipix)
+      assert(c.coord2pix(f,i,j)==ipix)
+    }
+  }
+
+
+
+
 
 
 }

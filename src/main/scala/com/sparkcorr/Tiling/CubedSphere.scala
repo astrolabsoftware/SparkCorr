@@ -31,7 +31,7 @@ class CubedSphere(Nface:Int) {
   val centers=new Array[arr2[Point3D]](6)
 
   // array for fast access
-  val pixcenter=new Array[(Double,Double)](N*N*10-5)
+  val pixcenter=new Array[(Double,Double)](N*N*10-4)
 
   buildEqualAngleNodes()
   buildCenters()
@@ -91,6 +91,7 @@ class CubedSphere(Nface:Int) {
   }
 
 
+  val a=1/sqrt(3.0)
   /** construct nodes on the sphere with a given strategy 
     *  here equal angles for each point on a 
     *  face viewed from the center 
@@ -100,19 +101,18 @@ class CubedSphere(Nface:Int) {
     /** equal angles*/
     val alpha=Array.tabulate(N+1)(i=>i*Pi/(2*N)-Pi/4)
 
-    val a=1/sqrt(3.0)
     /** project coordinates from face to unit sphere. index is the face */
-    val toSphere=new Array[(Double,Double)=>(Double,Double,Double)](6)
-    toSphere(0)=(x,y)=>{val r=sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
-    toSphere(1)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
-    toSphere(2)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
-    toSphere(3)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-x/r,-a/r,y/r)}
-    toSphere(4)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(y/r,x/r,a/r)}
-    toSphere(5)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
+    val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
+    projector(0)=(x,y)=>{val r=sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
+    projector(1)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
+    projector(2)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
+    projector(3)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-x/r,-a/r,y/r)}
+    projector(4)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(y/r,x/r,a/r)}
+    projector(5)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
 
     //build nodes
     for (f <- 0 to 5) {
-      val proj=toSphere(f)
+      val proj=projector(f)
       val thisface=new arr2[Point](N+1)
       for (i<-0 to N; j<-0 to N){
         val x=a*tan(alpha(i))
