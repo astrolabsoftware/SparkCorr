@@ -15,6 +15,7 @@
  */
 package com.sparkcorr.Tiling
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
+import scala.math.{Pi}
 
 /**
   * Test class for CubedSphere
@@ -42,13 +43,32 @@ class CubedSphereTest extends FunSuite with BeforeAndAfterAll {
 
   }
 
-
-  test("local coords to/from pixel number") {
+  test("pixnum to coord") {
     for (ipix<-c.pixNums) {
       val (f,i,j)=c.pix2coord(ipix)
       assert(c.coord2pix(f,i,j)==ipix)
     }
   }
+
+ test("coord to pixnum") {
+    for (f<-0 to 5; i<-0 until N; j<- 0 until N) {
+      val ipix=c.coord2pix(f,i,j)
+      assert(c.pix2coord(ipix)==(f,i,j))
+    }
+  }
+
+  test("face from angles") {
+    val tet=List(Pi/2,Pi/2,Pi/2,Pi/2,0,Pi)
+    val phi=List(0.0,Pi/2,Pi,3*Pi/2,0,0)
+
+    for (((t:Double,p:Double),f:Int) <- tet.zip(phi).zipWithIndex) {
+      val face=c.getFace(t,p)
+      assert(face==f)
+    }
+
+
+  }
+
 
 
 
