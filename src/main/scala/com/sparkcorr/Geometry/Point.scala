@@ -66,7 +66,9 @@ class Point3D(val x:Double,val y:Double,val z:Double) extends Point(x::y::z::Nil
   /** general case */
   def toAngle():Tuple3[Double,Double,Double]={
     val R=norm()
-    (R,atan2(y,x),acos(z/R))
+    val tet=acos(z)
+    val phi=atan2(y,x)
+    if (phi>0) (R,tet,phi) else (R,tet,phi+2*Pi)
   }
 
 

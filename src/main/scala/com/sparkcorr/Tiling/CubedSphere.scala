@@ -37,42 +37,47 @@ class CubedSphere(Nface:Int) {
   val step=Pi/2/N
   val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
 
-  //buildEqualAngleNodes()
-  /** project coordinates from face to unit sphere. index is the face */
-  val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
-  projector(0)=(x,y)=>{val r=sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
-  projector(1)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
-  projector(2)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
-  projector(3)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(x/r,-a/r,y/r)}
-  projector(4)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
-  projector(5)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
+  def buildEqualAngleNodes()={
+    /** project coordinates from face to unit sphere. index is the face */
+    val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
+    projector(0)=(x,y)=>{val r=sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
+    projector(1)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
+    projector(2)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
+    projector(3)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(x/r,-a/r,y/r)}
+    projector(4)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
+    projector(5)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
 
-  //build nodes
-  for (f <- 0 to 5) {
-    val proj=projector(f)
-    val thisface=new arr2[Point](N+1)
-    for (i<-0 to N; j<-0 to N){
-      val x=a*tan(alpha(i))
-      val y=a*tan(alpha(j))
-      val XYZ=proj(x,y)
-      val p=Point(XYZ._1,XYZ._2,XYZ._3)
-      thisface(i,j)=p
+    //build nodes
+    for (f <- 0 to 5) {
+      val proj=projector(f)
+      val thisface=new arr2[Point](N+1)
+      for (i<-0 to N; j<-0 to N){
+        val x=a*tan(alpha(i))
+        val y=a*tan(alpha(j))
+        val XYZ=proj(x,y)
+        val p=Point(XYZ._1,XYZ._2,XYZ._3)
+        thisface(i,j)=p
+      }
+      nodes(f)=thisface
     }
-    nodes(f)=thisface
   }
-  //buildCenters()
-  for (f <- 0 to 5) {
-    val face=new arr2[Point3D](N)
-    for(i<-0 until N;j<-0 until N){
-      val cell=nodes(f)(i,j)::nodes(f)(i+1,j)::nodes(f)(i,j+1)::nodes(f)(i+1,j+1)::Nil
-      val bary=Point.barycenter(cell)
-      face(i,j)=new Point3D(bary/bary.norm())
-      val ipix:Int=coord2pix(f,i,j)
-      pixcenter(ipix)=face(i,j).unitAngle
-    }
-    centers(f)=face
-  }
+  buildEqualAngleNodes()
 
+  /** build the pixel centers as barycenter of cells */
+  def buildCenters()={
+    for (f <- 0 to 5) {
+      val face=new arr2[Point3D](N)
+      for(i<-0 until N;j<-0 until N){
+        val cell=nodes(f)(i,j)::nodes(f)(i+1,j)::nodes(f)(i,j+1)::nodes(f)(i+1,j+1)::Nil
+        val bary=Point.barycenter(cell)
+        face(i,j)=new Point3D(bary/bary.norm())
+        val ipix:Int=coord2pix(f,i,j)
+        pixcenter(ipix)=face(i,j).unitAngle
+      }
+      centers(f)=face
+    }
+  }
+  buildCenters()
  
   /** pixels numbering */
 
