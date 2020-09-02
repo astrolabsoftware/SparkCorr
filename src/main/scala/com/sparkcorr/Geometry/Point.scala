@@ -17,7 +17,7 @@ package com.sparkcorr.Geometry
 
 import org.apache.log4j.{Level, Logger}
 
-import scala.math.{atan2,acos,sqrt}
+import scala.math.{atan2,acos,sqrt,Pi}
 
 //point nD
 class Point (val coord:List[Double]){
@@ -58,7 +58,10 @@ class Point3D(val x:Double,val y:Double,val z:Double) extends Point(x::y::z::Nil
     */
    /** when you are sure point lies on unit sphere */
   def unitAngle():Tuple2[Double,Double]={
-  (atan2(y,x),acos(z))
+    val tet=acos(z)
+    val phi=atan2(y,x)
+    if (phi>0) (tet,phi) else (tet,phi+2*Pi)
+
   }
   /** general case */
   def toAngle():Tuple3[Double,Double,Double]={

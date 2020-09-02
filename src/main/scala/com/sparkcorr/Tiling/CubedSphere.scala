@@ -16,7 +16,7 @@
 package com.sparkcorr.Tiling
 
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
-import scala.math.{sqrt,tan,Pi,abs,cos,sin}
+import scala.math.{sqrt,tan,Pi,abs,cos,sin,atan}
 
 import org.apache.log4j.{Level, Logger}
 import java.io._
@@ -26,15 +26,52 @@ class CubedSphere(Nface:Int) {
 
   val N:Int=Nface
 
-  //grid
+  //grid points
   val nodes=new Array[arr2[Point]](6)
   val centers=new Array[arr2[Point3D]](6)
 
   // array for fast access
   val pixcenter=new Array[(Double,Double)](N*N*10-4)
 
-  buildEqualAngleNodes()
-  buildCenters()
+  val a=1/sqrt(3.0)
+  val step=Pi/2/N
+  val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
+
+  //buildEqualAngleNodes()
+  /** project coordinates from face to unit sphere. index is the face */
+  val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
+  projector(0)=(x,y)=>{val r=sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
+  projector(1)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
+  projector(2)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
+  projector(3)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(x/r,-a/r,y/r)}
+  projector(4)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
+  projector(5)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
+
+  //build nodes
+  for (f <- 0 to 5) {
+    val proj=projector(f)
+    val thisface=new arr2[Point](N+1)
+    for (i<-0 to N; j<-0 to N){
+      val x=a*tan(alpha(i))
+      val y=a*tan(alpha(j))
+      val XYZ=proj(x,y)
+      val p=Point(XYZ._1,XYZ._2,XYZ._3)
+      thisface(i,j)=p
+    }
+    nodes(f)=thisface
+  }
+  //buildCenters()
+  for (f <- 0 to 5) {
+    val face=new arr2[Point3D](N)
+    for(i<-0 until N;j<-0 until N){
+      val cell=nodes(f)(i,j)::nodes(f)(i+1,j)::nodes(f)(i,j+1)::nodes(f)(i+1,j+1)::Nil
+      val bary=Point.barycenter(cell)
+      face(i,j)=new Point3D(bary/bary.norm())
+      val ipix:Int=coord2pix(f,i,j)
+      pixcenter(ipix)=face(i,j).unitAngle
+    }
+    centers(f)=face
+  }
 
  
   /** pixels numbering */
@@ -54,11 +91,18 @@ class CubedSphere(Nface:Int) {
   def pix2ang(ipix:Int):(Double,Double)= pixcenter(ipix)
 
 
-  /** find pixel number corresponding to a given direction */
+  /** find pixel number corresponding to a given direction 
+    *  for the equal angle case
+    */
   def ang2pix(theta:Double,phi:Double):Int = {
-    val face=getFace(theta,phi)
+    val face:Int=getFace(theta,phi)
     val (x,y)=ang2Local(face)(Pi/2-theta,phi)
-    0
+    val alpha=atan(x)
+    val beta=atan(y)
+    val i:Int=((alpha+Pi/4)/step).toInt
+    val j:Int=((beta+Pi/4)/step).toInt
+
+    coord2pix(face,i,j)
   }
 
   /** (lat,lambda)=>(x,y)/a */
@@ -91,55 +135,10 @@ class CubedSphere(Nface:Int) {
   }
 
 
-  val a=1/sqrt(3.0)
   /** construct nodes on the sphere with a given strategy 
     *  here equal angles for each point on a 
     *  face viewed from the center 
     */
-  def buildEqualAngleNodes()= {
-
-    /** equal angles*/
-    val alpha=Array.tabulate(N+1)(i=>i*Pi/(2*N)-Pi/4)
-
-    /** project coordinates from face to unit sphere. index is the face */
-    val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
-    projector(0)=(x,y)=>{val r=sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
-    projector(1)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
-    projector(2)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
-    projector(3)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-x/r,-a/r,y/r)}
-    projector(4)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(y/r,x/r,a/r)}
-    projector(5)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
-
-    //build nodes
-    for (f <- 0 to 5) {
-      val proj=projector(f)
-      val thisface=new arr2[Point](N+1)
-      for (i<-0 to N; j<-0 to N){
-        val x=a*tan(alpha(i))
-        val y=a*tan(alpha(j))
-        val XYZ=proj(x,y)
-        val p=Point(XYZ._1,XYZ._2,XYZ._3)
-        thisface(i,j)=p
-      }
-      nodes(f)=thisface
-    }
-  }
-
-
-  /**construct centers as cells barycenter */
-  def buildCenters()={
-    for (f <- 0 to 5) {
-      val face=new arr2[Point3D](N)
-      for(i<-0 until N;j<-0 until N){
-        val cell=nodes(f)(i,j)::nodes(f)(i+1,j)::nodes(f)(i,j+1)::nodes(f)(i+1,j+1)::Nil
-        val bary=Point.barycenter(cell)
-        face(i,j)=new Point3D(bary/bary.norm())
-        val ipix:Int=coord2pix(f,i,j)
-        pixcenter(ipix)=face(i,j).unitAngle
-      }
-      centers(f)=face
-    }
-  }
 
   //output centers
   def writeCenters(fn:String):Unit={
@@ -164,7 +163,8 @@ class CubedSphere(Nface:Int) {
     val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fn,false)))
     for ( ipix <- pixNums) {
       val (tet,phi)=pix2ang(ipix)
-      val s=f"$ipix%d\t$tet%f\t$phi%f\n"
+      val (f,i,j)=pix2coord(ipix)
+      val s=f"$f%d\t$i%d\t$j%d\t$tet%f\t$phi%f\n"
       writer.write(s)
     }
   writer.close
