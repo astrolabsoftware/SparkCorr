@@ -17,7 +17,7 @@ package com.sparkcorr.Geometry
 
 import org.apache.log4j.{Level, Logger}
 
-import scala.math.{atan2,acos,sqrt,Pi}
+import scala.math.{sin,cos,atan2,acos,sqrt,Pi}
 
 //point nD
 class Point (val coord:List[Double]){
@@ -36,11 +36,14 @@ class Point (val coord:List[Double]){
   def norm():Double=sqrt(coord.map(x=>x*x).sum)
   //def norm():Double=coord.reduceLeft((x1,x2)=>x1*x1+x2*x2)
 
-  def dist2(p:Point)={
+  def dist2(p:Point):Double={
     require(p.dim==dim)
     //p.coord zip coord map(x=>(x._1-x._2)*(x._1-x._2)) sum 
     (coord,p.coord).zipped.map(_-_).map(x=>x*x).reduceLeft(_+_)
   }
+
+  def dist(p:Point):Double=sqrt(dist2(p))
+
   override def toString = "Point("+coord.mkString(",")+")"
 } 
 
@@ -53,6 +56,9 @@ class Point3D(val x:Double,val y:Double,val z:Double) extends Point(x::y::z::Nil
 
   /** conversion from Point to Point3D */
   def this(p:Point)=this(p(0),p(1),p(2))
+
+  /* when 2 arguments are given assumed to be angles (theta,phi) on unit sphere*/
+  def this(theta:Double,phi:Double)=this(cos(phi)*sin(theta),sin(phi)*sin(theta),cos(theta))
 
   /** get spherical coordinates : theta [0,pi] ,phi [0,2pi]
     */
