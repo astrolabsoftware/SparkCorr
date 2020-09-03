@@ -77,9 +77,10 @@ class CubedSphere(Nface:Int) {
   // array for fast access
   val pixcenter:Array[(Double,Double)]=buildGrid
 
-  /** pixels numbering */
-
-  /** use this variable to accessthe list of valid pixels */
+  /** pixel numbering
+    * not continous (do not assume it is in the [0,6N^2-1] range, it is not)
+    * you should access the valid indices with the following function
+    */
   val pixNums=for {f <- 0 to 5; i<-0 until N; j<-0 until N} yield coord2pix(f,i,j)
 
   /**transformationm to/from (face,i,j) */
