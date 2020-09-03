@@ -27,7 +27,7 @@ import java.util.Locale
 class CubedSphereTest extends FunSuite with BeforeAndAfter {
 
   var c: CubedSphere = _
-  val N:Int= 500
+  val N:Int= 100
 
   before {
     Locale.setDefault(Locale.US)
@@ -38,7 +38,11 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
     assert(true)
   }
 
-  /*
+
+  test("Numbers of pixels shoudl be 6N^2"){
+    assert(c.pixNums.size==6*N*N)
+  }
+
 
   test("Valid pixel numbers"){
     for (ipix<-c.pixNums) {
@@ -89,7 +93,7 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
 
       for (t<-tet;p<-phi){
         val face=c.getFace(t,p)
-        val (x,y)=c.ang2Local(face)(Pi/2-t,p)
+        val (x,y)=c.ang2Local(face)(t,p)
         assert(abs(x)<1 & abs(y)<1,s"fail on f=$face")
       }
   }
@@ -104,7 +108,6 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
         assert(ipix==ipixback,f"\nipix=$ipix face=$face i=$i j=$j thetat=$theta%f phi=$phi%f\npixback=$ipixback face=$faceb i=$ib j=$jb")
       }
     }
-  */
 
 
   test("Pixels max radius") {
@@ -113,21 +116,17 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
     val Asq=4*Pi/(6*N*N)
     val Rmax=1.25*sqrt(Asq/2)
 
-    val Ntot=5000000
+    val Ntot=1000000
     //random angles
     val angles=Seq.fill(Ntot)((acos(2*Random.nextDouble-1),2*Pi*Random.nextDouble))
 
     for ((t,f) <- angles) {
       val ipix=c.ang2pix(t,f)
       val (tc,fc)=c.pix2ang(ipix)
-      /*
       val p=new Point3D(t,f)
       val cen=new Point3D(tc,fc)
       val r=cen.dist(p)
       assert(r<Rmax,s"\n ipix=$ipix theta=$t phi=$f r=$r")
-       */
-      assert(true)
-
     }
 
 

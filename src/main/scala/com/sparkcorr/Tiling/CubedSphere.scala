@@ -16,7 +16,8 @@
 package com.sparkcorr.Tiling
 
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
-import scala.math.{sqrt,tan,Pi,abs,cos,sin,atan}
+import scala.math.{sqrt,tan,Pi,abs,cos,sin,atan,acos}
+import scala.util.Random
 
 import org.apache.log4j.{Level, Logger}
 import java.io._
@@ -95,10 +96,12 @@ class CubedSphere(Nface:Int) {
 
   /** find pixel number corresponding to a given direction 
     *  for the equal angle case
+    *  use classical spherical coordinates, ie. 0<theta<Pi and 0<phi<2Pi
     */
   def ang2pix(theta:Double,phi:Double):Int = {
     val face:Int=getFace(theta,phi)
     val (x,y)=ang2Local(face)(theta,phi)
+    //val (face,(x,y))=ang2Pos(theta,phi)
     val alpha=atan(x)
     val beta=atan(y)
     val i:Int=((alpha+Pi/4)/step).toInt
@@ -106,6 +109,22 @@ class CubedSphere(Nface:Int) {
 
     coord2pix(face,i,j)
   }
+
+  /** return the face and local coordinates for a given angles */
+  def ang2Pos(theta:Double,phi:Double):(Int,(Double,Double)) = {
+
+    val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
+    val testy=ang2Local_y(testface)(theta,phi)
+
+    if (abs(testy)<1)
+      (testface,(ang2Local_x(testface)(theta,phi),testy))
+    else if (testy>1)
+      (4,ang2Local(4)(theta,phi))
+    else 
+      (5,ang2Local(5)(theta,phi))
+
+  }
+
 
   /** (theta,phi)=>(x,y) set of function for each face 
     *  we use the "standard" spherical coordinates, ie. 0<theta<Pi and 0<phi<2Pi
@@ -130,26 +149,17 @@ class CubedSphere(Nface:Int) {
       case f:Function2[Double,Double,(Double,Double)] => (x,y)=> f(x,y)._2
     }
   }
-
   val ang2Local_x=ang2Local.map(getx)
   val ang2Local_y=ang2Local.map(gety)
 
   def getFace(theta:Double,phi:Double):Int={
-    //possible face around azimuth
     val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
-    val t=tan(Pi/2-theta)
-    val c=cos(phi)
-    val s=sin(phi)
-    val y= testface match {
-      case 0 => t/c
-      case 1 => t/s
-      case 2 => -t/c
-      case 3 => -t/s
-    }
-    //
+    val y=ang2Local_y(testface)(theta,phi)
+
     if (abs(y)<1) testface
     else if (y>1) 4  
     else 5
+
   }
 
 
@@ -196,17 +206,62 @@ class CubedSphere(Nface:Int) {
 
 object CubedSphere {
 
+  def time[R](block: => R) = {
+    def print_result(s: String, ns: Long) = {
+      val formatter = java.text.NumberFormat.getIntegerInstance
+      println("%-16s".format(s) + formatter.format(ns) + " ms")
+    }
+
+    var t0 = System.nanoTime()/1000000
+    var result = block    // call-by-name
+    var t1 = System.nanoTime()/1000000
+
+    print_result("First Run", (t1 - t0))
+
+    var lst = for (i <- 1 to 5) yield {
+      t0 = System.nanoTime()/1000000
+      result = block    // call-by-name
+      t1 = System.nanoTime()/1000000
+      print_result("Run #" + i, (t1 - t0))
+      (t1 - t0).toLong
+    }
+
+    println("------------------------")
+    print_result("Max", lst.max)
+    print_result("Min", lst.min)
+    print_result("Avg", (lst.sum / lst.length))
+}
+
   def main(args:Array[String]):Unit= {
    // Set verbosity
     Logger.getLogger("org").setLevel(Level.WARN)
     Logger.getLogger("akka").setLevel(Level.WARN)
     Locale.setDefault(Locale.US)
 
-    println("hello from CubedSphere")
+    val N=args(0).toInt
+    println(s"constructing cubedsphere of size $N Npix=${6*N*N/1000000.0} M")
+
     val tiling=new CubedSphere(args(0).toInt)
+
+
+    /*
     tiling.writeCenters("centers.txt")
     tiling.writeAngles("tetphi.txt")
+     */
 
+    //random angles
+    val Ntot=args(1).toInt
+    println(s"done.\ncalling ang2pix on ${Ntot/1000000} M random angles")
+
+    //val angles=Seq.fill(Ntot)((acos(2*Random.nextDouble-1),2*Pi*Random.nextDouble))
+
+    val angles= for (i <-1 to Ntot) yield ((acos(2*Random.nextDouble-1),2*Pi*Random.nextDouble))
+
+    time {
+      for ((t,f) <- angles) {
+        tiling.pix2ang(tiling.ang2pix(t,f))
+      }
+    }
 
 
   }
