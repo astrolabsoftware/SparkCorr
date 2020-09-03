@@ -27,14 +27,12 @@ class CubedSphere(Nface:Int) {
 
   val N:Int=Nface
 
-  // array for fast access
-  val pixcenter=new Array[(Double,Double)](N*N*10-4)
-
   val a=1/sqrt(3.0)
   val step=Pi/2/N
 
-  def buildGrid()={
+  def buildGrid():Array[(Double,Double)]={
     /** compute equal-angle nodes */
+    val pixarray=new Array[(Double,Double)](N*N*10-4)
 
     /** project coordinates from face to unit sphere. index is the face */
     val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
@@ -69,15 +67,16 @@ class CubedSphere(Nface:Int) {
         val bary=Point.barycenter(cell)
         val cen=new Point3D(bary/bary.norm())
         val ipix:Int=coord2pix(face,i,j)
-        pixcenter(ipix)=cen.unitAngle
+        pixarray(ipix)=cen.unitAngle
       }
 
     }// end face
-
+    pixarray
   }
 
-  buildGrid()
- 
+  // array for fast access
+  val pixcenter:Array[(Double,Double)]=buildGrid
+
   /** pixels numbering */
 
   /** use this variable to accessthe list of valid pixels */
@@ -235,7 +234,7 @@ object CubedSphere {
     Locale.setDefault(Locale.US)
 
     val N=args(0).toInt
-    println(s"constructing cubedsphere of size $N Npix=${6*N*N/1000000.0} M")
+    println(s"-> Constructing cubedsphere of size $N Npix=${6*N*N/1000000.0} M")
 
     val tiling=new CubedSphere(args(0).toInt)
 
@@ -247,7 +246,7 @@ object CubedSphere {
 
     //random angles
     val Ntot=args(1).toInt
-    println(s"done.\ncalling ang2pix on ${Ntot/1000000} M random angles")
+    println(s"done.\n-> Calling ang2pix on ${Ntot/1000000} M random angles")
 
     //val angles=Seq.fill(Ntot)((acos(2*Random.nextDouble-1),2*Pi*Random.nextDouble))
 
