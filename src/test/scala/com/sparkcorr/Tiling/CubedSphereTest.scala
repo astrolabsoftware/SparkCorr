@@ -70,7 +70,7 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
 
   test("pix2ang returns angles in the correct range") {
     for (ipix<-c.pixNums) {
-      val (theta,phi)=c.pix2ang(ipix)
+      val Array(theta,phi)=c.pix2ang(ipix)
       assert(theta>=0 & theta<=Pi & phi>=0 & phi<=2*Pi,f"theta=$theta phi=$phi")
     }
   }
@@ -101,7 +101,7 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
 
     test("Ang2pix over pixel centers"){
       for (ipix<-c.pixNums) {
-        val (theta,phi)=c.pix2ang(ipix)
+        val Array(theta,phi)=c.pix2ang(ipix)
         val ipixback=c.ang2pix(theta,phi)
         val (face,i,j)=c.pix2coord(ipix)
         val (faceb,ib,jb)=c.pix2coord(ipixback)
@@ -122,7 +122,7 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
 
     for ((t,f) <- angles) {
       val ipix=c.ang2pix(t,f)
-      val (tc,fc)=c.pix2ang(ipix)
+      val Array(tc,fc)=c.pix2ang(ipix)
       val p=new Point3D(t,f)
       val cen=new Point3D(tc,fc)
       val r=cen.dist(p)

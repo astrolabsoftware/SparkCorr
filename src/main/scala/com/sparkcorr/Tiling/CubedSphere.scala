@@ -159,14 +159,11 @@ class CubedSphere(Nface:Int) extends Serializable{
   ang2Local(5)=(t,l)=>(-sin(l)*tan(t),-cos(l)*tan(t))
 
   //extract independent x/y functions
-  def getx(f:(Double,Double)=>(Double,Double)):(Double,Double)=>Double = f match {
-      case f:Function2[Double,Double,(Double,Double)] => (x,y)=> f(x,y)._1
-  }
-  def gety(f:(Double,Double)=>(Double,Double)):(Double,Double)=>Double = f match {
-      case f:Function2[Double,Double,(Double,Double)] => (x,y)=> f(x,y)._2
-  }
-  val ang2Local_x=ang2Local.map(getx)
-  val ang2Local_y=ang2Local.map(gety)
+  val ang2Local_x=ang2Local.map{
+     case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._1}
+  val ang2Local_y=ang2Local.map{
+     case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._2}
+
 
   def getFace(theta:Double,phi:Double):Int={
     val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
