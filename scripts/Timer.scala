@@ -1,4 +1,5 @@
 
+package com.sparkcorr.tools
 
 //Timer
 class Timer (var t0:Double=System.nanoTime().toDouble,   var dt:Double=0)  extends Serializable  {

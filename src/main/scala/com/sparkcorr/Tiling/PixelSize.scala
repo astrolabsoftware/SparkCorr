@@ -31,6 +31,7 @@ import healpix.essentials.Pointing
 import healpix.essentials.Vec3
 import healpix.essentials.Scheme.{NESTED,RING}
 
+import com.sparkcorr.tools.Timer
 
 class ExtPointing extends Pointing with java.io.Serializable
 case class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) {
@@ -87,6 +88,7 @@ object HealpixSize {
     def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.index(theta,phi))
     val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Long)=> grid.pix2ang(ipix))
 
+    val timer=new Timer()
 
     var df=spark.range(0,N).withColumn("theta",F.acos(F.rand*2-1.0)).withColumn("phi",F.rand*2*Pi).drop("id")
 
@@ -96,6 +98,8 @@ object HealpixSize {
     //add pixel center
     df=df.withColumn("ptg",Pix2Ang($"ipix")).withColumn("theta_c",$"ptg"(0)).withColumn("phi_c",$"ptg"(1)).drop("ptg")
 
+    println(df.count)
+    timer.print("Healpix Ang2Pix+Pix2Ang")
 
     df.write.mode("overwrite").parquet(s"hp_nside${nside}.parquet")
 
@@ -138,6 +142,8 @@ object CubedSphereSize {
 
     var df=spark.range(0,N).withColumn("theta",F.acos(F.rand*2-1.0)).withColumn("phi",F.rand*2*Pi).drop("id")
 
+    val timer=new Timer()
+
     //add pixelnum
     df=df.withColumn("ipix",Ang2Pix($"theta",$"phi"))
 
@@ -145,6 +151,9 @@ object CubedSphereSize {
     df=df.withColumn("ang",Pix2Ang($"ipix"))
 
     df=df.withColumn("theta_c",$"ang"(0)).withColumn("phi_c",$"ang"(1)).drop("ang")
+
+    println(df.count)
+    timer.print("Cubedsphere Ang2Pix+Pix2Ang")
 
     df.write.mode("overwrite").parquet(s"cs_nside${Nf}.parquet")
 
