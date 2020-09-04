@@ -76,7 +76,7 @@ object HealpixSize {
     //spark stuff
     val spark = SparkSession
       .builder()
-      .appName("RandomWalk")
+      .appName("HealpixSize")
       .getOrCreate()
 
     val sc: SparkContext = spark.sparkContext
