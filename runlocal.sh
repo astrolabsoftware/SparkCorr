@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #myexec="Tiling.CubedSphere"
-myexec="Tiling.HealpixSize"
+#myexec="Tiling.HealpixSize"
+myexec="Tiling.CubedSphereSize"
 args=$*
 
 # Package it

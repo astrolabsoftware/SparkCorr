@@ -9,7 +9,11 @@ import sys
 
 nside=int(sys.argv[1])
 
+#healpix
 Npix=12*nside**2
+#cubed
+Npix=6*nside**2
+
 Rsq=sqrt(4*pi/Npix/2)
 
 Nf=int(sqrt(pi/3)/Rsq)
@@ -18,7 +22,8 @@ print("nside={} Rsq={:.2f} arcmin Nf={}".format(nside,rad2arcmin(Rsq),Nf))
  
 spark = SparkSession.builder.getOrCreate()
 
-df=spark.read.parquet("hp_nside{}.parquet".format(nside))
+#df=spark.read.parquet("hp_nside{}.parquet".format(nside))
+df=spark.read.parquet("cs_{}.parquet".format(nside))
 
 df=df.withColumn("dx",F.degrees(F.sin((df["theta"]+df["theta_c"])/2)*(df["phi"]-df["phi_c"]))*60)
 df=df.withColumn("dy",F.degrees(df["theta"]-df["theta_c"])*60)
@@ -48,8 +53,8 @@ title("nside={}".format(nside))
 
 x,y,m=df_histplot2(df,"dx","dy",bounds=[[-maxr,maxr],[-maxr,maxr]],Nbin1=200,Nbin2=200)        
 clf()
-#imshowXY(x,y,log10(1+m))   
-imshowXY(x,y,m)
+imshowXY(x,y,log10(1+m))   
+#imshowXY(x,y,m)
 title("nside={}".format(nside))
 #savefig("nside{}_2d.png".format(nside))
  

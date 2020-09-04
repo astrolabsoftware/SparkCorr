@@ -85,12 +85,10 @@ object HealpixSize {
 
     val grid = HealpixGrid(new HealpixBase(nside, NESTED), new ExtPointing)
     def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.index(theta,phi))
-    val Pix2Ang=spark.udf.register("PixAang",(ipix:Long)=> grid.pix2ang(ipix))
+    val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Long)=> grid.pix2ang(ipix))
 
 
     var df=spark.range(0,N).withColumn("theta",F.acos(F.rand*2-1.0)).withColumn("phi",F.rand*2*Pi).drop("id")
-
-    println("#parts="+df.rdd.getNumPartitions)
 
     //add pixelnum
     df=df.withColumn("ipix",Ang2Pix($"theta",$"phi"))
@@ -100,6 +98,56 @@ object HealpixSize {
 
 
     df.write.mode("overwrite").parquet(s"hp_nside${nside}.parquet")
+
+  }
+
+}
+
+object CubedSphereSize {
+
+
+  def main(args:Array[String]):Unit= {
+
+    require(args.size==2)
+
+    //parameters
+    val Nf:Int=args(0).toInt
+    val N:Long=args(1).toLong
+
+    Locale.setDefault(Locale.US)
+
+   // Set verbosity
+    Logger.getLogger("org").setLevel(Level.WARN)
+    Logger.getLogger("akka").setLevel(Level.WARN)
+
+
+    //spark stuff
+    val spark = SparkSession
+      .builder()
+      .appName("CubedSphereSize")
+      .getOrCreate()
+
+    val sc: SparkContext = spark.sparkContext
+
+    import spark.implicits._
+
+    val grid = new CubedSphere(Nf)
+    def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
+    val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> grid.pix2ang(ipix))
+
+
+    var df=spark.range(0,N).withColumn("theta",F.acos(F.rand*2-1.0)).withColumn("phi",F.rand*2*Pi).drop("id")
+
+    //add pixelnum
+    df=df.withColumn("ipix",Ang2Pix($"theta",$"phi"))
+
+    //add pixel center
+    df=df.withColumn("ang",Pix2Ang($"ipix"))
+
+    df=df.withColumn("theta_c",$"ang"(0)).withColumn("phi_c",$"ang"(1)).drop("ang")
+
+    df.write.mode("overwrite").parquet(s"cs_${Nf}.parquet")
+
 
   }
 

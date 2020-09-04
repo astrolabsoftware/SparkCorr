@@ -109,7 +109,10 @@ class CubedSphere(Nface:Int) extends Serializable{
   /** get pixel centers 
   * output is a (theta,phi) tuple with 0<theta<pi, 0<phi<2pi
     */ 
-  def pix2ang(ipix:Int):(Double,Double)= pixcenter(ipix)
+  def pix2ang(ipix:Int):Array[Double]= { 
+    val (t:Double,f:Double)=pixcenter(ipix)
+    Array(t,f)
+  }
 
   /** find pixel number corresponding to a given direction 
     *  for the equal angle case
@@ -187,8 +190,8 @@ class CubedSphere(Nface:Int) extends Serializable{
     val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fn,false)))
     for (ipix <- pixNums) {
       val (f,i,j)=pix2coord(ipix)
-      val (tet,phi)=pix2ang(ipix)
-      val p=new Point3D(tet,phi)
+      val ang=pix2ang(ipix)
+      val p=new Point3D(ang(0),ang(1))
       val x=p.x
       val y=p.y
       val z=p.z
