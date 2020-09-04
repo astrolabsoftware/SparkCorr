@@ -146,7 +146,7 @@ object CubedSphereSize {
 
     df=df.withColumn("theta_c",$"ang"(0)).withColumn("phi_c",$"ang"(1)).drop("ang")
 
-    df.write.mode("overwrite").parquet(s"cs_${Nf}.parquet")
+    df.write.mode("overwrite").parquet(s"cs_nside${Nf}.parquet")
 
 
   }
