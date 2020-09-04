@@ -27,7 +27,7 @@ import java.io._
 import java.util.Locale
 
 
-class CubedSphere(Nface:Int) {
+class CubedSphere(Nface:Int) extends Serializable{
 
   /*
   val Pi=FastMath.PI
