@@ -17,7 +17,9 @@ package com.sparkcorr.Geometry
 
 import org.apache.log4j.{Level, Logger}
 
+//import org.apache.commons.math3.util.FastMath
 import scala.math.{sin,cos,atan2,acos,sqrt,Pi}
+import org.apache.commons.math3.util.FastMath
 
 //point nD
 class Point (val coord:List[Double]){

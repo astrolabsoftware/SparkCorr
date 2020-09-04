@@ -16,14 +16,31 @@
 package com.sparkcorr.Tiling
 
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
-import scala.math.{sqrt,tan,Pi,abs,cos,sin,atan,acos}
+
+import scala.math.{Pi,sqrt,tan,abs,cos,sin,atan,acos}
+//import org.apache.commons.math3.util.FastMath
+
 import scala.util.Random
 
 import org.apache.log4j.{Level, Logger}
 import java.io._
 import java.util.Locale
 
+
 class CubedSphere(Nface:Int) {
+
+  /*
+  val Pi=FastMath.PI
+  def abs(x:Double):Double=FastMath.abs(x)
+  def sqrt=FastMath.sqrt _
+  def cos=FastMath.cos _
+  def sin=FastMath.sin _
+  def tan=FastMath.tan _
+  def acos(x:Double)=FastMath.acos(x)
+  def asin=FastMath.asin _
+  def atan=FastMath.atan _
+  def atan2=FastMath.atan2 _
+   */
 
   val N:Int=Nface
 
@@ -183,24 +200,14 @@ class CubedSphere(Nface:Int) {
   println(fn+ " written")
 
    }
-    //pixels numbering
-  def writeAngles(fn:String):Unit={
-
-    val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fn,false)))
-    for ( ipix <- pixNums) {
-      val (tet,phi)=pix2ang(ipix)
-      val (f,i,j)=pix2coord(ipix)
-      val s=f"$f%d\t$i%d\t$j%d\t$tet%f\t$phi%f\n"
-      writer.write(s)
-    }
-  writer.close
-  println(fn+ " written")
-
-  }
-
+ 
 }
 
 object CubedSphere {
+
+  //FastMath
+  //val Pi=FastMath.PI
+  //def acos=FastMath.acos _
 
   def time[R](block: => R) = {
     def print_result(s: String, ns: Long) = {
@@ -242,14 +249,11 @@ object CubedSphere {
 
     /*
     tiling.writeCenters("centers.txt")
-    tiling.writeAngles("tetphi.txt")
      */
 
     //random angles
     val Ntot=args(1).toInt
     println(s"done.\n-> Calling ang2pix on ${Ntot/1000000} M random angles")
-
-    //val angles=Seq.fill(Ntot)((acos(2*Random.nextDouble-1),2*Pi*Random.nextDouble))
 
     val angles= for (i <-1 to Ntot) yield ((acos(2*Random.nextDouble-1),2*Pi*Random.nextDouble))
 
