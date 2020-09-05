@@ -107,13 +107,13 @@ class CubedSphere(Nface:Int) extends Serializable{
     *  use classical spherical coordinates, ie. 0<theta<Pi and 0<phi<2Pi
     */
   def ang2pix(theta:Double,phi:Double):Int = {
-    //val face:Int=getFace(theta,phi)
-    //val (x,y)=ang2Local(face)(theta,phi)
-    val (face,(x,y))=ang2Pos(theta,phi)
+    val face:Int=getFace(theta,phi)
+    val (x,y)=ang2Local(face)(theta,phi)
+    //val (face,(x,y))=ang2Pos(theta,phi)
     val alpha=math.atan(x)
     val beta=math.atan(y)
-    val i:Int=((alpha+Pi/4)/step).toInt
-    val j:Int=((beta+Pi/4)/step).toInt
+    val i:Int=math.floor((alpha+Pi/4)/step).toInt
+    val j:Int=math.floor((beta+Pi/4)/step).toInt
 
     coord2pix(face,i,j)
   }
@@ -121,14 +121,16 @@ class CubedSphere(Nface:Int) extends Serializable{
   /** return the face and local coordinates for a given angles */
   def ang2Pos(theta:Double,phi:Double):(Int,(Double,Double)) = {
 
+    /*
     val twoPi=2.0*Pi
     val halfPi=Pi/2.0
     val shiftphi= (phi+Pi/4.0)%twoPi
     //if (shiftphi>twoPi) shiftphi-=twoPi
     val testface=math.floor(shiftphi/halfPi).toInt
     //val testface=(shiftphi/halfPi).toInt
+     */
 
-    //val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
+    val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
 
     val testy=ang2Local_y(testface)(theta,phi)
     if (math.abs(testy)<1.0)
@@ -165,7 +167,7 @@ class CubedSphere(Nface:Int) extends Serializable{
     val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
     val y=ang2Local_y(testface)(theta,phi)
 
-    if (math.abs(y)<1) testface
+    if (math.abs(y)<=1.0) testface
     else if (y>1) 4  
     else 5
 
