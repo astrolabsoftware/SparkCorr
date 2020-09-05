@@ -25,19 +25,21 @@ spark = SparkSession.builder.getOrCreate()
 #df=spark.read.parquet("hp_nside{}.parquet".format(nside))
 df=spark.read.parquet(method+"_nside{}.parquet".format(nside))
 
-df=df.withColumn("dx",F.degrees(F.sin((df["theta"]+df["theta_c"])/2)*(df["phi"]-df["phi_c"]))*60)
-df=df.withColumn("dy",F.degrees(df["theta"]-df["theta_c"])*60)
+df=df.withColumn("dx",F.degrees(F.sin((df["theta"]+df["theta_c"])/2)*(df["phi"]-df["phi_c"]))*60/Rsq*sqrt(2))
+df=df.withColumn("dy",F.degrees(df["theta"]-df["theta_c"])*60/Rsq*sqrt(2))
 #df=df.withColumn("r",F.hypot(df["dx"],df["dy"]))
 
-df=df.withColumn("x",F.sin(df["theta"])*F.cos(df["phi"])).withColumn("y",F.sin(df["theta"])*F.sin(df["phi"])).withColumn("z",F.cos(df["theta"])).drop("theta","phi")
+df=df.withColumn("x",F.sin(df["theta"])*F.cos(df["phi"])).withColumn("y",F.sin(df["theta"])*F.sin(df["phi"])).withColumn("z",F.cos(df["theta"]))
+#.drop("theta","phi")
 
-df=df.withColumn("xc",F.sin(df["theta_c"])*F.cos(df["phi_c"])).withColumn("yc",F.sin(df["theta_c"])*F.sin(df["phi_c"])).withColumn("zc",F.cos(df["theta_c"])).drop("theta_c","phi_c")
+df=df.withColumn("xc",F.sin(df["theta_c"])*F.cos(df["phi_c"])).withColumn("yc",F.sin(df["theta_c"])*F.sin(df["phi_c"])).withColumn("zc",F.cos(df["theta_c"]))
+#.drop("theta_c","phi_c")
 
-df=df.withColumn("R",F.degrees(F.hypot(df.x-df.xc,F.hypot(df.y-df.yc,df.z-df.zc)))*60).drop("x","y","z","xc","yc","zc")
+df=df.withColumn("R",F.degrees(F.hypot(df.x-df.xc,F.hypot(df.y-df.yc,df.z-df.zc)))*60/Rsq)
+#.drop("x","y","z","xc","yc","zc")
 
 #distance in arcmin
 #df=df.withColumn("angdist",F.degrees(2*F.asin(df.rr/2))*60)
-df=df.withColumn("Rscaled",df.R/Rsq)
 
 df.cache().count()
 
@@ -46,25 +48,25 @@ maxr=df.select(F.max(df.R)).take(1)[0][0]
 print("max radius={} arcmin".format(maxr))
 
 #2d
-x,y,m=df_histplot2(df,"dx","dy",bounds=[[-maxr,maxr],[-maxr,maxr]],Nbin1=200,Nbin2=200)        
+x,y,m=df_histplot2(df,"dx","dy",bounds=[[-2,2],[-2,2]],Nbin1=200,Nbin2=200)        
 #imshowXY(x,y,m)
-xlabel(r"$\Delta x\quad [arcmin]$")
-ylabel(r"$\Delta y\quad [arcmin]$")
+xlabel(r"$\Delta x$")
+ylabel(r"$\Delta y$")
 title(tit)
 savefig(method+"_nside{}_2d.png".format(nside))
 
 #log
 figure()
 imshowXY(x,y,log10(1+m))   
-xlabel(r"$\Delta x\quad [arcmin]$")
-ylabel(r"$\Delta y\quad [arcmin]$")
+xlabel(r"$\Delta x$")
+ylabel(r"$\Delta y$")
 title(tit+" [log]")
 savefig(method+"_nside{}_2dlog.png".format(nside))
 
 
 #Rmax by pixel                                              
 dfpix=df.groupBy("ipix").agg(F.max(df["R"]))
-df_histplot(dfpix,dfpix.columns[1],doStat=True)
-xlabel("pixel radius [arcmin]")
+df_histplot(dfpix,dfpix.columns[1],bounds=[0.8,1.5],Nbins=100,doStat=True)
+xlabel("R")
 title(tit)
 savefig(method+"_nside{}_1d.png".format(nside))

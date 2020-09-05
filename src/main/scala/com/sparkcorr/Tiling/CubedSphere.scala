@@ -17,8 +17,9 @@ package com.sparkcorr.Tiling
 
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
-import scala.math.{Pi,sqrt,tan,abs,cos,sin,atan,acos}
-import org.apache.commons.math3.util.FastMath
+import scala.math
+//import org.apache.commons.math3.util.FastMath
+import scala.math.{Pi}
 
 import scala.util.Random
 
@@ -31,7 +32,7 @@ class CubedSphere(Nface:Int) extends Serializable{
 
   val N:Int=Nface
 
-  val a=1/sqrt(3.0)
+  val a=1/math.sqrt(3.0)
   val step=Pi/2/N
 
   def buildGrid():Array[(Double,Double)]={
@@ -40,12 +41,12 @@ class CubedSphere(Nface:Int) extends Serializable{
 
     /** project coordinates from face to unit sphere. index is the face */
     val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
-    projector(0)=(x,y)=>{val r=sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
-    projector(1)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
-    projector(2)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
-    projector(3)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(x/r,-a/r,y/r)}
-    projector(4)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
-    projector(5)=(x,y)=>{val r=sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
+    projector(0)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
+    projector(1)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
+    projector(2)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
+    projector(3)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(x/r,-a/r,y/r)}
+    projector(4)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
+    projector(5)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
 
     /** equal angles */
     val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
@@ -58,8 +59,8 @@ class CubedSphere(Nface:Int) extends Serializable{
 
       //fill nodes for this face
       for (i<-0 to N; j<-0 to N){
-        val x=a*tan(alpha(i))
-        val y=a*tan(alpha(j))
+        val x=a*math.tan(alpha(i))
+        val y=a*math.tan(alpha(j))
         val XYZ=proj(x,y)
         val p=Point(XYZ._1,XYZ._2,XYZ._3)
         nodes(i,j)=p
@@ -106,11 +107,11 @@ class CubedSphere(Nface:Int) extends Serializable{
     *  use classical spherical coordinates, ie. 0<theta<Pi and 0<phi<2Pi
     */
   def ang2pix(theta:Double,phi:Double):Int = {
-    val face:Int=getFace(theta,phi)
-    val (x,y)=ang2Local(face)(theta,phi)
-    //val (face,(x,y))=ang2Pos(theta,phi)
-    val alpha=FastMath.atan(x)
-    val beta=FastMath.atan(y)
+    //val face:Int=getFace(theta,phi)
+    //val (x,y)=ang2Local(face)(theta,phi)
+    val (face,(x,y))=ang2Pos(theta,phi)
+    val alpha=math.atan(x)
+    val beta=math.atan(y)
     val i:Int=((alpha+Pi/4)/step).toInt
     val j:Int=((beta+Pi/4)/step).toInt
 
@@ -120,12 +121,19 @@ class CubedSphere(Nface:Int) extends Serializable{
   /** return the face and local coordinates for a given angles */
   def ang2Pos(theta:Double,phi:Double):(Int,(Double,Double)) = {
 
-    val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
-    val testy=ang2Local_y(testface)(theta,phi)
+    val twoPi=2.0*Pi
+    val halfPi=Pi/2.0
+    val shiftphi= (phi+Pi/4.0)%twoPi
+    //if (shiftphi>twoPi) shiftphi-=twoPi
+    val testface=math.floor(shiftphi/halfPi).toInt
+    //val testface=(shiftphi/halfPi).toInt
 
-    if (abs(testy)<1)
+    //val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
+
+    val testy=ang2Local_y(testface)(theta,phi)
+    if (math.abs(testy)<1.0)
       (testface,(ang2Local_x(testface)(theta,phi),testy))
-    else if (testy>1)
+    else if (testy>1.0)
       (4,ang2Local(4)(theta,phi))
     else 
       (5,ang2Local(5)(theta,phi))
@@ -138,20 +146,13 @@ class CubedSphere(Nface:Int) extends Serializable{
     * The cube side lenght (a) is not included
     */
   val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
-  /*
-  ang2Local(0)=(t,l)=>(tan(l),1.0/tan(t)/cos(l))
-  ang2Local(1)=(t,l)=>(-1/tan(l),1.0/tan(t)/sin(l))
-  ang2Local(2)=(t,l)=>(tan(l),-1.0/tan(t)/cos(l))
-  ang2Local(3)=(t,l)=>(-1/tan(l),-1.0/tan(t)/sin(l))
-  ang2Local(4)=(t,l)=>(sin(l)*tan(t),-cos(l)*tan(t))
-  ang2Local(5)=(t,l)=>(-sin(l)*tan(t),-cos(l)*tan(t))
-   */
-  ang2Local(0)=(t,l)=>(FastMath.tan(l),1.0/FastMath.tan(t)/FastMath.cos(l))
-  ang2Local(1)=(t,l)=>(-1.0/FastMath.tan(l),1.0/FastMath.tan(t)/FastMath.sin(l))
-  ang2Local(2)=(t,l)=>(FastMath.tan(l),-1.0/FastMath.tan(t)/FastMath.cos(l))
-  ang2Local(3)=(t,l)=>(-1.0/FastMath.tan(l),-1.0/FastMath.tan(t)/FastMath.sin(l))
-  ang2Local(4)=(t,l)=>(FastMath.sin(l)*FastMath.tan(t),-FastMath.cos(l)*FastMath.tan(t))
-  ang2Local(5)=(t,l)=>(-FastMath.sin(l)*FastMath.tan(t),-FastMath.cos(l)*FastMath.tan(t))
+  ang2Local(0)=(t,l)=>(math.tan(l),1.0/math.tan(t)/math.cos(l))
+  ang2Local(1)=(t,l)=>(-1/math.tan(l),1.0/math.tan(t)/math.sin(l))
+  ang2Local(2)=(t,l)=>(math.tan(l),-1.0/math.tan(t)/math.cos(l))
+  ang2Local(3)=(t,l)=>(-1/math.tan(l),-1.0/math.tan(t)/math.sin(l))
+  ang2Local(4)=(t,l)=>(math.sin(l)*math.tan(t),-math.cos(l)*math.tan(t))
+  ang2Local(5)=(t,l)=>(-math.sin(l)*math.tan(t),-math.cos(l)*math.tan(t))
+
 
   //extract independent x/y functions
   val ang2Local_x=ang2Local.map{
@@ -164,7 +165,7 @@ class CubedSphere(Nface:Int) extends Serializable{
     val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
     val y=ang2Local_y(testface)(theta,phi)
 
-    if (abs(y)<1) testface
+    if (math.abs(y)<1) testface
     else if (y>1) 4  
     else 5
 
@@ -246,7 +247,7 @@ object CubedSphere {
     val Ntot=args(1).toInt
     println(s"done.\n-> Calling ang2pix on ${Ntot/1000000} M random angles")
 
-    val angles= for (i <-1 to Ntot) yield ((acos(2*Random.nextDouble-1),2*Pi*Random.nextDouble))
+    val angles= for (i <-1 to Ntot) yield ((math.acos(2*Random.nextDouble-1),2*Pi*Random.nextDouble))
 
     time {
       for ((t,f) <- angles) {

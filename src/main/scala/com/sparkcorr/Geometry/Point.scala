@@ -17,9 +17,12 @@ package com.sparkcorr.Geometry
 
 import org.apache.log4j.{Level, Logger}
 
+import scala.math.{Pi}
+
 //import org.apache.commons.math3.util.FastMath
-import scala.math.{sin,cos,atan2,acos,sqrt,Pi}
-import org.apache.commons.math3.util.FastMath
+
+import scala.math
+
 
 //point nD
 class Point (val coord:List[Double]){
@@ -35,7 +38,7 @@ class Point (val coord:List[Double]){
   def / (s:Double):Point= new Point(coord.map(x=>x/s))
   def dot(p:Point):Double=(coord,p.coord).zipped.map(_ * _).sum
 
-  def norm():Double=sqrt(coord.map(x=>x*x).sum)
+  def norm():Double=math.sqrt(coord.map(x=>x*x).sum)
   //def norm():Double=coord.reduceLeft((x1,x2)=>x1*x1+x2*x2)
 
   def dist2(p:Point):Double={
@@ -44,7 +47,7 @@ class Point (val coord:List[Double]){
     (coord,p.coord).zipped.map(_-_).map(x=>x*x).reduceLeft(_+_)
   }
 
-  def dist(p:Point):Double=sqrt(dist2(p))
+  def dist(p:Point):Double=math.sqrt(dist2(p))
 
   override def toString = "Point("+coord.mkString(",")+")"
 } 
@@ -60,22 +63,22 @@ class Point3D(val x:Double,val y:Double,val z:Double) extends Point(x::y::z::Nil
   def this(p:Point)=this(p(0),p(1),p(2))
 
   /* when 2 arguments are given assumed to be angles (theta,phi) on unit sphere*/
-  def this(theta:Double,phi:Double)=this(cos(phi)*sin(theta),sin(phi)*sin(theta),cos(theta))
+  def this(theta:Double,phi:Double)=this(math.cos(phi)*math.sin(theta),math.sin(phi)*math.sin(theta),math.cos(theta))
 
   /** get spherical coordinates : theta [0,pi] ,phi [0,2pi]
     */
    /** when you are sure point lies on unit sphere */
   def unitAngle():Tuple2[Double,Double]={
-    val tet=acos(z)
-    val phi=atan2(y,x)
+    val tet=math.acos(z)
+    val phi=math.atan2(y,x)
     if (phi>0) (tet,phi) else (tet,phi+2*Pi)
 
   }
   /** general case */
   def toAngle():Tuple3[Double,Double,Double]={
     val R=norm()
-    val tet=acos(z)
-    val phi=atan2(y,x)
+    val tet=math.acos(z)
+    val phi=math.atan2(y,x)
     if (phi>0) (R,tet,phi) else (R,tet,phi+2*Pi)
   }
 
