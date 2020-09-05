@@ -54,6 +54,8 @@ def df_histplot(df,col,Nbins=50,bounds=None,doStat=False):
     step=result[1]
     plt.figure()
     plt.bar(hp['loc'].values,hp['count'].values,step,color='white',edgecolor='black')
+    if (bounds != None):
+        plt.xlim(bounds)
     plt.xlabel(col)
     if doStat:
         s=df.describe([col])
@@ -68,7 +70,7 @@ def df_histplot(df,col,Nbins=50,bounds=None,doStat=False):
         ax=plt.gca()
         plt.text(0.8,0.7,"\n".join(stat), horizontalalignment='center',transform=ax.transAxes)
     plt.show()
-    return hp
+    return hp,step
 
 def df_histplot2(df,col1,col2,Nbin1=50,Nbin2=50,bounds=None,newfig=True,**kwargs):
 

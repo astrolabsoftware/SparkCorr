@@ -66,7 +66,7 @@ savefig(method+"_nside{}_2dlog.png".format(nside))
 
 #Rmax by pixel                                              
 dfpix=df.groupBy("ipix").agg(F.max(df["R"]))
-df_histplot(dfpix,dfpix.columns[1],bounds=[0.8,1.5],Nbins=100,doStat=True)
-xlabel("R")
+h,step=df_histplot(dfpix,dfpix.columns[1],bounds=[0.8,1.5],Nbins=100,doStat=True)
+xlabel("pixel radius")
 title(tit)
 savefig(method+"_nside{}_1d.png".format(nside))
