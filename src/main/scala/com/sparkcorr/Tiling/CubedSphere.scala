@@ -18,7 +18,7 @@ package com.sparkcorr.Tiling
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
 import scala.math.{Pi,sqrt,tan,abs,cos,sin,atan,acos}
-//import org.apache.commons.math3.util.FastMath
+import org.apache.commons.math3.util.FastMath
 
 import scala.util.Random
 
@@ -28,19 +28,6 @@ import java.util.Locale
 
 
 class CubedSphere(Nface:Int) extends Serializable{
-
-  /*
-  val Pi=FastMath.PI
-  def abs(x:Double):Double=FastMath.abs(x)
-  def sqrt=FastMath.sqrt _
-  def cos=FastMath.cos _
-  def sin=FastMath.sin _
-  def tan=FastMath.tan _
-  def acos(x:Double)=FastMath.acos(x)
-  def asin=FastMath.asin _
-  def atan=FastMath.atan _
-  def atan2=FastMath.atan2 _
-   */
 
   val N:Int=Nface
 
@@ -122,8 +109,8 @@ class CubedSphere(Nface:Int) extends Serializable{
     val face:Int=getFace(theta,phi)
     val (x,y)=ang2Local(face)(theta,phi)
     //val (face,(x,y))=ang2Pos(theta,phi)
-    val alpha=atan(x)
-    val beta=atan(y)
+    val alpha=FastMath.atan(x)
+    val beta=FastMath.atan(y)
     val i:Int=((alpha+Pi/4)/step).toInt
     val j:Int=((beta+Pi/4)/step).toInt
 
@@ -151,12 +138,20 @@ class CubedSphere(Nface:Int) extends Serializable{
     * The cube side lenght (a) is not included
     */
   val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
+  /*
   ang2Local(0)=(t,l)=>(tan(l),1.0/tan(t)/cos(l))
   ang2Local(1)=(t,l)=>(-1/tan(l),1.0/tan(t)/sin(l))
   ang2Local(2)=(t,l)=>(tan(l),-1.0/tan(t)/cos(l))
   ang2Local(3)=(t,l)=>(-1/tan(l),-1.0/tan(t)/sin(l))
   ang2Local(4)=(t,l)=>(sin(l)*tan(t),-cos(l)*tan(t))
   ang2Local(5)=(t,l)=>(-sin(l)*tan(t),-cos(l)*tan(t))
+   */
+  ang2Local(0)=(t,l)=>(FastMath.tan(l),1.0/FastMath.tan(t)/FastMath.cos(l))
+  ang2Local(1)=(t,l)=>(-1.0/FastMath.tan(l),1.0/FastMath.tan(t)/FastMath.sin(l))
+  ang2Local(2)=(t,l)=>(FastMath.tan(l),-1.0/FastMath.tan(t)/FastMath.cos(l))
+  ang2Local(3)=(t,l)=>(-1.0/FastMath.tan(l),-1.0/FastMath.tan(t)/FastMath.sin(l))
+  ang2Local(4)=(t,l)=>(FastMath.sin(l)*FastMath.tan(t),-FastMath.cos(l)*FastMath.tan(t))
+  ang2Local(5)=(t,l)=>(-FastMath.sin(l)*FastMath.tan(t),-FastMath.cos(l)*FastMath.tan(t))
 
   //extract independent x/y functions
   val ang2Local_x=ang2Local.map{
@@ -204,10 +199,6 @@ class CubedSphere(Nface:Int) extends Serializable{
 }
 
 object CubedSphere {
-
-  //FastMath
-  //val Pi=FastMath.PI
-  //def acos=FastMath.acos _
 
   def time[R](block: => R) = {
     def print_result(s: String, ns: Long) = {
