@@ -70,3 +70,7 @@ h,step=df_histplot(dfpix,dfpix.columns[1],bounds=[0.8,1.5],Nbins=100,doStat=True
 xlabel("pixel radius")
 title(tit)
 savefig(method+"_nside{}_1d.png".format(nside))
+
+#area
+dfc=df.groupBy("ipix").count()
+h,s=df_histplot(dfc,"count")
