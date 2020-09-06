@@ -7,6 +7,10 @@ myexec="Tiling.CubedSphereSize"
 
 args=$*
 
+if [ -z "$SPARKOPTS" ] ; then
+echo "missing SPARKOPTS"
+exit
+fi
 # Package it
 VERSION="0.1"
 SCALA_VERSION_SPARK=2.11
@@ -16,10 +20,6 @@ sbt ++${SCALA_VERSION} package
 
 if [ $? -ne 0 ]; then exit; fi
 
-if [ -z "$SPARKOPTS" ] ; then
-echo "missing SPARKOPTS"
-exit
-fi
 
 # External JARS : in lib/
 JARS=$(echo lib/*.jar)
