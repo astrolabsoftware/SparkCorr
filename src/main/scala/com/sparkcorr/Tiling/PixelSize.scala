@@ -151,8 +151,7 @@ object CubedSphereSize {
     df=df.withColumn("ang",Pix2Ang($"ipix"))
 
     df=df.withColumn("theta_c",$"ang"(0)).withColumn("phi_c",$"ang"(1)).drop("ang")
-
-    println(df.count)
+    println(df.cache.count)
     timer.print("Cubedsphere Ang2Pix+Pix2Ang")
 
     df.write.mode("overwrite").parquet(s"cs_nside${Nf}.parquet")

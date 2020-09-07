@@ -121,14 +121,13 @@ class CubedSphere(Nface:Int) extends Serializable{
   /** return the face and local coordinates for a given angles */
   def ang2Pos(theta:Double,phi:Double):(Int,(Double,Double)) = {
 
-    /*
+   /* 
     val twoPi=2.0*Pi
     val halfPi=Pi/2.0
-    val shiftphi= (phi+Pi/4.0)%twoPi
-    //if (shiftphi>twoPi) shiftphi-=twoPi
+    var shiftphi= (phi+Pi/4.0)
+    if (shiftphi>twoPi) shiftphi-=twoPi
     val testface=math.floor(shiftphi/halfPi).toInt
-    //val testface=(shiftphi/halfPi).toInt
-     */
+    */
 
     val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
 
@@ -143,17 +142,17 @@ class CubedSphere(Nface:Int) extends Serializable{
   }
 
 
-  /** (theta,phi)=>(x,y) set of function for each face 
+  /* (theta,phi)=>(x,y) set of function for each face 
     *  we use the "standard" spherical coordinates, ie. 0<theta<Pi and 0<phi<2Pi
     * The cube side lenght (a) is not included
     */
   val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
-  ang2Local(0)=(t,l)=>(math.tan(l),1.0/math.tan(t)/math.cos(l))
-  ang2Local(1)=(t,l)=>(-1/math.tan(l),1.0/math.tan(t)/math.sin(l))
-  ang2Local(2)=(t,l)=>(math.tan(l),-1.0/math.tan(t)/math.cos(l))
-  ang2Local(3)=(t,l)=>(-1/math.tan(l),-1.0/math.tan(t)/math.sin(l))
-  ang2Local(4)=(t,l)=>(math.sin(l)*math.tan(t),-math.cos(l)*math.tan(t))
-  ang2Local(5)=(t,l)=>(-math.sin(l)*math.tan(t),-math.cos(l)*math.tan(t))
+  ang2Local(0)=(t,f)=>(math.tan(f),1.0/math.tan(t)/math.cos(f))
+  ang2Local(1)=(t,f)=>(-1/math.tan(f),1.0/math.tan(t)/math.sin(f))
+  ang2Local(2)=(t,f)=>(math.tan(f),-1.0/math.tan(t)/math.cos(f))
+  ang2Local(3)=(t,f)=>(-1/math.tan(f),-1.0/math.tan(t)/math.sin(f))
+  ang2Local(4)=(t,f)=>(math.sin(f)*math.tan(t),-math.cos(f)*math.tan(t))
+  ang2Local(5)=(t,f)=>(-math.sin(f)*math.tan(t),-math.cos(f)*math.tan(t))
 
 
   //extract independent x/y functions
