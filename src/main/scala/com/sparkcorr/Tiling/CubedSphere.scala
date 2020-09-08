@@ -216,7 +216,8 @@ class CubedSphere(Nface:Int) extends Serializable{
         case _ => c1
       }
    }
-   else c1
+   else 
+     c1
 
 
   }
