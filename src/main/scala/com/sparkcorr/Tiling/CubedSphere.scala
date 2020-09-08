@@ -172,13 +172,48 @@ class CubedSphere(Nface:Int) extends Serializable{
 
   }
 
+/** get pixel neighbours. yes that's pretty painfull for the borders but not
+  *  a big deal since I code bug-free. (yes this was checked)
+  */
+  def protectcoord(c:(Int,Int,Int)):(Int,Int,Int)= {
 
-  def protectcoord(c:(Int,Int,Int)):(Int,Int,Int)=
-    c match {
-      case (f,N,j)=>((f+1)%4,0,j)
-      case (f,-1,j)=>((f-1)%4,N-1,j)
-      case _ => c
-    }
+    val xlim=(c._2>=0 & c._2<N)
+    val ylim=(c._3>=0 & c._3<N)
+
+    if (xlim & ylim)
+      c
+   
+    val c1= if (!xlim) {
+      c match {
+        case (4,N,j)=> (1,j,N-1)
+        case (4,-1,j) => (3,N-1-j,N-1)
+        case (5,-1,j) => (3,j,0)
+        case (5,N,j) => (1,N-1-j,0)
+        case (f,N,j)=>((f+1)%4,0,j)
+        case (f,-1,j)=>((f+3)%4,N-1,j)
+      } 
+    } else c
+
+
+   if (!ylim) 
+      c1 match {
+        case (0,i,N) => (4,i,0)
+        case (0,i,-1) => (5,i,N-1)
+        case (1,i,N) => (4,N-1,i)
+        case (1,i,-1) => (5,N-1,N-1-i)
+        case (2,i,N) => (4,N-1-i,N-1)
+        case (2,i,-1) => (5,N-1-i,0)
+        case (3,i,N) => (4,0,N-1-i)
+        case (3,i,-1) => (5,0,i)
+        case (4,i,-1) => (0,i,N-1)
+        case (4,i,N) => (2,N-1-i,N-1)
+        case (5,i,-1)=>(2,N-1-i,0)
+        case (5,i,N) => (0,i,0)
+      }
+      else c1
+
+
+  }
 
 
 
