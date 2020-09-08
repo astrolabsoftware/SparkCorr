@@ -187,8 +187,14 @@ class CubedSphere(Nface:Int) extends Serializable{
       c match {
         case(4,-1,-1)=> (4,0,-1)
         case (4,N,N)=> (4,N-1,N)
+        case (4,-1,N) => (3,0,N-1)
+        case (4,N,-1) => (1,0,N-1)
+
         case (5,-1,-1) => (5,0,-1)
         case (5,N,N) => (5,N-1,N)
+        case (5,-1,N) => (3,N-1,0)
+        case (5,N,-1) => (1,N-1,0)
+
         case (4,N,j)=> (1,j,N-1)
         case (4,-1,j) => (3,N-1-j,N-1)
         case (5,-1,j) => (3,j,0)

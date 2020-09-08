@@ -145,13 +145,11 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
       val neighb=c.neighbours(ipix)
       for (n<-neighb) {
         assert(c.isValidPix(n),s"\n $n=(($face,$ic,$jc)")
-        /*
         val Array(t,f)=c.pix2ang(n)
         val p=new Point3D(t,f)
         val r=cen.dist(p)
         val (ff,i,j)=c.pix2coord(n)
         assert(r<2*Rmax,s"\n($face,$ic,$jc) vs ($ff,$i,$j) : r=$r 2Rmax=${2*Rmax}")
-         */
       }
     } //pixnum
   } //test
