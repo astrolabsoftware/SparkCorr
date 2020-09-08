@@ -1,12 +1,15 @@
 #!/bin/bash
 
-#myexec="Tiling.CubedSphere"
+myexec="Tiling.CubedSphere"
 #myexec="Tiling.HealpixSize"
-myexec="Tiling.CubedSphereSize"
+#myexec="Tiling.CubedSphereSize"
 args=$*
 
-# Package it
-VERSION="0.1"
+# Package it: veriosn in phase with sbt
+SBTVERSION=$(grep version build.sbt | awk '{print $3}')
+VERSION=${SBTVERSION//\"/}
+echo "Running version $VERSION"
+
 SCALA_VERSION_SPARK=2.11
 SCALA_VERSION=2.11.12
 
@@ -26,7 +29,7 @@ MYJARS=${JARS// /,}
 cmd="spark-submit $SPARKOPTS \
      --jars $MYJARS\
      --class com.sparkcorr.$myexec \
-     $PWD/target/scala-${SCALA_VERSION_SPARK}/sparkcorr_${SCALA_VERSION_SPARK}-$VERSION.jar $args"
+     $PWD/target/scala-${SCALA_VERSION_SPARK}/sparkcorr_${SCALA_VERSION_SPARK}-"$VERSION.jar" $args"
 
 
 echo $cmd

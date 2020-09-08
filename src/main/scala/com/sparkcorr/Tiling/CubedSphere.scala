@@ -173,6 +173,30 @@ class CubedSphere(Nface:Int) extends Serializable{
   }
 
 
+  def protectcoord(c:(Int,Int,Int)):(Int,Int,Int)=
+    c match {
+      case (f,N,j)=>((f+1)%4,0,j)
+      case (f,-1,j)=>((f-1)%4,N-1,j)
+      case _ => c
+    }
+
+
+
+  /** get the pixel neighbors (generally 8 sometimes 7) */
+  def neighbours(ipix:Int):List[Int]= {
+    val (f:Int,i:Int,j:Int)=pix2coord(ipix)
+
+    val n:List[(Int,Int,Int)]=
+      (f,i,j+1)::(f,i,j-1)::(f,i+1,j)::(f,i+1,j+1)::(f,i+1,j-1)::(f,i-1,j)::(f,i-1,j+1)::(f,i-1,j-1)::Nil
+
+    val p=n.map(protectcoord)
+
+    p.map{case (f:Int,i:Int,j:Int)=>coord2pix(f,i,j)}
+
+  }
+
+
+
   /** construct nodes on the sphere with a given strategy 
     *  here equal angles for each point on a 
     *  face viewed from the center 
@@ -198,6 +222,31 @@ class CubedSphere(Nface:Int) extends Serializable{
 
    }
  
+ def writeNeighbours(ipix:Int):Unit={
+
+   val fn="neighbours.txt"
+   val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fn,false)))
+
+   val n=neighbours(ipix)
+    for (in <- List(ipix):::n) {
+      val (f,i,j)=pix2coord(in)
+      val ang=pix2ang(in)
+      val p=new Point3D(ang(0),ang(1))
+      val x=p.x
+      val y=p.y
+      val z=p.z
+      val s=f"$f%d\t$i%d\t$j%d\t$x%f\t$y%f\t$z%f\n"
+      writer.write(s)
+    }
+
+  writer.close
+  println(fn+ " written")
+
+   }
+ 
+
+
+
 }
 
 object CubedSphere {
@@ -240,11 +289,16 @@ object CubedSphere {
     val tiling=new CubedSphere(args(0).toInt)
 
 
-    /*
     tiling.writeCenters("centers.txt")
-     */
 
-    //random angles
+    val f=args(1).toInt
+    val i=args(2).toInt
+    val j=args(3).toInt
+    tiling.writeNeighbours(tiling.coord2pix(f,i,j))
+
+
+    //benchmarks
+    /*
     val Ntot=args(1).toInt
     println(s"done.\n-> Calling ang2pix on ${Ntot/1000000} M random angles")
 
@@ -255,7 +309,7 @@ object CubedSphere {
         tiling.pix2ang(tiling.ang2pix(t,f))
       }
     }
-
+     */
 
   }
 }
