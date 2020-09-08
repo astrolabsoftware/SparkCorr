@@ -235,6 +235,13 @@ class CubedSphere(Nface:Int) extends Serializable{
 
   }
 
+  //fixed size array (8) adding -1 if only 7 neighbors
+  def neighbours8(ipix:Int):Array[Int]= {
+    val a=neighbours(ipix).toArray
+    if (a.size==8) a else a:+ -1
+  }
+
+
 
 
   /** construct nodes on the sphere with a given strategy 
