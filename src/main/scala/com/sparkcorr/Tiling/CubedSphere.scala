@@ -182,9 +182,13 @@ class CubedSphere(Nface:Int) extends Serializable{
 
     if (xlim & ylim)
       c
-   
+
     val c1= if (!xlim) {
       c match {
+        case(4,-1,-1)=> (4,0,-1)
+        case (4,N,N)=> (4,N-1,N)
+        case (5,-1,-1) => (5,0,-1)
+        case (5,N,N) => (5,N-1,N)
         case (4,N,j)=> (1,j,N-1)
         case (4,-1,j) => (3,N-1-j,N-1)
         case (5,-1,j) => (3,j,0)
@@ -209,6 +213,7 @@ class CubedSphere(Nface:Int) extends Serializable{
         case (4,i,N) => (2,N-1-i,N-1)
         case (5,i,-1)=>(2,N-1-i,0)
         case (5,i,N) => (0,i,0)
+        case _ => c1
       }
       else c1
 
