@@ -199,7 +199,7 @@ class CubedSphere(Nface:Int) extends Serializable{
     } else c
 
 
-   if (!ylim) 
+   if (!ylim) {
       c1 match {
         case (0,i,N) => (4,i,0)
         case (0,i,-1) => (5,i,N-1)
@@ -215,11 +215,11 @@ class CubedSphere(Nface:Int) extends Serializable{
         case (5,i,N) => (0,i,0)
         case _ => c1
       }
-      else c1
+   }
+   else c1
 
 
   }
-
 
 
   /** get the pixel neighbors (generally 8 sometimes 7) */
@@ -231,7 +231,7 @@ class CubedSphere(Nface:Int) extends Serializable{
 
     val p=n.map(protectcoord)
 
-    p.map{case (f:Int,i:Int,j:Int)=>coord2pix(f,i,j)}
+    p.map{case (f:Int,i:Int,j:Int)=>coord2pix(f,i,j)}.distinct
 
   }
 
