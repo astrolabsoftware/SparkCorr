@@ -22,33 +22,32 @@ Rsq=rad2arcmin(sqrt(4*pi/Npix/2))
 
 spark = SparkSession.builder.getOrCreate()
 
-#df=spark.read.parquet("hp_nside{}.parquet".format(nside))
 df=spark.read.parquet(method+"_nside{}.parquet".format(nside))
 
-df=df.withColumn("dx",F.degrees(F.sin((df["theta"]+df["theta_c"])/2)*(df["phi"]-df["phi_c"]))*60/Rsq*sqrt(2))
-df=df.withColumn("dy",F.degrees(df["theta"]-df["theta_c"])*60/Rsq*sqrt(2))
-#df=df.withColumn("r",F.hypot(df["dx"],df["dy"]))
+df=df.withColumn("dx",F.degrees(F.sin((df["theta"]+df["theta_c"])/2)*(df["phi"]-df["phi_c"]))*60/Rsq)
 
-df=df.withColumn("x",F.sin(df["theta"])*F.cos(df["phi"])).withColumn("y",F.sin(df["theta"])*F.sin(df["phi"])).withColumn("z",F.cos(df["theta"]))
-#.drop("theta","phi")
+df=df.withColumn("dy",F.degrees(df["theta"]-df["theta_c"])*60/Rsq)
 
-df=df.withColumn("xc",F.sin(df["theta_c"])*F.cos(df["phi_c"])).withColumn("yc",F.sin(df["theta_c"])*F.sin(df["phi_c"])).withColumn("zc",F.cos(df["theta_c"]))
-#.drop("theta_c","phi_c")
+df=df.drop("theta","phi","theta_c","phi_c")
+df=df.withColumn("R",F.hypot(df["dx"],df["dy"]))
 
-df=df.withColumn("R",F.degrees(F.hypot(df.x-df.xc,F.hypot(df.y-df.yc,df.z-df.zc)))*60/Rsq)
-#.drop("x","y","z","xc","yc","zc")
+#df=df.withColumn("x",F.sin(df["theta"])*F.cos(df["phi"])).withColumn("y",F.sin(df["theta"])*F.sin(df["phi"])).withColumn("z",F.cos(df["theta"])).drop("theta","phi")
+#df=df.withColumn("xc",F.sin(df["theta_c"])*F.cos(df["phi_c"])).withColumn("yc",F.sin(df["theta_c"])*F.sin(df["phi_c"])).withColumn("zc",F.cos(df["theta_c"])).drop("theta_c","phi_c")
+#df=df.withColumn("R",F.degrees(F.hypot(df.x-df.xc,F.hypot(df.y-df.yc,df.z-df.zc)))*60/Rsq).drop("x","y","z","xc","yc","zc")
 
-#distance in arcmin
+#df=df.withColumn("RR",F.hypot(df.dx,df.dy))
+
+#angular distance in arcmin
 #df=df.withColumn("angdist",F.degrees(2*F.asin(df.rr/2))*60)
 
 df.cache().count()
 
 print("Rsq={} arcmin".format(Rsq))
-maxr=df.select(F.max(df.R)).take(1)[0][0]
-print("max radius={} arcmin".format(maxr))
+#maxr=df.select(F.max(df.R)).take(1)[0][0]
+#print("max radius={} arcmin".format(maxr))
 
 #2d
-x,y,m=df_histplot2(df,"dx","dy",bounds=[[-2,2],[-2,2]],Nbin1=200,Nbin2=200)        
+x,y,m=df_histplot2(df,"dx","dy",bounds=[[-1.5,1.5],[-1.5,1.5]],Nbin1=200,Nbin2=200)        
 #imshowXY(x,y,m)
 xlabel(r"$\Delta x$")
 ylabel(r"$\Delta y$")

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-myexec="Tiling.CubedSphere"
+#myexec="Tiling.CubedSphere"
 #myexec="Tiling.HealpixSize"
-#myexec="Tiling.CubedSphereSize"
+myexec="Tiling.CubedSphereSize"
 args=$*
 
 # Package it: veriosn in phase with sbt

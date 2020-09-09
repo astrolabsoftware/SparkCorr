@@ -18,7 +18,7 @@ package com.sparkcorr.Tiling
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
 import scala.math
-import scala.math.{Pi,sqrt,toRadians}
+import scala.math.{Pi,sqrt,toRadians,ceil,floor}
 
 import scala.util.Random
 
@@ -340,10 +340,7 @@ object CubedSphere {
   }
 
 
-
-
-
-
+  /** utility to benchmarks */
   def time[R](block: => R) = {
     def print_result(s: String, ns: Long) = {
       val formatter = java.text.NumberFormat.getIntegerInstance
@@ -372,7 +369,14 @@ object CubedSphere {
 
   def main(args:Array[String]):Unit= {
 
-    if (args.size != 4)  throw new IllegalArgumentException("Usage: nside f i j")  
+
+    if (args.size!=4){
+      println("*****************************************")
+      println(">>>> Usage: CubedSphere nside f i j")
+      println("*****************************************")
+      return
+    }
+
 
    // Set verbosity
     Logger.getLogger("org").setLevel(Level.WARN)
