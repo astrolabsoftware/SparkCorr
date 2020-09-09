@@ -12,7 +12,11 @@ echo "missing SPARKOPTS"
 exit
 fi
 # Package it
-VERSION="0.1"
+SBTVERSION=$(grep version build.sbt | awk '{print $3}')
+VERSION=${SBTVERSION//\"/}
+echo "Running version $VERSION"
+
+
 SCALA_VERSION_SPARK=2.11
 SCALA_VERSION=2.11.12
 

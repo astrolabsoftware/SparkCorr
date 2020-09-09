@@ -345,6 +345,9 @@ object CubedSphere {
 }
 
   def main(args:Array[String]):Unit= {
+
+    if (args.size != 4)  throw new IllegalArgumentException("Usage: nside f i j")  
+
    // Set verbosity
     Logger.getLogger("org").setLevel(Level.WARN)
     Logger.getLogger("akka").setLevel(Level.WARN)
@@ -352,6 +355,8 @@ object CubedSphere {
 
     val N=args(0).toInt
     println(s"-> Constructing cubedsphere of size $N Npix=${6*N*N/1000000.0} M")
+
+
 
     val tiling=new CubedSphere(args(0).toInt)
 

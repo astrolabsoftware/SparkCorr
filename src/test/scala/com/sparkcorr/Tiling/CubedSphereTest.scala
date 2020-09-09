@@ -133,7 +133,8 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
   test("Neighbours"){
     //theoretical values for square
     val Asq=4*Pi/(6*N*N)
-    val Rmax=1.25*sqrt(Asq/2)
+    val Rmin=0.85*sqrt(Asq/2)
+    val Rmin=1.25*sqrt(Asq/2)
 
     
     for (ipix<-c.pixNums) {

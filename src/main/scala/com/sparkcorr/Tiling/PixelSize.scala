@@ -61,7 +61,7 @@ object HealpixSize {
 
   def main(args:Array[String]):Unit= {
 
-    require(args.size==2)
+    if (args.size != 2)  throw new IllegalArgumentException("Usage: HealpixSize nside Ngen")  
 
     //parameters
     val nside:Int=args(0).toInt
@@ -112,7 +112,12 @@ object CubedSphereSize {
 
   def main(args:Array[String]):Unit= {
 
-    require(args.size==2)
+    if (args.size!=2){
+      println("*****************************************")
+      println(">>>> Usage: CubedSphereSize nside Ngen")
+      println("*****************************************")
+      return
+    }
 
     //parameters
     val Nf:Int=args(0).toInt
