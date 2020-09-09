@@ -19,8 +19,6 @@ import org.apache.log4j.{Level, Logger}
 
 import scala.math.{Pi}
 
-//import org.apache.commons.math3.util.FastMath
-
 import scala.math
 
 

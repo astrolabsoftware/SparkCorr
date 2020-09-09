@@ -20,7 +20,7 @@ import Dependencies._
 lazy val root = (project in file(".")).
  settings(
    inThisBuild(List(
-     version      := "0.7"
+     version      := "0.9"
    )),
    organization := "com.github.astrolabsoftware",
    name := "SparkCorr",
@@ -28,7 +28,6 @@ lazy val root = (project in file(".")).
    libraryDependencies ++= Seq(
      "org.apache.spark" %% "spark-core" % "2.4.5" % "provided",
      "org.apache.spark" %% "spark-sql" % "2.4.5" % "provided",
-     "org.apache.commons" % "commons-math3" % "3.4",
      scalaTest % Test
    )
  )

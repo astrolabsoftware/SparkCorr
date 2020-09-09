@@ -18,7 +18,6 @@ package com.sparkcorr.Tiling
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
 import scala.math
-//import org.apache.commons.math3.util.FastMath
 import scala.math.{Pi}
 
 import scala.util.Random
@@ -185,20 +184,28 @@ class CubedSphere(Nface:Int) extends Serializable{
 
     val c1= if (!xlim) {
       c match {
-        case(4,-1,-1)=> (4,0,-1)
-        case (4,N,N)=> (4,N-1,N)
+
+        //top corners
+        case(4,-1,-1)=> (0,0,N-1)
+        case (4,N,N)=> (2,0,N-1)
         case (4,-1,N) => (3,0,N-1)
         case (4,N,-1) => (1,0,N-1)
-
-        case (5,-1,-1) => (5,0,-1)
-        case (5,N,N) => (5,N-1,N)
+        
+        //bottom corners
+        case (5,-1,-1) => (2,N-1,0)
+        case (5,N,N) => (0,N-1,0)
         case (5,-1,N) => (3,N-1,0)
         case (5,N,-1) => (1,N-1,0)
 
+        //top edges
         case (4,N,j)=> (1,j,N-1)
         case (4,-1,j) => (3,N-1-j,N-1)
+
+        //bottom edges
         case (5,-1,j) => (3,j,0)
         case (5,N,j) => (1,N-1-j,0)
+
+        //azimuthal faces
         case (f,N,j)=>((f+1)%4,0,j)
         case (f,-1,j)=>((f+3)%4,N-1,j)
       } 
@@ -209,16 +216,22 @@ class CubedSphere(Nface:Int) extends Serializable{
       c1 match {
         case (0,i,N) => (4,i,0)
         case (0,i,-1) => (5,i,N-1)
+
         case (1,i,N) => (4,N-1,i)
         case (1,i,-1) => (5,N-1,N-1-i)
+
         case (2,i,N) => (4,N-1-i,N-1)
         case (2,i,-1) => (5,N-1-i,0)
+
         case (3,i,N) => (4,0,N-1-i)
         case (3,i,-1) => (5,0,i)
+
         case (4,i,-1) => (0,i,N-1)
         case (4,i,N) => (2,N-1-i,N-1)
+
         case (5,i,-1)=>(2,N-1-i,0)
         case (5,i,N) => (0,i,0)
+
         case _ => c1
       }
    }
