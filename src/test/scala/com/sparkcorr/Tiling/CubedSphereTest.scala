@@ -27,7 +27,7 @@ import java.util.Locale
 class CubedSphereTest extends FunSuite with BeforeAndAfter {
 
   var c: CubedSphere = _
-  val N:Int= 10
+  val N:Int= 500
 
   before {
     Locale.setDefault(Locale.US)
@@ -134,7 +134,7 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
     //theoretical values for square
     val Asq=4*Pi/(6*N*N)
     val Rmin=0.85*sqrt(Asq/2)
-    val Rmin=1.25*sqrt(Asq/2)
+    val Rmax=1.26*sqrt(Asq/2)
 
     
     for (ipix<-c.pixNums) {
@@ -150,7 +150,8 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
         val p=new Point3D(t,f)
         val r=cen.dist(p)
         val (ff,i,j)=c.pix2coord(n)
-        assert(r<2*Rmax,s"\n($face,$ic,$jc) vs ($ff,$i,$j) : r=$r 2Rmax=${2*Rmax}")
+        assert(r>1.2*Rmin,s"\n($face,$ic,$jc) vs ($ff,$i,$j) : r=$r Rmin=$Rmin")
+        assert(r<2*Rmax,s"\n($face,$ic,$jc) vs ($ff,$i,$j) : r=$r Rmax=${Rmax}")
       }
     } //pixnum
   } //test

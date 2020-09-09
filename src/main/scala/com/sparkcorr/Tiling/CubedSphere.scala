@@ -18,7 +18,7 @@ package com.sparkcorr.Tiling
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
 import scala.math
-import scala.math.{Pi}
+import scala.math.{Pi,sqrt,toRadians}
 
 import scala.util.Random
 
@@ -317,6 +317,32 @@ class CubedSphere(Nface:Int) extends Serializable{
 }
 
 object CubedSphere {
+
+  /*
+   *  compute the smallest nside for which all pixels radii are below Rcut
+   *  Rcut in arcmin
+   */
+  def maxPixRadius(R:Double):Int={
+    val N:Int=ceil(1.26*sqrt(Pi/3)/toRadians(R/60.0)).toInt
+    if (N%2==0) N else N+1
+  }
+
+  def meanPixRadius(R:Double):Int={
+    val N:Int=ceil(1.04*sqrt(Pi/3)/toRadians(R/60.0)).toInt
+    if (N%2==0) N else N+1
+  }
+
+
+  /* all pixel radii are above Rcut */
+  def minPixRadius(R:Double):Int={
+    val N:Int=ceil(0.84*sqrt(Pi/3)/toRadians(R/60.0)).toInt
+    if (N%2==0) N else N-1
+  }
+
+
+
+
+
 
   def time[R](block: => R) = {
     def print_result(s: String, ns: Long) = {
