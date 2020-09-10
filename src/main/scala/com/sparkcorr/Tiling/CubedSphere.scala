@@ -319,13 +319,16 @@ class CubedSphere(Nface:Int) extends Serializable{
 object CubedSphere {
 
   /*
-   *  highest nside for which all pixels radii are below Rcut
+   *  highest N for which all pixels radii are below Rcut
    *  Rcut in arcmin
    */
-  def Rmax2nside(Rcut:Double):Int={
-    val N:Int=floor(sqrt(Pi/3)/(1.25*toRadians(Rcut/60.0))).toInt
+  def Rmax2N(arcmin:Double):Int={
+    val R=toRadians(arcmin/60.0)
+    val N=(1.26*sqrt(Pi/3)/R).toInt
     if (N%2==0) N else N-1
   }
+
+  def N2Rmax(N:Int):Double= toDegrees(1.26*sqrt(2*Pi/(6*N*N)))*60
 
 
   /** utility to benchmarks */
