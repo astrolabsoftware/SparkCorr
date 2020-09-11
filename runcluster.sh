@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #myexec="Tiling.CubedSphere"
-#myexec="Tiling.HealpixSize"
-myexec="Tiling.CubedSphereSize"
 
+myexec="Tiling.PixelSize"
+#args="hp 128 10000000"
+args="cs 180 10000000"
 
-args=$*
 
 if [ -z "$SPARKOPTS" ] ; then
 echo "missing SPARKOPTS"
