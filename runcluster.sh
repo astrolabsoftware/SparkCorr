@@ -24,13 +24,8 @@ sbt ++${SCALA_VERSION} package
 
 if [ $? -ne 0 ]; then exit; fi
 
-
-# External JARS : in lib/
-JARS=$(echo lib/*.jar)
-MYJARS=${JARS// /,}
-
 cmd="spark-submit $SPARKOPTS \
-     --jars $MYJARS\
+     --jars lib/jhealpix.jar \
      --class com.sparkcorr.$myexec \
      $PWD/target/scala-${SCALA_VERSION_SPARK}/sparkcorr_${SCALA_VERSION_SPARK}-$VERSION.jar $args"
 

@@ -3,8 +3,8 @@
 #myexec="Tiling.CubedSphere"
 
 myexec="Tiling.PixelSize"
-args="hp 128 10000000"
-#args="cs 180 10000000"
+#args="hp 128 10000000"
+args="cs 180 10000000"
 
 echo "$myexec $args"
 
@@ -24,13 +24,8 @@ if [ -z "$SPARKOPTS" ] ; then
 SPARKOPTS="--master local[*] --driver-class-path=$PWD "
 fi
 
-# External JARS : in lib/
-JARS=$(echo lib/*.jar)
-MYJARS=${JARS// /,}
-
-
 cmd="spark-submit $SPARKOPTS \
-     --jars $MYJARS\
+     --jars lib/jhealpix.jar \
      --class com.sparkcorr.$myexec \
      $PWD/target/scala-${SCALA_VERSION_SPARK}/sparkcorr_${SCALA_VERSION_SPARK}-"$VERSION.jar" $args"
 
