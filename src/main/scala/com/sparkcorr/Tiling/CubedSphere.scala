@@ -18,7 +18,7 @@ package com.sparkcorr.Tiling
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
 import scala.math
-import scala.math.{Pi,sqrt,toRadians,ceil,floor}
+import scala.math.{Pi,sqrt,toRadians,ceil,floor,toDegrees}
 
 import scala.util.Random
 
@@ -27,7 +27,7 @@ import java.io._
 import java.util.Locale
 
 
-class CubedSphere(Nface:Int) extends Serializable{
+class CubedSphere(Nface:Int) extends SphereTiling with Serializable {
 
   val N:Int=Nface
 
@@ -96,7 +96,7 @@ class CubedSphere(Nface:Int) extends Serializable{
   /** get pixel centers 
   * output is a (theta,phi) tuple with 0<theta<pi, 0<phi<2pi
     */ 
-  def pix2ang(ipix:Int):Array[Double]= { 
+  override def pix2ang(ipix:Int):Array[Double]= { 
     val (t:Double,f:Double)=pixcenter(ipix)
     Array(t,f)
   }
@@ -105,7 +105,7 @@ class CubedSphere(Nface:Int) extends Serializable{
     *  for the equal angle case
     *  use classical spherical coordinates, ie. 0<theta<Pi and 0<phi<2Pi
     */
-  def ang2pix(theta:Double,phi:Double):Int = {
+  override def ang2pix(theta:Double,phi:Double):Int = {
     val face:Int=getFace(theta,phi)
     val (x,y)=ang2Local(face)(theta,phi)
     //val (face,(x,y))=ang2Pos(theta,phi)
@@ -243,7 +243,7 @@ class CubedSphere(Nface:Int) extends Serializable{
 
 
   /** get the pixel neighbors (generally 8 sometimes 7) */
-  def neighbours(ipix:Int):List[Int]= {
+  override def neighbours(ipix:Int):List[Int]= {
     val (f:Int,i:Int,j:Int)=pix2coord(ipix)
 
     val n:List[(Int,Int,Int)]=

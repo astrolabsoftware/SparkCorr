@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 AstroLab Software
  *
@@ -14,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.sparkcorr.Tiling
 
 import org.apache.spark.sql.DataFrame
@@ -25,39 +25,11 @@ import org.apache.spark.sql.{functions=>F,SparkSession,Row,DataFrame}
 import java.util.Locale
 import scala.math.{Pi}
 
-
-import healpix.essentials.HealpixBase
-import healpix.essentials.Pointing
-import healpix.essentials.Vec3
 import healpix.essentials.Scheme.{NESTED,RING}
 
 import com.sparkcorr.tools.Timer
 
-class ExtPointing extends Pointing with java.io.Serializable
-case class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) {
-
-  def index(theta : Double, phi : Double) : Long = {
-    ptg.theta = theta
-    ptg.phi = phi
-    hp.ang2pix(ptg)
-  }
-  def neighbours(ipix:Long):Array[Long] =  {
-    hp.neighbours(ipix)
-  }
-  def pix2ang(ipix:Long):Array[Double]=
-  {
-    val p:Pointing=hp.pix2ang(ipix)
-    Array(p.theta,p.phi)
-  }
-  def pix2vec(ipix:Long):Array[Double]= {
-    val pos:Vec3=hp.pix2vec(ipix)
-    Array(pos.x,pos.y,pos.z)
-  }
-
-}
-
 object HealpixSize {
-
 
   def main(args:Array[String]):Unit= {
 
@@ -84,9 +56,9 @@ object HealpixSize {
 
     import spark.implicits._
 
-    val grid = HealpixGrid(new HealpixBase(nside, NESTED), new ExtPointing)
-    def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.index(theta,phi))
-    val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Long)=> grid.pix2ang(ipix))
+    val grid = HealpixGrid(nside, NESTED)
+    def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
+    val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> grid.pix2ang(ipix))
 
     val timer=new Timer()
 
