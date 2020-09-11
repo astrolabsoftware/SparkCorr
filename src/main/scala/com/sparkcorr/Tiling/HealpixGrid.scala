@@ -23,23 +23,27 @@ import healpix.essentials.Scheme
 
 class ExtPointing extends Pointing with java.io.Serializable
 
-class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends Serializable{
+class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends SphereTiling with Serializable{
 
-  def ang2pix(theta : Double, phi : Double) : Int = {
+   override val pixNums:IndexedSeq[Int]=
+    for {i <- 0 until hp.getNpix().toInt} yield i
+
+  override def ang2pix(theta : Double, phi : Double) : Int = {
     ptg.theta = theta
     ptg.phi = phi
     hp.ang2pix(ptg).toInt
   }
-  def neighbours(ipix:Int):Array[Int] =  {
+  override def neighbours8(ipix:Int):Array[Int] =  {
     hp.neighbours(ipix.toLong).map(n=>n.toInt)
   }
-  def pix2ang(ipix:Int):Array[Double]=
+  override def pix2ang(ipix:Int):Array[Double]=
   {
     val p:Pointing=hp.pix2ang(ipix.toLong)
     Array(p.theta,p.phi)
   }
 }
 
+//companion for simple factory
 object HealpixGrid {
 
   def apply(nside:Long,sch:Scheme)=new HealpixGrid(new HealpixBase(nside, sch), new ExtPointing)

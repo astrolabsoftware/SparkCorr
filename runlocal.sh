@@ -1,9 +1,12 @@
 #!/bin/bash
 
 #myexec="Tiling.CubedSphere"
-myexec="Tiling.HealpixSize"
-#myexec="Tiling.CubedSphereSize"
-args=$*
+
+myexec="Tiling.PixelSize"
+args="hp 128 10000000"
+#args="cs 180 10000000"
+
+echo "$myexec $args"
 
 # Package it: veriosn in phase with sbt
 SBTVERSION=$(grep version build.sbt | awk '{print $3}')

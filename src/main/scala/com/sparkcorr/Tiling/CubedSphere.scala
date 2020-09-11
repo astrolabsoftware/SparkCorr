@@ -85,7 +85,8 @@ class CubedSphere(Nface:Int) extends SphereTiling with Serializable {
     * not continous (do not assume it is in the [0,6N^2-1] range, it is not)
     * you should access the valid indices with the following function
     */
-  val pixNums=for {f <- 0 to 5; i<-0 until N; j<-0 until N} yield coord2pix(f,i,j)
+  override val pixNums:IndexedSeq[Int]=
+    for {f <- 0 to 5; i<-0 until N; j<-0 until N} yield coord2pix(f,i,j)
 
   /**transformationm to/from (face,i,j) */
   def coord2pix(f:Int,i:Int,j:Int):Int= (i*N+j)*10+f
@@ -241,9 +242,8 @@ class CubedSphere(Nface:Int) extends SphereTiling with Serializable {
 
   }
 
-
   /** get the pixel neighbors (generally 8 sometimes 7) */
-  override def neighbours(ipix:Int):List[Int]= {
+  def neighbours(ipix:Int):List[Int]= {
     val (f:Int,i:Int,j:Int)=pix2coord(ipix)
 
     val n:List[(Int,Int,Int)]=
@@ -256,7 +256,7 @@ class CubedSphere(Nface:Int) extends SphereTiling with Serializable {
   }
 
   //fixed size array (8) adding -1 if only 7 neighbors
-  def neighbours8(ipix:Int):Array[Int]= {
+  override def neighbours8(ipix:Int):Array[Int]= {
     val a=neighbours(ipix).toArray
     if (a.size==8) a else a:+ -1
   }

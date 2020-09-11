@@ -16,12 +16,8 @@
 
 package com.sparkcorr.Tiling
 
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.{functions=>F}
-import org.apache.spark.sql.types._
+import org.apache.spark.sql.{functions=>F,SparkSession}
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.SparkContext
-import org.apache.spark.sql.{functions=>F,SparkSession,Row,DataFrame}
 import java.util.Locale
 import scala.math.{Pi}
 
@@ -29,71 +25,22 @@ import healpix.essentials.Scheme.{NESTED,RING}
 
 import com.sparkcorr.tools.Timer
 
-object HealpixSize {
-
-  def main(args:Array[String]):Unit= {
-
-    if (args.size != 2)  throw new IllegalArgumentException("Usage: HealpixSize nside Ngen")  
-
-    //parameters
-    val nside:Int=args(0).toInt
-    val N:Long=args(1).toLong
-
-    Locale.setDefault(Locale.US)
-
-   // Set verbosity
-    Logger.getLogger("org").setLevel(Level.WARN)
-    Logger.getLogger("akka").setLevel(Level.WARN)
-
-
-    //spark stuff
-    val spark = SparkSession
-      .builder()
-      .appName("HealpixSize")
-      .getOrCreate()
-
-    val sc: SparkContext = spark.sparkContext
-
-    import spark.implicits._
-
-    val grid = HealpixGrid(nside, NESTED)
-    def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
-    val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> grid.pix2ang(ipix))
-
-    val timer=new Timer()
-
-    var df=spark.range(0,N).withColumn("theta",F.acos(F.rand*2-1.0)).withColumn("phi",F.rand*2*Pi).drop("id")
-
-    //add pixelnum
-    df=df.withColumn("ipix",Ang2Pix($"theta",$"phi"))
-
-    //add pixel center
-    df=df.withColumn("ptg",Pix2Ang($"ipix")).withColumn("theta_c",$"ptg"(0)).withColumn("phi_c",$"ptg"(1)).drop("ptg")
-
-    println(df.count)
-    timer.print("Healpix Ang2Pix+Pix2Ang")
-
-    df.write.mode("overwrite").parquet(s"hp_nside${nside}.parquet")
-
-  }
-
-}
-
-object CubedSphereSize {
+object PixelSize {
 
 
   def main(args:Array[String]):Unit= {
 
-    if (args.size!=2){
-      println("*****************************************")
-      println(">>>> Usage: CubedSphereSize nside Ngen")
-      println("*****************************************")
+    if (args.size!=3){
+      println("**********************************************")
+      println(">>>> Usage: PixelSize cs/hp N(side) Ngen")
+      println("**********************************************")
       return
     }
 
     //parameters
-    val Nf:Int=args(0).toInt
-    val N:Long=args(1).toLong
+    val tile=args(0)
+    val Nf:Int=args(1).toInt
+    val N:Long=args(2).toLong
 
     Locale.setDefault(Locale.US)
 
@@ -108,11 +55,14 @@ object CubedSphereSize {
       .appName("CubedSphereSize")
       .getOrCreate()
 
-    val sc: SparkContext = spark.sparkContext
-
     import spark.implicits._
 
-    val grid = new CubedSphere(Nf)
+    val grid = tile match {
+      case "cs" => new CubedSphere(Nf)
+      case "hp" => HealpixGrid(Nf, NESTED)
+      case _ =>  {require(false,s"unknow tiling=$tile"); null}
+    }
+
     def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
     val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> grid.pix2ang(ipix))
 
@@ -129,9 +79,11 @@ object CubedSphereSize {
 
     df=df.withColumn("theta_c",$"ang"(0)).withColumn("phi_c",$"ang"(1)).drop("ang")
     println(df.count)
-    timer.print("Cubedsphere Ang2Pix+Pix2Ang")
+    timer.print(tile+" Ang2Pix+Pix2Ang")
 
-    df.write.mode("overwrite").parquet(s"cs_nside${Nf}.parquet")
+    val file=tile+s"_nside${Nf}.parquet"
+    println("Writing "+file)
+    df.write.mode("overwrite").parquet(file)
 
 
   }
