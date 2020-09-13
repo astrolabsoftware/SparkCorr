@@ -27,7 +27,7 @@ import java.util.Locale
 class CubedSphereTest extends FunSuite with BeforeAndAfter {
 
   var c: CubedSphere = _
-  val N:Int= 500
+  val N:Int= 10
 
   before {
     Locale.setDefault(Locale.US)

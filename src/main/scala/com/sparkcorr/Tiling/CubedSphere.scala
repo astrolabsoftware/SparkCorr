@@ -27,9 +27,9 @@ import java.io._
 import java.util.Locale
 
 
-class CubedSphere(Nface:Int) extends SphereTiling with Serializable {
+class CubedSphere(nside:Int) extends SphereTiling with Serializable {
 
-  val N:Int=Nface
+  val N:Int=nside
 
   val a=1/math.sqrt(3.0)
   val step=Pi/2/N
@@ -121,14 +121,6 @@ class CubedSphere(Nface:Int) extends SphereTiling with Serializable {
   /** return the face and local coordinates for a given angles */
   def ang2Pos(theta:Double,phi:Double):(Int,(Double,Double)) = {
 
-   /* 
-    val twoPi=2.0*Pi
-    val halfPi=Pi/2.0
-    var shiftphi= (phi+Pi/4.0)
-    if (shiftphi>twoPi) shiftphi-=twoPi
-    val testface=math.floor(shiftphi/halfPi).toInt
-    */
-
     val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
 
     val testy=ang2Local_y(testface)(theta,phi)
@@ -144,7 +136,7 @@ class CubedSphere(Nface:Int) extends SphereTiling with Serializable {
 
   /* (theta,phi)=>(x,y) set of function for each face 
     *  we use the "standard" spherical coordinates, ie. 0<theta<Pi and 0<phi<2Pi
-    * The cube side lenght (a) is not included
+    * The cube side length (a) is not included
     */
   val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
   ang2Local(0)=(t,f)=>(math.tan(f),1.0/math.tan(t)/math.cos(f))
@@ -175,7 +167,7 @@ class CubedSphere(Nface:Int) extends SphereTiling with Serializable {
 /** get pixel neighbours. yes that's pretty painfull for the borders but not
   *  a big deal since I code bug-free. (yes this was checked)
   */
-  def protectcoord(c:(Int,Int,Int)):(Int,Int,Int)= {
+  def wrapcoord(c:(Int,Int,Int)):(Int,Int,Int)= {
 
     val xlim=(c._2>=0 & c._2<N)
     val ylim=(c._3>=0 & c._3<N)
@@ -249,7 +241,7 @@ class CubedSphere(Nface:Int) extends SphereTiling with Serializable {
     val n:List[(Int,Int,Int)]=
       (f,i,j+1)::(f,i,j-1)::(f,i+1,j)::(f,i+1,j+1)::(f,i+1,j-1)::(f,i-1,j)::(f,i-1,j+1)::(f,i-1,j-1)::Nil
 
-    val p=n.map(protectcoord)
+    val p=n.map(wrapcoord)
 
     p.map{case (f:Int,i:Int,j:Int)=>coord2pix(f,i,j)}.distinct
 
@@ -318,17 +310,29 @@ class CubedSphere(Nface:Int) extends SphereTiling with Serializable {
 
 object CubedSphere {
 
-  /*
-   *  highest N for which all pixels radii are below Rcut
-   *  Rcut in arcmin
-   */
-  def Rmax2N(arcmin:Double):Int={
-    val R=toRadians(arcmin/60.0)
-    val N=(1.26*sqrt(Pi/3)/R).toInt
-    if (N%2==0) N else N-1
+  //output in arcmin
+  def minmaxRadius(N:Int):(Double,Double) = 
+  { val Rsq=toDegrees(sqrt(Pi/3)/N)*60 
+    (0.85*Rsq,1.26*Rsq)
   }
 
-  def N2Rmax(N:Int):Double= toDegrees(1.26*sqrt(2*Pi/(6*N*N)))*60
+  //nside for which any value lower have a pix radius greater than R
+  //R in arcmin
+  def pixRadiusGt(R:Double):Int = {
+    val Nsq:Double=toDegrees(sqrt(Pi/3)/R)*60
+    val N:Int=floor(Nsq*0.85).toInt
+     N-N%2
+  }
+
+  //nside for which any higher lower have a pix radius lower than R
+  //R in arcmin
+  def pixRadiusLt(R:Double):Int = {
+    val Nsq=toDegrees(sqrt(Pi/3)/R)*60
+    val N=ceil(Nsq*1.26).toInt
+    N+N%2
+  }
+
+
 
 
   /** utility to benchmarks */
