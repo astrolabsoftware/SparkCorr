@@ -34,6 +34,19 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
   val a=1/math.sqrt(3.0)
   val step=Pi/2/N
 
+  /* position of nodes on a face*/
+  /* for equal angle */
+  val localPos:arr2[(Double,Double)] = {
+    val facenodes=new arr2[(Double,Double)](N+1)
+    val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
+      for (i<-0 to N; j<-0 to N){
+        val x=a*math.tan(alpha(i))
+        val y=a*math.tan(alpha(j))
+        facenodes(i,j)=(x,y)
+      }
+    facenodes
+  }
+
   /** compute equal-angle nodes */
   def buildNodes():Array[arr2[Point]]={
     /** project coordinates from face to unit sphere. index is the face */
@@ -45,27 +58,20 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
     projector(4)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
     projector(5)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
 
-    /** equal angles */
-    val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
-
     val nodes=new Array[arr2[Point]](6)
     
     //build nodes/pixels
     for (face <- 0 to 5) {
-
       val proj=projector(face)
       val facenodes=new arr2[Point](N+1)
-
       //fill nodes for this face
       for (i<-0 to N; j<-0 to N){
-        val x=a*math.tan(alpha(i))
-        val y=a*math.tan(alpha(j))
+        val (x,y)=localPos(i,j)
         val XYZ=proj(x,y)
         val p=Point(XYZ._1,XYZ._2,XYZ._3)
         facenodes(i,j)=p
       }
       nodes(face)=facenodes
-
     }
     nodes
   }
