@@ -34,10 +34,8 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
   val a=1/math.sqrt(3.0)
   val step=Pi/2/N
 
-  def buildGrid():Array[(Double,Double)]={
-    /** compute equal-angle nodes */
-    val pixarray=new Array[(Double,Double)](N*N*10-4)
-
+  /** compute equal-angle nodes */
+  def buildNodes():Array[arr2[Point]]={
     /** project coordinates from face to unit sphere. index is the face */
     val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
     projector(0)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
@@ -50,11 +48,13 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
     /** equal angles */
     val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
 
+    val nodes=new Array[arr2[Point]](6)
+    
     //build nodes/pixels
     for (face <- 0 to 5) {
 
       val proj=projector(face)
-      val nodes=new arr2[Point](N+1)
+      val facenodes=new arr2[Point](N+1)
 
       //fill nodes for this face
       for (i<-0 to N; j<-0 to N){
@@ -62,12 +62,22 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
         val y=a*math.tan(alpha(j))
         val XYZ=proj(x,y)
         val p=Point(XYZ._1,XYZ._2,XYZ._3)
-        nodes(i,j)=p
+        facenodes(i,j)=p
       }
+      nodes(face)=facenodes
 
+    }
+    nodes
+  }
+  /* compute pixel centers as barycenter of cells */
+  def buildPixels(nodes:Array[arr2[Point]]):Array[(Double,Double)]={
+    require(nodes.size==6)
+    val pixarray=new Array[(Double,Double)](N*N*10-4)
+    for (face <- 0 to 5) {
+      val facenodes=nodes(face)
       //compute centers as cell barycenter
       for(i<-0 until N;j<-0 until N){
-        val cell=nodes(i,j)::nodes(i+1,j)::nodes(i,j+1)::nodes(i+1,j+1)::Nil
+        val cell=facenodes(i,j)::facenodes(i+1,j)::facenodes(i,j+1)::facenodes(i+1,j+1)::Nil
         val bary=Point.barycenter(cell)
         val cen=new Point3D(bary/bary.norm())
         val ipix:Int=coord2pix(face,i,j)
@@ -79,7 +89,7 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
   }
 
   // array for fast access
-  val pixcenter:Array[(Double,Double)]=buildGrid
+  val pixcenter:Array[(Double,Double)]=buildPixels(buildNodes)
 
   /** pixel numbering
     * not continous (do not assume it is in the [0,6N^2-1] range, it is not)
@@ -108,36 +118,20 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
     */
   override def ang2pix(theta:Double,phi:Double):Int = {
     val face:Int=getFace(theta,phi)
+    val (i,j)=ang2LocalIndex(face,theta,phi)
+    coord2pix(face,i,j)
+  }
+
+  /** for equal angles */
+  def ang2LocalIndex(face:Int,theta:Double,phi:Double):(Int,Int)= {
     val (x,y)=ang2Local(face)(theta,phi)
-    //val (face,(x,y))=ang2Pos(theta,phi)
     val alpha=math.atan(x)
     val beta=math.atan(y)
     val i:Int=math.floor((alpha+Pi/4)/step).toInt
     val j:Int=math.floor((beta+Pi/4)/step).toInt
-
-    coord2pix(face,i,j)
+    (i,j)
   }
-
-  /** return the face and local coordinates for a given angles */
-  def ang2Pos(theta:Double,phi:Double):(Int,(Double,Double)) = {
-
-    val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
-
-    val testy=ang2Local_y(testface)(theta,phi)
-    if (math.abs(testy)<1.0)
-      (testface,(ang2Local_x(testface)(theta,phi),testy))
-    else if (testy>1.0)
-      (4,ang2Local(4)(theta,phi))
-    else 
-      (5,ang2Local(5)(theta,phi))
-
-  }
-
-
-  /* (theta,phi)=>(x,y) set of function for each face 
-    *  we use the "standard" spherical coordinates, ie. 0<theta<Pi and 0<phi<2Pi
-    * The cube side length (a) is not included
-    */
+  
   val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
   ang2Local(0)=(t,f)=>(math.tan(f),1.0/math.tan(t)/math.cos(f))
   ang2Local(1)=(t,f)=>(-1/math.tan(f),1.0/math.tan(t)/math.sin(f))
