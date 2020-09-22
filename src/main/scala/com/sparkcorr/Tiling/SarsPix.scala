@@ -27,7 +27,7 @@ import java.util.Locale
 
 
 
-class SARS(nside:Int) extends CubedSphere(nside) {
+class SarsPix(nside:Int) extends CubedSphere(nside) {
 
 
   require(nside%2==0,"nside for SARS must be even")
@@ -61,7 +61,7 @@ class SARS(nside:Int) extends CubedSphere(nside) {
 
 
 // companion
-object SARS {
+object SarsPix {
 
 
   def main(args:Array[String]):Unit= {
@@ -73,7 +73,7 @@ object SARS {
       return
     }
 
-    val tiling=new SARS(args(0).toInt)
+    val tiling=new SarsPix(args(0).toInt)
 
     tiling.writeCenters("test")
 
