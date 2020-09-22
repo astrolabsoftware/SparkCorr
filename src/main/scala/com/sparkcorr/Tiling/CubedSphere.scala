@@ -47,6 +47,19 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
     facenodes
   }
 
+
+  /** for equal angles */
+  def ang2LocalIndex(face:Int,theta:Double,phi:Double):(Int,Int)= {
+    val (x,y)=ang2Local(face)(theta,phi)
+    val alpha=math.atan(x)
+    val beta=math.atan(y)
+    val i:Int=math.floor((alpha+Pi/4)/step).toInt
+    val j:Int=math.floor((beta+Pi/4)/step).toInt
+    (i,j)
+  }
+  
+
+
   /** compute equal-angle nodes */
   def buildNodes():Array[arr2[Point]]={
     /** project coordinates from face to unit sphere. index is the face */
@@ -128,16 +141,6 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
     coord2pix(face,i,j)
   }
 
-  /** for equal angles */
-  def ang2LocalIndex(face:Int,theta:Double,phi:Double):(Int,Int)= {
-    val (x,y)=ang2Local(face)(theta,phi)
-    val alpha=math.atan(x)
-    val beta=math.atan(y)
-    val i:Int=math.floor((alpha+Pi/4)/step).toInt
-    val j:Int=math.floor((beta+Pi/4)/step).toInt
-    (i,j)
-  }
-  
   val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
   ang2Local(0)=(t,f)=>(math.tan(f),1.0/math.tan(t)/math.cos(f))
   ang2Local(1)=(t,f)=>(-1/math.tan(f),1.0/math.tan(t)/math.sin(f))
