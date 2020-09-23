@@ -61,7 +61,7 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
 
 
   /** compute equal-angle nodes */
-  def buildNodes():Array[arr2[Point]]={
+  def buildNodes():Array[arr2[Point3D]]={
     /** project coordinates from face to unit sphere. index is the face */
     val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
     projector(0)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
@@ -71,17 +71,17 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
     projector(4)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
     projector(5)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
 
-    val nodes=new Array[arr2[Point]](6)
+    val nodes=new Array[arr2[Point3D]](6)
     
     //build nodes/pixels
     for (face <- 0 to 5) {
       val proj=projector(face)
-      val facenodes=new arr2[Point](N+1)
+      val facenodes=new arr2[Point3D](N+1)
       //fill nodes for this face
       for (i<-0 to N; j<-0 to N){
         val (x,y)=localPos(i,j)
         val XYZ=proj(x,y)
-        val p=Point(XYZ._1,XYZ._2,XYZ._3)
+        val p=new Point3D(XYZ._1,XYZ._2,XYZ._3)
         facenodes(i,j)=p
       }
       nodes(face)=facenodes
@@ -89,7 +89,7 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
     nodes
   }
   /* compute pixel centers as barycenter of cells */
-  def buildPixels(nodes:Array[arr2[Point]]):Array[(Double,Double)]={
+  def buildPixels(nodes:Array[arr2[Point3D]]):Array[(Double,Double)]={
     require(nodes.size==6)
     val pixarray=new Array[(Double,Double)](N*N*10-4)
     for (face <- 0 to 5) {
