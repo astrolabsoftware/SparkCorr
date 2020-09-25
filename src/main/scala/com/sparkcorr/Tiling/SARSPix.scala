@@ -35,23 +35,26 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
 
     val nodes=new Array[arr2[Point3D]](6)
 
-    //face0
-    val FACE0=new arr2[Point3D](N+1)
-
+    //build FACE0
     //subfaces (quadrants)
-    val q0:Array[arr2[Point3D]]=
-      Array(subface0(1,1),subface0(1,-1),subface0(-1,1),subface0(-1,-1))
-    //concatenate subsfaces
-      for (ii <- 0 to N) {
-        for (jj <- 0 to N) {
-          val (ff,i,j)=subfaceIndex(ii,jj)
-          FACE0(ii,jj)=q0(ff)(i,j)
-          //println(s"FACE0 ($ii $jj) = ${FACE0(ii,jj)}")
+    val q0:arr2[Point3D]=subface0(1,1)
+    val q1:arr2[Point3D]=subface0(1,-1)
+    val q2:arr2[Point3D]=subface0(-1,1)
+    val q3:arr2[Point3D]=subface0(-1,-1)
+
+    //concatenate subsfaces to local index
+    val FACE0=new arr2[Point3D](N+1)
+    val f0:Array[arr2[Point3D]]=Array(q0,q1,q2,q3)
+      for (I <- 0 to N) {
+        for (J <- 0 to N) {
+          val (ff,i,j)=subfaceIndex(I,J)
+          FACE0(I,J)=f0(ff)(i,j)
+          //println(s"FACE0 ($I $J) = ${FACE0(ii,jj)}")
         }
       }
 
     nodes(0)=FACE0
-    //now build all other faces
+    //now build other faces by rotating FACE0
     nodes(1)=rotateFace0(FACE0,1)
     nodes(2)=rotateFace0(FACE0,2)
     nodes(3)=rotateFace0(FACE0,3)
@@ -125,6 +128,31 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     }
     face
   }
+
+  def getQuadrant(face:Int,p:Point3D):Int={
+    val (x,y,z)=(p.x,p.y,p.z)
+    // switch to face 0
+    val (x0,y0,z0)= face match {
+      case 0 => (x,y,z)
+      case 1 => (y,-x,z)
+      case 2 => (-x,-y,z)
+      case 3 => (-y,x,z)
+      case 4 => (z,y,-x)
+      case 5 => (-z,y,x)
+    }
+    var q:Int=0
+    if (z0<0) q+= 1<<0
+    if (y0<0) q+= 1<<1
+
+    q
+  }
+
+  def getFaceQuadrant(theta:Double,phi:Double):(Int,Int)={
+    val face:Int=getFace(theta,phi)
+    val q:Int=getQuadrant(face,new Point3D(theta,phi))
+    (face,q)
+  }
+
 
   /*
   override def ang2pix(theta:Double,phi:Double):Int = {
