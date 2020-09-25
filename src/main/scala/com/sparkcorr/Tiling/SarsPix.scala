@@ -108,8 +108,9 @@ class SarsPix(nside:Int) extends CubedSphere(nside) {
     rotations(1)=(x,y,z)=>(-y,x,z)
     rotations(2)=(x,y,z)=>(-x,-y,z)
     rotations(3)=(x,y,z)=>(y,-x,z)
-    rotations(4)=(x,y,z)=>(z,y,-x)
-    rotations(5)=(x,y,z)=>(-z,y,x)
+    rotations(4)=(x,y,z)=>(-z,y,x)
+    rotations(5)=(x,y,z)=>(z,y,-x)
+
 
     val face=new arr2[Point3D](face0.size)
     val rot=rotations(fnum)
