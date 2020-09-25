@@ -6,7 +6,7 @@
 #args="hp 128 100000000"
 #args="cs 180 100000000"
 
-myexec="Tiling.SarsPix"
+myexec="Tiling.SARSPix"
 args=$*
 
 

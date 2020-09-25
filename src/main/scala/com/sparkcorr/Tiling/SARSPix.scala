@@ -25,7 +25,7 @@ import java.io._
 import java.util.Locale
 
 
-class SarsPix(nside:Int) extends CubedSphere(nside) {
+class SARSPix(nside:Int) extends CubedSphere(nside) {
 
 
   require(nside%2==0,"nside for SARS must be even")
@@ -146,7 +146,7 @@ class SarsPix(nside:Int) extends CubedSphere(nside) {
 
 
 // companion
-object SarsPix {
+object SARSPix {
 
   def main(args:Array[String]):Unit= {
     Locale.setDefault(Locale.US)
@@ -154,7 +154,7 @@ object SarsPix {
 
     if (args.size!=4){
       println("*****************************************")
-      println(">>>> Usage: SarsPix nside f i j")
+      println(">>>> Usage: SARSPix nside f i j")
       println("*****************************************")
       return
     }
@@ -168,7 +168,7 @@ object SarsPix {
     val N=args(0).toInt
     println(s"-> Constructing cubedsphere of size $N Npix=${6*N*N/1000000.0} M")
 
-    val tiling=new SarsPix(args(0).toInt)
+    val tiling=new SARSPix(args(0).toInt)
 
 
     tiling.writeCenters("centers.txt")
