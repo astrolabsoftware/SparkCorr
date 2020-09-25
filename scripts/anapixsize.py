@@ -22,7 +22,10 @@ Rsq=rad2arcmin(sqrt(4*pi/Npix/2))
 
 spark = SparkSession.builder.getOrCreate()
 
-df=spark.read.parquet(method+"_nside{}.parquet".format(nside))
+fn=method+"_nside{}.parquet".format(nside)
+print("reading: "+fn)
+
+df=spark.read.parquet(fn)
 
 df=df.withColumn("dx",F.degrees(F.sin((df["theta"]+df["theta_c"])/2)*(df["phi"]-df["phi_c"]))*60/Rsq)
 

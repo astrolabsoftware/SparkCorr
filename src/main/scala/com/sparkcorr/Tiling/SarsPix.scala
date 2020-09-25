@@ -125,6 +125,7 @@ class SarsPix(nside:Int) extends CubedSphere(nside) {
     face
   }
 
+  /*
   override def ang2pix(theta:Double,phi:Double):Int = {
     val face:Int=getFace(theta,phi)
 
@@ -136,8 +137,7 @@ class SarsPix(nside:Int) extends CubedSphere(nside) {
     val (ii,jj)=(0,0)
     coord2pix(face,ii,jj)
   }
-
-
+   */
 
 
 }
@@ -150,20 +150,51 @@ object SarsPix {
   def main(args:Array[String]):Unit= {
     Locale.setDefault(Locale.US)
 
-    if (args.size!=1){
+
+    if (args.size!=4){
       println("*****************************************")
-      println(">>>> Usage: SarsPix nside")
+      println(">>>> Usage: SarsPix nside f i j")
       println("*****************************************")
       return
     }
 
+
+   // Set verbosity
+    Logger.getLogger("org").setLevel(Level.WARN)
+    Logger.getLogger("akka").setLevel(Level.WARN)
+    Locale.setDefault(Locale.US)
+
+    val N=args(0).toInt
+    println(s"-> Constructing cubedsphere of size $N Npix=${6*N*N/1000000.0} M")
+
     val tiling=new SarsPix(args(0).toInt)
 
+
     tiling.writeCenters("centers.txt")
+
+    val fc=args(1).toInt
+    val ic=args(2).toInt
+    val jc=args(3).toInt
+
+    tiling.writeNeighbours(tiling.coord2pix(fc,ic,jc))
+
+    val ipix=tiling.coord2pix(fc,ic,jc)
+
+    val Array(tc,phic)=tiling.pix2ang(ipix)
+    val pcen=new Point3D(tc,phic)
+
+    println(s"input pixel=$ipix ($fc,$ic,$jc)  angles=($tc,$phic) :"+pcen)
+
+
+    val n=tiling.neighbours(ipix)
+    for (in <- n) {
+      val (f,i,j)=tiling.pix2coord(in)
+      val ang=tiling.pix2ang(in)
+      val p=new Point3D(ang(0),ang(1))
+      println(s"voisin pixel=$in ($f,$i,$j): angles=${ang(0)},${ang(1)} "+p)
+    }
 
   }
 
 
-
 }
-

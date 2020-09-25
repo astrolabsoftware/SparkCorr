@@ -24,3 +24,4 @@ ax = fig.add_subplot(111, projection='3d')
 ax.scatter(xx,yy,zz,c=strs)
 
 show()
+
