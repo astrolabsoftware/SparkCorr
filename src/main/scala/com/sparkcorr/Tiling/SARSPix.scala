@@ -47,7 +47,7 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     val f0:Array[arr2[Point3D]]=Array(q0,q1,q2,q3)
       for (I <- 0 to N) {
         for (J <- 0 to N) {
-          val (ff,i,j)=subfaceIndex(I,J)
+          val (ff,i,j)=face2localIndex(I,J)
           FACE0(I,J)=f0(ff)(i,j)
           //println(s"FACE0 ($I $J) = ${FACE0(ii,jj)}")
         }
@@ -94,13 +94,21 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
   }
 
 
-  //get subfaceindex from face index
-  //I,J = face index
-  def subfaceIndex(I:Int,J:Int):(Int,Int,Int)=
+  // convert face (I,J) coordinates to local (q,i,j) ones
+  def face2localIndex(I:Int,J:Int):(Int,Int,Int)=
     if (J<=N/2)
         if (I<=N/2) (3,N/2-I,N/2-J) else (1,I-N/2,N/2-J)
     else
         if (I<=N/2) (2,N/2-I,J-N/2) else (0,I-N/2,J-N/2)
+
+  // convert local (q,i,j) coordinates to face ones (I,J)
+  def local2faceIndex(q:Int,i:Int,j:Int):(Int,Int)= q match {
+    case 0 => (i+N/2,j+N/2)
+    case 1 => (i+N/2,N/2-j)
+    case 2 => (N/2-i,N/2+j)
+    case 3 => (N/2-i,N/2-j)
+  }
+
 
   //rotates face0 onto fnum
   def rotateFace0(face0:arr2[Point3D],fnum:Int):arr2[Point3D]={

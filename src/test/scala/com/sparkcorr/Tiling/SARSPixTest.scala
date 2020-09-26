@@ -67,12 +67,22 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
   }
 
 
-
   test("pix2ang returns angles in the correct range") {
     for (ipix<-c.pixNums) {
       val Array(theta,phi)=c.pix2ang(ipix)
       assert(theta>=0 & theta<=Pi & phi>=0 & phi<=2*Pi,f"theta=$theta phi=$phi")
     }
+  }
+
+
+  test("face2localIndex + local2faceIndex") {
+    for (I <- 0 until c.N) {
+      for (J <- 0 until c.N) {
+        val (q,i,j)=c.face2localIndex(I,J)
+        assert(c.local2faceIndex(q,i,j)==(I,J))
+      }
+    }
+
   }
 
 
