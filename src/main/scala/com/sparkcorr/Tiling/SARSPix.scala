@@ -105,18 +105,18 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
   //rotates face0 onto fnum
   def rotateFace0(face0:arr2[Point3D],fnum:Int):arr2[Point3D]={
 
-    //define rotations on X,Y,Z from face 0 to any up to 5
-    val rotations=new Array[(Double,Double,Double)=>(Double,Double,Double)](6)
-    rotations(0)=(x,y,z)=>(x,y,z)
-    rotations(1)=(x,y,z)=>(-y,x,z)
-    rotations(2)=(x,y,z)=>(-x,-y,z)
-    rotations(3)=(x,y,z)=>(y,-x,z)
-    rotations(4)=(x,y,z)=>(-z,y,x)
-    rotations(5)=(x,y,z)=>(z,y,-x)
-
-
     val face=new arr2[Point3D](face0.size)
-    val rot=rotations(fnum)
+
+    val rot=fnum match {
+      case 0 => (x:Double,y:Double,z:Double)=>(x,y,z)
+      case 1 => (x:Double,y:Double,z:Double)=>(-y,x,z)
+      case 2 => (x:Double,y:Double,z:Double)=>(-x,-y,z)
+      case 3 => (x:Double,y:Double,z:Double)=>(y,-x,z)
+      case 4 => (x:Double,y:Double,z:Double)=>(-z,y,x)
+      case 5 => (x:Double,y:Double,z:Double)=>(z,y,-x)
+
+    }
+
     for ( i <- 0 until face0.size) 
     {
       for ( j <- 0 until face0.size)
