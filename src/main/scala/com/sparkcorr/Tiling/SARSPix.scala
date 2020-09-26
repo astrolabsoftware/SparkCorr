@@ -36,11 +36,11 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     val nodes=new Array[arr2[Point3D]](6)
 
     //build FACE0
-    //subfaces (quadrants)
-    val q0:arr2[Point3D]=subface0(1,1)
-    val q1:arr2[Point3D]=subface0(1,-1)
-    val q2:arr2[Point3D]=subface0(-1,1)
-    val q3:arr2[Point3D]=subface0(-1,-1)
+    //quadrants
+    val q0:arr2[Point3D]=face0quad(1,1)
+    val q1:arr2[Point3D]=face0quad(1,-1)
+    val q2:arr2[Point3D]=face0quad(-1,1)
+    val q3:arr2[Point3D]=face0quad(-1,-1)
 
     //concatenate subsfaces to local index
     val FACE0=new arr2[Point3D](N+1)
@@ -65,10 +65,10 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
   }
 
     //build sufaces for face 0
-  def subface0(signa:Int,signb:Int):arr2[Point3D] = {
+  def face0quad(signa:Int,signb:Int):arr2[Point3D] = {
     val M=new arr2[Point3D](N/2+1)
     val n=N/2
-    //println(s"\ncall to subface0 (signs=$signa,$signb) n=$n")
+    //println(s"\ncall to face0quad (signs=$signa,$signb) n=$n")
     M(0,0)=new Point3D(Pi/2,0.0)
 
     for (i <- 1 to N/2){
@@ -81,7 +81,7 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
       for (j <- 0 to i) {
         val beta_ij:Double=j*beta_ii/i
         M(i,j)=new Point3D(Pi/2-beta_ij,alpha_i)
-        //println(s"subface0 (signs=$signa,$signb) = [$i,$j]=${M(i,j)}")
+        //println(s"face0quad (signs=$signa,$signb) = [$i,$j]=${M(i,j)}")
       }
     }
     //symetrize
@@ -166,7 +166,7 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
 
     val p=new Point3D(theta,phi)
     //subsface
-    // subface index i,j
+    // quadrant index i,j
 
     //back to face index
     val (ii,jj)=(0,0)
