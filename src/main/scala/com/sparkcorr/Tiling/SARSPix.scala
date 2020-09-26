@@ -140,11 +140,9 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
       case 4 => (z,y,-x)
       case 5 => (-z,y,x)
     }
-    var q:Int=0
-    if (z0<0) q+= 1<<0
-    if (y0<0) q+= 1<<1
 
-    q
+    implicit def bool2int(b:Boolean):Int = if (b) 1 else 0
+    (z0<0)*(1<<0)+(y0<0)*(1<<1)
   }
 
   def getFaceQuadrant(theta:Double,phi:Double):(Int,Int)={
