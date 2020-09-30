@@ -37,51 +37,60 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
 
     //build FACE0
     //quadrants
-    val q0:arr2[Point3D]=face0quad(1,1)
-    val q1:arr2[Point3D]=face0quad(1,-1)
-    val q2:arr2[Point3D]=face0quad(-1,1)
-    val q3:arr2[Point3D]=face0quad(-1,-1)
+    val q0:arr2[Point3D]=newF0Quadrant(0)
+    val q1:arr2[Point3D]=newF0Quadrant(1)
+    val q2:arr2[Point3D]=newF0Quadrant(2)
+    val q3:arr2[Point3D]=newF0Quadrant(3)
 
-    //concatenate subsfaces to local index
-    val FACE0=new arr2[Point3D](N+1)
+    //concatenate using face index
+    nodes(0)=new arr2[Point3D](N+1)
     val f0:Array[arr2[Point3D]]=Array(q0,q1,q2,q3)
       for (I <- 0 to N) {
         for (J <- 0 to N) {
-          val (ff,i,j)=face2localIndex(I,J)
-          FACE0(I,J)=f0(ff)(i,j)
-          //println(s"FACE0 ($I $J) = ${FACE0(ii,jj)}")
+          val (q,i,j)=face2localIndex(I,J)
+          nodes(0)(I,J)=f0(q)(i,j)
         }
       }
 
-    nodes(0)=FACE0
     //now build other faces by rotating FACE0
-    nodes(1)=rotateFace0(FACE0,1)
-    nodes(2)=rotateFace0(FACE0,2)
-    nodes(3)=rotateFace0(FACE0,3)
-    nodes(4)=rotateFace0(FACE0,4)
-    nodes(5)=rotateFace0(FACE0,5)
+    //partially aplied
+    val rot0=rotateFace0(nodes(0))(_)
+
+    nodes(1)=rot0(1)
+    nodes(2)=rot0(2)
+    nodes(3)=rot0(3)
+    nodes(4)=rot0(4)
+    nodes(5)=rot0(5)
 
     nodes
   }
 
     //build sufaces for face 0
-  def face0quad(signa:Int,signb:Int):arr2[Point3D] = {
+  def newF0Quadrant(q:Int):arr2[Point3D] = {
+
+    val (signa,signb):(Int,Int)=q match {
+      case 0 => (1,1)
+      case 1 => (1,-1)
+      case 2 => (-1,1)
+      case 3 => (-1,-1)
+    }
+
     val M=new arr2[Point3D](N/2+1)
     val n=N/2
-    //println(s"\ncall to face0quad (signs=$signa,$signb) n=$n")
+    //println(s"\ncall to newF0Quadrant q=$q n=$n")
     M(0,0)=new Point3D(Pi/2,0.0)
 
     for (i <- 1 to N/2){
       val gi:Double=Pi/12*(i.toDouble/n)*(i.toDouble/n)+Pi/4
       val alpha_i:Double=signa*acos(sqrt(2.0)*cos(gi))
-      //println(s"i=$i, gi=$gi, ai=$alpha_i")
       M(i,0)=new Point3D(Pi/2,alpha_i)
       val beta_ii:Double=signb*acos(1/(sqrt(2.0)*sin(gi)))
+      //if (q==0) println(s"node:i=$i, gi=$gi, ai=$alpha_i bii=$beta_ii")
       M(i,i)=new Point3D(Pi/2-beta_ii,alpha_i)
       for (j <- 0 to i) {
         val beta_ij:Double=j*beta_ii/i
         M(i,j)=new Point3D(Pi/2-beta_ij,alpha_i)
-        //println(s"face0quad (signs=$signa,$signb) = [$i,$j]=${M(i,j)}")
+        //if (q==0) println(s"node:i=$i j=$j bij=$beta_ij ${M(i,j)}")
       }
     }
     //symetrize
@@ -111,7 +120,7 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
 
 
   //rotates face0 onto fnum
-  def rotateFace0(face0:arr2[Point3D],fnum:Int):arr2[Point3D]={
+  def rotateFace0(face0:arr2[Point3D])(fnum:Int):arr2[Point3D]={
 
     val face=new arr2[Point3D](face0.size)
 
@@ -159,6 +168,66 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     (face,q)
   }
 
+  //returns local coordinates (f,q,i,j)
+  def getLocalIndex(theta:Double,phi:Double):(Int,Int,Int,Int)={
+
+    val p=new Point3D(theta,phi)
+    val (x,y,z)=(p.x,p.y,p.z)
+
+    //TODO  simpler method based on x y z
+    //face
+     val face:Int=getFace(theta,phi)
+
+    //rotate to face 0
+    val (x0,y0,z0)= face match {
+      case 0 => (x,y,z)
+      case 1 => (y,-x,z)
+      case 2 => (-x,-y,z)
+      case 3 => (-y,x,z)
+      case 4 => (z,y,-x)
+      case 5 => (-z,y,x)
+    }
+    //quadrant
+    implicit def bool2int(b:Boolean):Int = if (b) 1 else 0
+    val q=(z0<0)*(1<<0)+(y0<0)*(1<<1)
+
+    //local coordinates depends on q
+    val (signa,signb):(Int,Int)=q match {
+      case 0 => (1,1)
+      case 1 => (1,-1)
+      case 2 => (-1,1)
+      case 3 => (-1,-1)
+    }
+
+    def index0(bij:Double,ai:Double):(Int,Int)={
+
+      println(s"\n get index0 for ai=$ai bi=$bij")
+      val Gi=acos(cos(ai)/sqrt(2.0))
+      val n=N/2
+      val i:Int=(n*sqrt(12/Pi*(Gi-Pi/4))).toInt
+      val bii:Double=acos(1/(sqrt(2.0)*sin(Gi)))
+      println(s"bij/bii=${bij/bii}")
+      if (bij>bii)
+        (-1,-1)
+      else {
+      val j=(i*bij/bii).toInt
+      println(s"Gi=$Gi i=$i bii=$bii j=$j")
+      (i,j)
+      }
+    }
+
+    val (i,j) = index0(Pi/2-theta,phi) match {
+      case (-1,-1) => {
+        val sympt=new Point3D(x0,z0,y0)
+        val (t,f)=sympt.unitAngle()
+        val (a,b)=index0(Pi/2-t,f)
+        (b,a)
+      }
+      case (a,b) => (a,b)
+    }
+
+    (face,q,i,j)
+  }
 
   /*
   override def ang2pix(theta:Double,phi:Double):Int = {

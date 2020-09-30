@@ -17,7 +17,7 @@ package com.sparkcorr.Tiling
 import com.sparkcorr.Geometry.Point3D
 
 import org.scalatest.{BeforeAndAfter, FunSuite}
-import scala.math.{Pi,abs,acos,sqrt}
+import scala.math.{Pi,abs,acos,sqrt,toRadians,toDegrees}
 import scala.util.Random
 import java.util.Locale
 
@@ -27,7 +27,7 @@ import java.util.Locale
 class SARSPixTest extends FunSuite with BeforeAndAfter {
 
   var c: SARSPix = _
-  val N:Int= 10
+  val N:Int= 4
 
   before {
     Locale.setDefault(Locale.US)
@@ -38,8 +38,7 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
     assert(true)
   }
 
-
-  test("Numbers of pixels shoudl be 6N^2"){
+   test("Numbers of pixels shoudl be 6N^2"){
     assert(c.pixNums.size==6*N*N)
   }
 
@@ -109,10 +108,16 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
     assert(c.getFaceQuadrant(Pi-Pi/8,Pi/4+Pi)==(5,3))
     assert(c.getFaceQuadrant(Pi-Pi/8,Pi/4+3*Pi/2)==(5,2))
 
-
+  }
+ 
+  test("get Local index from theta,phi"){
+    val ai=30.0
+    val bi=40.0
+    val (f,q,i,j)=c.getLocalIndex(Pi/2-toRadians(bi),toRadians(ai))
+    assert(f==0 & q==0 & (i,j)==(0,1),s"\n alpha=$ai deg beta=$bi deg=> f=$f q=$q i=$i j=$j")
   }
 
-
+  /*
   test("Angles to local"){
       val tet=List.tabulate(100){i=>i/100*Pi}
       val phi=List.tabulate(100){i=>i/100*2*Pi}
@@ -123,9 +128,10 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
         assert(abs(x)<1 & abs(y)<1,s"fail on f=$face")
       }
   }
+   */
 
   /*
-    test("Ang2pix over pixel centers"){
+  test("Ang2pix over pixel centers"){
       for (ipix<-c.pixNums) {
         val Array(theta,phi)=c.pix2ang(ipix)
         val ipixback=c.ang2pix(theta,phi)
@@ -134,7 +140,6 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
         assert(ipix==ipixback,f"\nipix=$ipix face=$face i=$i j=$j thetat=$theta%f phi=$phi%f\npixback=$ipixback face=$faceb i=$ib j=$jb")
       }
     }
-
 
   test("Pixels max radius") {
 
@@ -156,7 +161,7 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
     }
   }
    */
-
+ 
 
   test("Neighbours"){
     //theoretical values for square
@@ -185,7 +190,6 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
 
 
   } //test
-
 
 
 }
