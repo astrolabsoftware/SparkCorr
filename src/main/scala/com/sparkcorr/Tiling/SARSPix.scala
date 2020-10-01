@@ -200,10 +200,8 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     }
 
     def index0(p:Point3D):(Int,Int)={
-
       val ai=signa*p.unitAngle()._2
       val bij=signb*(Pi/2-p.unitAngle()._1)
-
       //println(s"\nget index0 for ai=${toDegrees(ai)}deg bij=${toDegrees(bij)}deg")
       val Gi=acos(cos(ai)/sqrt(2.0))
       val n=N/2
@@ -214,26 +212,26 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
       //println(s"candidate i=$i j=$j")
       if (j<=i) (i,j) else index0(new Point3D(p.x,signa*signb*p.z,signa*signb*p.y)).swap
     }
+    val p0=new Point3D(x0,y0,z0)
 
-    val (i,j)=index0(p)
+    val (i,j)=index0(p0)
 
     //output
     (face,q,i,j)
   }
 
-  /*
   override def ang2pix(theta:Double,phi:Double):Int = {
-    val face:Int=getFace(theta,phi)
-
     val p=new Point3D(theta,phi)
-    //subsface
-    // quadrant index i,j
 
-    //back to face index
-    val (ii,jj)=(0,0)
-    coord2pix(face,ii,jj)
+    //local index
+    val (f,q,i,j)=getLocalIndex(p)
+
+    //face index
+    val (ii,jj)=local2faceIndex(q,i,j)
+
+    //pixel index
+    coord2pix(f,ii,jj)
   }
-   */
 
 
 }

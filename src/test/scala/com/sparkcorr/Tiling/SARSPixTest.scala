@@ -81,8 +81,21 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
         assert(c.local2faceIndex(q,i,j)==(I,J))
       }
     }
-
   }
+
+  test("test all indices") {
+     for (ipix<-c.pixNums) {
+       val (f,ii,jj)=c.pix2coord(ipix)
+       val (q,i,j)=c.face2localIndex(ii,jj)
+
+       val (ib,jb)=c.local2faceIndex(q,i,j)
+       assert(ib==ii & jb==jj)
+
+       assert(c.coord2pix(f,ib,jb)==ipix)
+
+     }
+  
+}
 
 
   test("Faces and quadrants") {
@@ -134,35 +147,49 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
         assert(loc==(0,q,i-1,j-1),s"\ni=$i j=$j back=$loc $p3")
       }
     }
-
-
-
   }
 
-  /*
-  test("Angles to local"){
-      val tet=List.tabulate(100){i=>i/100*Pi}
-      val phi=List.tabulate(100){i=>i/100*2*Pi}
+  test("FACE1 test pixel index from nodes"){
+    val nodes:Array[arr2[Point3D]]=c.buildNodes
 
-      for (t<-tet;p<-phi){
-        val face=c.getFace(t,p)
-        val (x,y)=c.ang2Local(face)(t,p)
-        assert(abs(x)<1 & abs(y)<1,s"fail on f=$face")
-      }
-  }
-   */
+    val numFace=1
+    val eps=1.0/(c.N*100)
 
-  /*
-  test("Ang2pix over pixel centers"){
-      for (ipix<-c.pixNums) {
-        val Array(theta,phi)=c.pix2ang(ipix)
-        val ipixback=c.ang2pix(theta,phi)
-        val (face,i,j)=c.pix2coord(ipix)
-        val (faceb,ib,jb)=c.pix2coord(ipixback)
-        assert(ipix==ipixback,f"\nipix=$ipix face=$face i=$i j=$j thetat=$theta%f phi=$phi%f\npixback=$ipixback face=$faceb i=$ib j=$jb")
+    val FACE:arr2[Point3D]=nodes(numFace)
+    for (I <- 1 until FACE.size; J <- 1 until FACE.size){
+      val node=FACE(I,J)
+      val (q,i,j)=c.face2localIndex(I,J)
+      //avoid borders
+      if (j>0 & i>0 & i<c.N/2.0-1 & j<c.N/2.0-1) {
+        val s=Map(0->(1,1),1->(1,-1),2->(-1,1),3->(-1,-1))
+        val (signy,signz)=s(q)
+        //pas un bon smearing hors face0
+        val ps=new Point3D(node.x,node.y-signy*eps,node.z-signz*eps)
+        val p3=new Point3D(ps/ps.norm)
+        val loc=c.getLocalIndex(p3)
+        assert(loc==(numFace,q,i-1,j-1),s"\ni=${i-1} j=${j-1} back=$loc $p3")
       }
     }
 
+  }
+
+
+  test("Pix2Ang+Ang2pix "){
+      for (ipix<-c.pixNums) {
+        val (f,ii,jj)=c.pix2coord(ipix)
+        val (q,i,j)=c.face2localIndex(ii,jj)
+
+        val Array(theta,phi)=c.pix2ang(ipix)
+        val iback=c.ang2pix(theta,phi)
+
+        val (fb,iib,jjb)=c.pix2coord(iback)
+        val (qb,ib,jb)=c.face2localIndex(iib,jjb)
+
+        assert(ipix==ib,s"\ninput: ipix=$ipix face=($f,$ii,$jj) local=($q,$i,$j)  output: ipix=$iback face=($fb,$iib,$jjb) local=($qb,$ib,$jb)  output")
+      }
+    
+  }
+  /*
   test("Pixels max radius") {
 
     //theoretical values for square
