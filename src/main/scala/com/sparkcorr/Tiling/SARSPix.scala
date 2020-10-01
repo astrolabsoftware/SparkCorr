@@ -17,7 +17,7 @@ package com.sparkcorr.Tiling
 
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
-import scala.math.{Pi,sqrt,cos,sin,acos}
+import scala.math.{Pi,sqrt,cos,sin,acos,toDegrees}
 
 import org.apache.log4j.{Level, Logger}
 
@@ -85,12 +85,12 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
       val alpha_i:Double=signa*acos(sqrt(2.0)*cos(gi))
       M(i,0)=new Point3D(Pi/2,alpha_i)
       val beta_ii:Double=signb*acos(1/(sqrt(2.0)*sin(gi)))
-      //if (q==0) println(s"node:i=$i, gi=$gi, ai=$alpha_i bii=$beta_ii")
+      //if (q==0) println(s"node:i=$i, gi=$gi, ai=${toDegrees(alpha_i)} bii=${toDegrees(beta_ii)}")
       M(i,i)=new Point3D(Pi/2-beta_ii,alpha_i)
       for (j <- 0 to i) {
         val beta_ij:Double=j*beta_ii/i
         M(i,j)=new Point3D(Pi/2-beta_ij,alpha_i)
-        //if (q==0) println(s"node:i=$i j=$j bij=$beta_ij ${M(i,j)}")
+        //if (q==0) println(s"\tnode:(i=$i,j=$j) ai=${toDegrees(alpha_i)} bij=${toDegrees(beta_ij)}")
       }
     }
     //symetrize
@@ -169,10 +169,10 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
   }
 
   //returns local coordinates (f,q,i,j)
-  def getLocalIndex(theta:Double,phi:Double):(Int,Int,Int,Int)={
+  def getLocalIndex(p:Point3D):(Int,Int,Int,Int)={
 
-    val p=new Point3D(theta,phi)
     val (x,y,z)=(p.x,p.y,p.z)
+    val (theta,phi)=p.unitAngle()
 
     //TODO  simpler method based on x y z
     //face
@@ -199,33 +199,25 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
       case 3 => (-1,-1)
     }
 
-    def index0(bij:Double,ai:Double):(Int,Int)={
+    def index0(p:Point3D):(Int,Int)={
 
-      println(s"\n get index0 for ai=$ai bi=$bij")
+      val ai=signa*p.unitAngle()._2
+      val bij=signb*(Pi/2-p.unitAngle()._1)
+
+      //println(s"\nget index0 for ai=${toDegrees(ai)}deg bij=${toDegrees(bij)}deg")
       val Gi=acos(cos(ai)/sqrt(2.0))
       val n=N/2
       val i:Int=(n*sqrt(12/Pi*(Gi-Pi/4))).toInt
       val bii:Double=acos(1/(sqrt(2.0)*sin(Gi)))
-      println(s"bij/bii=${bij/bii}")
-      if (bij>bii)
-        (-1,-1)
-      else {
-      val j=(i*bij/bii).toInt
-      println(s"Gi=$Gi i=$i bii=$bii j=$j")
-      (i,j)
-      }
+      //println(s"Gi=$Gi bii=${toDegrees(bii)} bij/bii=${bij/bii}")
+      val j=((i+1)*bij/bii).toInt
+      //println(s"candidate i=$i j=$j")
+      if (j<=i) (i,j) else index0(new Point3D(p.x,signa*signb*p.z,signa*signb*p.y)).swap
     }
 
-    val (i,j) = index0(Pi/2-theta,phi) match {
-      case (-1,-1) => {
-        val sympt=new Point3D(x0,z0,y0)
-        val (t,f)=sympt.unitAngle()
-        val (a,b)=index0(Pi/2-t,f)
-        (b,a)
-      }
-      case (a,b) => (a,b)
-    }
+    val (i,j)=index0(p)
 
+    //output
     (face,q,i,j)
   }
 

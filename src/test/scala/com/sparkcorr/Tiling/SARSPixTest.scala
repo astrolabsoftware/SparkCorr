@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package com.sparkcorr.Tiling
-import com.sparkcorr.Geometry.Point3D
+import com.sparkcorr.Geometry.{Point3D,arr2}
 
 import org.scalatest.{BeforeAndAfter, FunSuite}
 import scala.math.{Pi,abs,acos,sqrt,toRadians,toDegrees}
@@ -27,7 +27,7 @@ import java.util.Locale
 class SARSPixTest extends FunSuite with BeforeAndAfter {
 
   var c: SARSPix = _
-  val N:Int= 4
+  val N:Int= 10
 
   before {
     Locale.setDefault(Locale.US)
@@ -110,11 +110,33 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
 
   }
  
-  test("get Local index from theta,phi"){
-    val ai=30.0
-    val bi=40.0
-    val (f,q,i,j)=c.getLocalIndex(Pi/2-toRadians(bi),toRadians(ai))
-    assert(f==0 & q==0 & (i,j)==(0,1),s"\n alpha=$ai deg beta=$bi deg=> f=$f q=$q i=$i j=$j")
+  test("FACE0 test pixel index from nodes"){
+    /*
+    val ai=10.0
+    val bi=30.0
+    val index=(0,1)
+    val (f,q,i,j)=c.getLocalIndex(new Point3D(Pi/2-toRadians(bi),toRadians(ai)))
+    assert(f==0 & q==0 & (i,j)==index,s"\n alpha=$ai deg beta=$bi deg=> f=$f q=$q i=$i j=$j")
+     */
+
+    //shift y-z slightly yo vaoid numerical issues
+    val eps=1.0/(c.N*100)
+
+    val s=Map(0->(1,1),1->(1,-1),2->(-1,1),3->(-1,-1))
+    for (q <- 0 to 3) {
+    val (signy,signz)=s(q)
+      val quad:arr2[Point3D]=c.newF0Quadrant(q)
+      for (i <- 1 to quad.size-2; j <- 1 to quad.size-2){
+        val node=quad(i,j)
+        val ps=new Point3D(node.x,node.y-signy*eps,node.z-signz*eps)
+        val p3=new Point3D(ps/ps.norm)
+        val loc=c.getLocalIndex(p3)
+        assert(loc==(0,q,i-1,j-1),s"\ni=$i j=$j back=$loc $p3")
+      }
+    }
+
+
+
   }
 
   /*
