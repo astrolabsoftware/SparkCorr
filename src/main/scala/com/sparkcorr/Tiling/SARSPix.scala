@@ -17,7 +17,7 @@ package com.sparkcorr.Tiling
 
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
-import scala.math.{Pi,sqrt,cos,sin,acos,toDegrees}
+import scala.math.{Pi,sqrt,cos,sin,acos,toDegrees,abs}
 
 import org.apache.log4j.{Level, Logger}
 
@@ -188,10 +188,10 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
   def getLocalIndex(p:Point3D):(Int,Int,Int,Int)={
 
     val (x,y,z)=(p.x,p.y,p.z)
-    println(s"\n call getLocalIndex on $p") 
+    //println(s"getLocalIndex on $p") 
 
     val (theta,phi)=p.unitAngle()
-    println(s"theta=$theta, phi=$phi")
+    //println(s"theta=$theta, phi=$phi")
 
 
     //TODO  simpler method based on x y z
@@ -211,7 +211,7 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     implicit def bool2int(b:Boolean):Int = if (b) 1 else 0
     val q=(z0<0)*(1<<0)+(y0<0)*(1<<1)
 
-    println(s"face=$face quadrant=$q")
+    //println(s"face=$face quadrant=$q")
 
     //local coordinates depends on q
     val (signa,signb):(Int,Int)=q match {
@@ -222,23 +222,24 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     }
 
     def index0(p:Point3D):(Int,Int)={
-      val ai=signa*p.unitAngle()._2
-      val bij=signb*(Pi/2-p.unitAngle()._1)
-      //println(s"\nget index0 for ai=${toDegrees(ai)}deg bij=${toDegrees(bij)}deg")
+      val (tet,fi)=p.unitAngle()
+      val ai=signa*fi
+      val bij=signb*(Pi/2-tet)
+      //println(s"get index0 for ai=${toDegrees(ai)}deg bij=${toDegrees(bij)}deg")
       val Gi=acos(cos(ai)/sqrt(2.0))
       val n=N/2
       val i:Int=(n*sqrt(12/Pi*(Gi-Pi/4))).toInt
       val bii:Double=acos(1/(sqrt(2.0)*sin(Gi)))
-      //println(s"Gi=$Gi bii=${toDegrees(bii)} bij/bii=${bij/bii}")
-      val j=((i+1)*bij/bii).toInt
+      val j= if (abs(bii-bij)< 1e-12) i else ((i+1)*bij/bii).toInt
       (i,j)
     }
 
     val p0=new Point3D(x0,y0,z0)
-    println(s"point after rotation $p0")
+    //println(s"point after rotation $p0")
     var (i,j)=index0(p0)
 
     if (j>i) {
+      //println("swap coordinates")
       val symp=new Point3D(x0,signa*signb*z0,signa*signb*y0)
       val (symi,symj)=index0(symp)
       i=symj
@@ -251,18 +252,14 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
   }
 
   override def ang2pix(theta:Double,phi:Double):Int = {
+    
     val p=new Point3D(theta,phi)
-
-    //local index
     val (f,q,i,j)=getLocalIndex(p)
-
     //face index
     val (ii,jj)=local2faceBinIndex(q,i,j)
-
     //pixel index
     coord2pix(f,ii,jj)
   }
-
 
 }
 
@@ -289,14 +286,13 @@ object SARSPix {
     Locale.setDefault(Locale.US)
 
     val N=args(0).toInt
-    println(s"-> Constructing cubedsphere of size $N Npix=${6*N*N/1000000.0} M")
+    println(s"-> Constructing SARS sphere of size $N Npix=${6*N*N/1000000.0} M")
 
     val c=new SARSPix(args(0).toInt)
 
 
     for (ipix<-c.pixNums) {
       val (f,ii,jj)=c.pix2coord(ipix)
-        if (f==0) {
           //coords
           val (q,i,j)=c.face2localBinIndex(ii,jj)
           println(s"\npix=$ipix q=$q ($i,$j)")
@@ -306,9 +302,8 @@ object SARSPix {
           val p=new Point3D(theta,phi)
           println(s"center=  ai=${toDegrees(phi)} bij=${toDegrees(Pi/2-theta)} $p")
           val (fb,qb,ib,jb)=c.getLocalIndex(p)
-          println(s"\nf=$fb q=$qb ($ib,$jb)")
-
-        }
+          println(s"back f=$fb q=$qb ($ib,$jb)")
+          require(f==fb & qb==q & ib==i & jb==j)
     }
 
 
@@ -325,7 +320,7 @@ object SARSPix {
     val Array(tc,phic)=c.pix2ang(ipix)
     val pcen=new Point3D(tc,phic)
 
-    println(s"input pixel=$ipix ($fc,$ic,$jc)  angles=($tc,$phic) :"+pcen)
+    //println(s"input pixel=$ipix ($fc,$ic,$jc)  angles=($tc,$phic) :"+pcen)
 
 
     val n=c.neighbours(ipix)
@@ -333,7 +328,7 @@ object SARSPix {
       val (f,i,j)=c.pix2coord(in)
       val ang=c.pix2ang(in)
       val p=new Point3D(ang(0),ang(1))
-      println(s"voisin pixel=$in ($f,$i,$j): angles=${ang(0)},${ang(1)} "+p)
+      //println(s"voisin pixel=$in ($f,$i,$j): angles=${ang(0)},${ang(1)} "+p)
     }
 
   }

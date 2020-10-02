@@ -27,7 +27,7 @@ import java.util.Locale
 class SARSPixTest extends FunSuite with BeforeAndAfter {
 
   var c: SARSPix = _
-  val N:Int= 4
+  val N:Int= 10
 
   before {
     Locale.setDefault(Locale.US)
@@ -127,31 +127,29 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
       for (ipix<-c.pixNums) {
 
         val (f,ii,jj)=c.pix2coord(ipix)
-        if (f==0) {
-          //coords
-          val (q,i,j)=c.face2localBinIndex(ii,jj)
-          //pos
-          val Array(theta,phi)=c.pix2ang(ipix)
+        //coords
+        val (q,i,j)=c.face2localBinIndex(ii,jj)
+        //pos
+        val Array(theta,phi)=c.pix2ang(ipix)
 
-          //ang2pix
-          val p=new Point3D(theta,phi)
+        //ang2pix
+        val p=new Point3D(theta,phi)
 
-          val (fb,qb,ib,jb)=c.getLocalIndex(p)
+        val (fb,qb,ib,jb)=c.getLocalIndex(p)
 
-          assert(fb==f & qb==q & ib==i &jb==j,s"\ninput: ai=${toDegrees(phi)} bij=${toDegrees(Pi/2-theta)} ipix=$ipix -> face=$f($ii,$jj) -> q=$q($i,$j)  \noutput: f=$fb,q=$qb($ib,$jb)")
+        val ipixb=c.ang2pix(theta,phi)
 
-        }
+        assert(fb==f & qb==q & ib==i &jb==j,s"\ninput: ai=${toDegrees(phi)} bij=${toDegrees(Pi/2-theta)} ipix=$ipix -> face=$f($ii,$jj) -> q=$q($i,$j)  \noutput: ipix=$ipixb f=$fb,q=$qb($ib,$jb)")
       }
     
   }//test
  
-
   /*
   test("Pixels max radius") {
 
     //theoretical values for square
     val Asq=4*Pi/(6*N*N)
-    val Rmax=1.25*sqrt(Asq/2)
+    val Rmax=10*sqrt(Asq/2)
 
     val Ntot=1000000
     //random angles
@@ -167,7 +165,6 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
     }
   }
    */
- 
 
   test("Neighbours"){
     //theoretical values for square
