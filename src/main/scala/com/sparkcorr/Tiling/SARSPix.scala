@@ -110,12 +110,28 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     else
         if (I<=N/2) (2,N/2-I,J-N/2) else (0,I-N/2,J-N/2)
 
+  def face2localBinIndex(I:Int,J:Int):(Int,Int,Int)=
+    if (J<=N/2-1)
+        if (I<=N/2-1) (3,N/2-1-I,N/2-1-J) else (1,I-N/2,N/2-J-1)
+    else
+        if (I<=N/2-1) (2,N/2-I-1,J-N/2) else (0,I-N/2,J-N/2)
+
+
+
   // convert local (q,i,j) coordinates to face ones (I,J)
   def local2faceIndex(q:Int,i:Int,j:Int):(Int,Int)= q match {
     case 0 => (i+N/2,j+N/2)
     case 1 => (i+N/2,N/2-j)
     case 2 => (N/2-i,N/2+j)
     case 3 => (N/2-i,N/2-j)
+  }
+
+  //bin index is -1
+  def local2faceBinIndex(q:Int,i:Int,j:Int):(Int,Int)= local2faceIndex(q,i,j) match {
+   case (0,0) => (0,0)
+   case (ii,0) => (ii-1,0)
+   case (0,jj) => (0,jj-1)
+   case (ii,jj) => (ii-1,jj-1)
   }
 
 
@@ -172,7 +188,11 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
   def getLocalIndex(p:Point3D):(Int,Int,Int,Int)={
 
     val (x,y,z)=(p.x,p.y,p.z)
+    println(s"\n call getLocalIndex on $p") 
+
     val (theta,phi)=p.unitAngle()
+    println(s"theta=$theta, phi=$phi")
+
 
     //TODO  simpler method based on x y z
     //face
@@ -190,6 +210,8 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     //quadrant
     implicit def bool2int(b:Boolean):Int = if (b) 1 else 0
     val q=(z0<0)*(1<<0)+(y0<0)*(1<<1)
+
+    println(s"face=$face quadrant=$q")
 
     //local coordinates depends on q
     val (signa,signb):(Int,Int)=q match {
@@ -209,12 +231,20 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
       val bii:Double=acos(1/(sqrt(2.0)*sin(Gi)))
       //println(s"Gi=$Gi bii=${toDegrees(bii)} bij/bii=${bij/bii}")
       val j=((i+1)*bij/bii).toInt
-      //println(s"candidate i=$i j=$j")
-      if (j<=i) (i,j) else index0(new Point3D(p.x,signa*signb*p.z,signa*signb*p.y)).swap
+      (i,j)
     }
-    val p0=new Point3D(x0,y0,z0)
 
-    val (i,j)=index0(p0)
+    val p0=new Point3D(x0,y0,z0)
+    println(s"point after rotation $p0")
+    var (i,j)=index0(p0)
+
+    if (j>i) {
+      val symp=new Point3D(x0,signa*signb*z0,signa*signb*y0)
+      val (symi,symj)=index0(symp)
+      i=symj
+      j=symi
+    }
+
 
     //output
     (face,q,i,j)
@@ -227,7 +257,7 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     val (f,q,i,j)=getLocalIndex(p)
 
     //face index
-    val (ii,jj)=local2faceIndex(q,i,j)
+    val (ii,jj)=local2faceBinIndex(q,i,j)
 
     //pixel index
     coord2pix(f,ii,jj)
@@ -261,29 +291,47 @@ object SARSPix {
     val N=args(0).toInt
     println(s"-> Constructing cubedsphere of size $N Npix=${6*N*N/1000000.0} M")
 
-    val tiling=new SARSPix(args(0).toInt)
+    val c=new SARSPix(args(0).toInt)
 
 
-    tiling.writeCenters("centers.txt")
+    for (ipix<-c.pixNums) {
+      val (f,ii,jj)=c.pix2coord(ipix)
+        if (f==0) {
+          //coords
+          val (q,i,j)=c.face2localBinIndex(ii,jj)
+          println(s"\npix=$ipix q=$q ($i,$j)")
+          //pos
+          val Array(theta,phi)=c.pix2ang(ipix)
+          //ang2pix
+          val p=new Point3D(theta,phi)
+          println(s"center=  ai=${toDegrees(phi)} bij=${toDegrees(Pi/2-theta)} $p")
+          val (fb,qb,ib,jb)=c.getLocalIndex(p)
+          println(s"\nf=$fb q=$qb ($ib,$jb)")
+
+        }
+    }
+
+
+    c.writeCenters("centers.txt")
 
     val fc=args(1).toInt
     val ic=args(2).toInt
     val jc=args(3).toInt
 
-    tiling.writeNeighbours(tiling.coord2pix(fc,ic,jc))
+    c.writeNeighbours(c.coord2pix(fc,ic,jc))
 
-    val ipix=tiling.coord2pix(fc,ic,jc)
+    val ipix=c.coord2pix(fc,ic,jc)
 
-    val Array(tc,phic)=tiling.pix2ang(ipix)
+    val Array(tc,phic)=c.pix2ang(ipix)
     val pcen=new Point3D(tc,phic)
 
     println(s"input pixel=$ipix ($fc,$ic,$jc)  angles=($tc,$phic) :"+pcen)
 
 
-    val n=tiling.neighbours(ipix)
+    val n=c.neighbours(ipix)
     for (in <- n) {
-      val (f,i,j)=tiling.pix2coord(in)
-      val ang=tiling.pix2ang(in)
+      val (f,i,j)=c.pix2coord(in)
+      val ang=c.pix2ang(in)
       val p=new Point3D(ang(0),ang(1))
       println(s"voisin pixel=$in ($f,$i,$j): angles=${ang(0)},${ang(1)} "+p)
     }

@@ -27,7 +27,7 @@ import java.util.Locale
 class SARSPixTest extends FunSuite with BeforeAndAfter {
 
   var c: SARSPix = _
-  val N:Int= 10
+  val N:Int= 4
 
   before {
     Locale.setDefault(Locale.US)
@@ -97,7 +97,6 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
   
 }
 
-
   test("Faces and quadrants") {
  
     //azimuthal
@@ -122,73 +121,31 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
     assert(c.getFaceQuadrant(Pi-Pi/8,Pi/4+3*Pi/2)==(5,2))
 
   }
- 
-  test("FACE0 test pixel index from nodes"){
-    /*
-    val ai=10.0
-    val bi=30.0
-    val index=(0,1)
-    val (f,q,i,j)=c.getLocalIndex(new Point3D(Pi/2-toRadians(bi),toRadians(ai)))
-    assert(f==0 & q==0 & (i,j)==index,s"\n alpha=$ai deg beta=$bi deg=> f=$f q=$q i=$i j=$j")
-     */
-
-    //shift y-z slightly yo vaoid numerical issues
-    val eps=1.0/(c.N*100)
-
-    val s=Map(0->(1,1),1->(1,-1),2->(-1,1),3->(-1,-1))
-    for (q <- 0 to 3) {
-    val (signy,signz)=s(q)
-      val quad:arr2[Point3D]=c.newF0Quadrant(q)
-      for (i <- 1 to quad.size-2; j <- 1 to quad.size-2){
-        val node=quad(i,j)
-        val ps=new Point3D(node.x,node.y-signy*eps,node.z-signz*eps)
-        val p3=new Point3D(ps/ps.norm)
-        val loc=c.getLocalIndex(p3)
-        assert(loc==(0,q,i-1,j-1),s"\ni=$i j=$j back=$loc $p3")
-      }
-    }
-  }
-
-  test("FACE1 test pixel index from nodes"){
-    val nodes:Array[arr2[Point3D]]=c.buildNodes
-
-    val numFace=1
-    val eps=1.0/(c.N*100)
-
-    val FACE:arr2[Point3D]=nodes(numFace)
-    for (I <- 1 until FACE.size; J <- 1 until FACE.size){
-      val node=FACE(I,J)
-      val (q,i,j)=c.face2localIndex(I,J)
-      //avoid borders
-      if (j>0 & i>0 & i<c.N/2.0-1 & j<c.N/2.0-1) {
-        val s=Map(0->(1,1),1->(1,-1),2->(-1,1),3->(-1,-1))
-        val (signy,signz)=s(q)
-        //pas un bon smearing hors face0
-        val ps=new Point3D(node.x,node.y-signy*eps,node.z-signz*eps)
-        val p3=new Point3D(ps/ps.norm)
-        val loc=c.getLocalIndex(p3)
-        assert(loc==(numFace,q,i-1,j-1),s"\ni=${i-1} j=${j-1} back=$loc $p3")
-      }
-    }
-
-  }
 
 
   test("Pix2Ang+Ang2pix "){
       for (ipix<-c.pixNums) {
+
         val (f,ii,jj)=c.pix2coord(ipix)
-        val (q,i,j)=c.face2localIndex(ii,jj)
+        if (f==0) {
+          //coords
+          val (q,i,j)=c.face2localBinIndex(ii,jj)
+          //pos
+          val Array(theta,phi)=c.pix2ang(ipix)
 
-        val Array(theta,phi)=c.pix2ang(ipix)
-        val iback=c.ang2pix(theta,phi)
+          //ang2pix
+          val p=new Point3D(theta,phi)
 
-        val (fb,iib,jjb)=c.pix2coord(iback)
-        val (qb,ib,jb)=c.face2localIndex(iib,jjb)
+          val (fb,qb,ib,jb)=c.getLocalIndex(p)
 
-        assert(ipix==ib,s"\ninput: ipix=$ipix face=($f,$ii,$jj) local=($q,$i,$j)  output: ipix=$iback face=($fb,$iib,$jjb) local=($qb,$ib,$jb)  output")
+          assert(fb==f & qb==q & ib==i &jb==j,s"\ninput: ai=${toDegrees(phi)} bij=${toDegrees(Pi/2-theta)} ipix=$ipix -> face=$f($ii,$jj) -> q=$q($i,$j)  \noutput: f=$fb,q=$qb($ib,$jb)")
+
+        }
       }
     
-  }
+  }//test
+ 
+
   /*
   test("Pixels max radius") {
 
