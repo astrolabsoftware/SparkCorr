@@ -2,12 +2,14 @@
 
 #myexec="Tiling.CubedSphere"
 
-#myexec="Tiling.PixelSize"
+myexec="Tiling.PixelSize"
 #args="hp 128 100000000"
 #args="cs 180 100000000"
 
-myexec="Tiling.SARSPix"
-args=$*
+args="sars 180 100000000"
+
+#myexec="Tiling.SARSPix"
+#args=$*
 
 
 echo "$myexec $args"

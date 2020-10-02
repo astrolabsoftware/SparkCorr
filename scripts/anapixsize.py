@@ -13,10 +13,12 @@ tit=""
 if (method=="hp"):
     tit="Healpix (nside={})".format(nside)
     Npix=12*nside**2
-else :
+elif (method=="cs"):
     tit="CubedSphere (nside={})".format(nside)
     Npix=6*nside**2
-
+else :
+    tit="SARSPix (nside={})".format(nside)
+    Npix=6*nside**2
 
 Rsq=rad2arcmin(sqrt(4*pi/Npix/2))
 

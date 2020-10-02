@@ -20,7 +20,7 @@ package com.sparkcorr.Geometry
 
 //* a utility for 2D squared arrays of objects*/
 
-class arr2[A: Manifest](N:Int) {
+class arr2[A: Manifest](N:Int) extends Serializable {
   val size=N
   val a=Array.ofDim[A](N,N)
 
