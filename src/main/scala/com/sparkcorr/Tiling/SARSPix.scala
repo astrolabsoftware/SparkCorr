@@ -47,7 +47,7 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     val f0:Array[arr2[Point3D]]=Array(q0,q1,q2,q3)
       for (I <- 0 to N) {
         for (J <- 0 to N) {
-          val (q,i,j)=face2localIndex(I,J)
+          val (q,i,j)=face2localNodeIndex(I,J)
           nodes(0)(I,J)=f0(q)(i,j)
         }
       }
@@ -104,36 +104,36 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
 
 
   // convert face (I,J) coordinates to local (q,i,j) ones
-  def face2localIndex(I:Int,J:Int):(Int,Int,Int)=
+  def face2localNodeIndex(I:Int,J:Int):(Int,Int,Int)={
     if (J<=N/2)
         if (I<=N/2) (3,N/2-I,N/2-J) else (1,I-N/2,N/2-J)
     else
         if (I<=N/2) (2,N/2-I,J-N/2) else (0,I-N/2,J-N/2)
+  }
 
-  def face2localBinIndex(I:Int,J:Int):(Int,Int,Int)=
+  def face2localBinIndex(I:Int,J:Int):(Int,Int,Int)={
     if (J<=N/2-1)
         if (I<=N/2-1) (3,N/2-1-I,N/2-1-J) else (1,I-N/2,N/2-J-1)
     else
         if (I<=N/2-1) (2,N/2-I-1,J-N/2) else (0,I-N/2,J-N/2)
-
+  }
 
 
   // convert local (q,i,j) coordinates to face ones (I,J)
-  def local2faceIndex(q:Int,i:Int,j:Int):(Int,Int)= q match {
+  def local2faceNodeIndex(q:Int,i:Int,j:Int):(Int,Int)= q match {
     case 0 => (i+N/2,j+N/2)
     case 1 => (i+N/2,N/2-j)
     case 2 => (N/2-i,N/2+j)
     case 3 => (N/2-i,N/2-j)
   }
 
-  //bin index is -1
-  def local2faceBinIndex(q:Int,i:Int,j:Int):(Int,Int)= local2faceIndex(q,i,j) match {
-   case (0,0) => (0,0)
-   case (ii,0) => (ii-1,0)
-   case (0,jj) => (0,jj-1)
-   case (ii,jj) => (ii-1,jj-1)
+  //same for bin number
+  def local2faceBinIndex(q:Int,i:Int,j:Int):(Int,Int)= q match {
+    case 3 => (N/2-1-i,N/2-1-j)
+    case 1 => (N/2+i,N/2-1-j)
+    case 2 => (N/2-1-i,N/2+j)
+    case 0 => (i+N/2,j+N/2)
   }
-
 
   //rotates face0 onto fnum
   def rotateFace0(face0:arr2[Point3D])(fnum:Int):arr2[Point3D]={
@@ -188,10 +188,9 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
   def getLocalIndex(p:Point3D):(Int,Int,Int,Int)={
 
     val (x,y,z)=(p.x,p.y,p.z)
-    //println(s"getLocalIndex on $p") 
 
     val (theta,phi)=p.unitAngle()
-    //println(s"theta=$theta, phi=$phi")
+    //println(s"\ngetLocalIndex for theta=$theta, phi=$phi")
 
 
     //TODO  simpler method based on x y z
@@ -224,20 +223,22 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     def index0(p:Point3D):(Int,Int)={
       val (tet,fi)=p.unitAngle()
       val ai=signa*fi
-      val bij=signb*(Pi/2-tet)
-      //println(s"get index0 for ai=${toDegrees(ai)}deg bij=${toDegrees(bij)}deg")
+      val bij=(Pi/2-tet)
       val Gi=acos(cos(ai)/sqrt(2.0))
       val n=N/2
-      val i:Int=(n*sqrt(12/Pi*(Gi-Pi/4))).toInt
-      val bii:Double=acos(1/(sqrt(2.0)*sin(Gi)))
-      val j= if (abs(bii-bij)< 1e-12) i else ((i+1)*bij/bii).toInt
+      val ii:Double=(n*sqrt(12/Pi*(Gi-Pi/4)))
+      val i=ii.toInt
+      val bii:Double=signb*acos(1/(sqrt(2.0)*sin(Gi)))
+
+      //val j= if (abs(bii-bij)< 1e-12) i else ((i+1)*bij/bii).toInt
+      val j= (ii*bij/bii).toInt
+      //println(s"index0 for ai=${toDegrees(ai)}deg bij=${toDegrees(bij)}deg bii=${toDegrees(bii)} i=$i $j")
       (i,j)
     }
 
     val p0=new Point3D(x0,y0,z0)
     //println(s"point after rotation $p0")
     var (i,j)=index0(p0)
-
     if (j>i) {
       //println("swap coordinates")
       val symp=new Point3D(x0,signa*signb*z0,signa*signb*y0)
@@ -245,6 +246,7 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
       i=symj
       j=symi
     }
+    //println(s"i=$i j=$j")
 
 
     //output
@@ -257,6 +259,7 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     val (f,q,i,j)=getLocalIndex(p)
     //face index
     val (ii,jj)=local2faceBinIndex(q,i,j)
+    //println(s"f=$f q=$q i=$i j=$j I=$ii J=$jj")
     //pixel index
     coord2pix(f,ii,jj)
   }
@@ -295,7 +298,7 @@ object SARSPix {
       val (f,ii,jj)=c.pix2coord(ipix)
           //coords
           val (q,i,j)=c.face2localBinIndex(ii,jj)
-          println(s"\npix=$ipix q=$q ($i,$j)")
+          println(s"\npix=$ipix f=$f q=$q ($i,$j)")
           //pos
           val Array(theta,phi)=c.pix2ang(ipix)
           //ang2pix

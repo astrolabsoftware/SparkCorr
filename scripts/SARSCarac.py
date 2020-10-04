@@ -17,6 +17,10 @@ def dist(p1,p2):
 
 def dist2(p1,p2):
     return sum((p1-p2)**2)
+
+print("writing centers.txt")
+ff=open("centers.txt",'w')
+
 #cells
 Air=zeros((N-1,N-1))
 e=zeros((N-1,N-1))
@@ -44,30 +48,29 @@ for ip in range(N*N):
     #A[i,j]=p*q/2
     e[i,j]=sqrt(p2/q2)
     cen=(A+B+C+D)/4.
+    cen=cen/sqrt(sum(cen**2))
+    line=" ".join([str(x) for x in cen])+"\n"
+    ff.write(line)
     ri=array([dist(cen,A),dist(cen,B),dist(cen,C),dist(cen,B)])
     Rmax[i,j]=amax(ri)
 
 ##
-
+ff.close()
 
 
 Aexp=4*pi/6/(N-1)**2
 Rexp=sqrt(Aexp/2)
 
-figure()
 imshowXY(arange(N-1),arange(N-1),Air/Aexp,vmin=0.85,vmax=1.15)
 title("area")
 
-figure()
 imshowXY(arange(N-1),arange(N-1),abs(e-1),vmin=0,vmax=0.8)
 title("ellipticity")
 
-figure()
 imshowXY(arange(N-1),arange(N-1),Rmax/Rexp,vmin=0.85,vmax=1.35)
 title("radius")
 
 #histo R
-figure()
 hist_plot(Rmax.flatten()/Rexp,range=[0.85,1.35],bins=50)
 
 

@@ -77,8 +77,8 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
   test("face2localIndex + local2faceIndex") {
     for (I <- 0 until c.N) {
       for (J <- 0 until c.N) {
-        val (q,i,j)=c.face2localIndex(I,J)
-        assert(c.local2faceIndex(q,i,j)==(I,J))
+        val (q,i,j)=c.face2localBinIndex(I,J)
+        assert(c.local2faceBinIndex(q,i,j)==(I,J))
       }
     }
   }
@@ -86,9 +86,9 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
   test("test all indices") {
      for (ipix<-c.pixNums) {
        val (f,ii,jj)=c.pix2coord(ipix)
-       val (q,i,j)=c.face2localIndex(ii,jj)
+       val (q,i,j)=c.face2localBinIndex(ii,jj)
 
-       val (ib,jb)=c.local2faceIndex(q,i,j)
+       val (ib,jb)=c.local2faceBinIndex(q,i,j)
        assert(ib==ii & jb==jj)
 
        assert(c.coord2pix(f,ib,jb)==ipix)
@@ -144,12 +144,12 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
     
   }//test
  
-  /*
+
   test("Pixels max radius") {
 
     //theoretical values for square
     val Asq=4*Pi/(6*N*N)
-    val Rmax=10*sqrt(Asq/2)
+    val Rmax=1.1*sqrt(Asq/2)
 
     val Ntot=1000000
     //random angles
@@ -164,7 +164,6 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
       assert(r<Rmax,s"\n ipix=$ipix theta=$t phi=$f r=$r")
     }
   }
-   */
 
   test("Neighbours"){
     //theoretical values for square
