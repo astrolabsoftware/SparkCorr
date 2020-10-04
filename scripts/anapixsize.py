@@ -22,6 +22,8 @@ else :
 
 Rsq=rad2arcmin(sqrt(4*pi/Npix/2))
 
+print("Rsq={} arcmin".format(Rsq))
+
 spark = SparkSession.builder.getOrCreate()
 
 fn=method+"_nside{}.parquet".format(nside)
@@ -69,7 +71,7 @@ savefig(method+"_nside{}_2dlog.png".format(nside))
 
 #Rmax by pixel                                              
 dfpix=df.groupBy("ipix").agg(F.max(df["R"]))
-h,step=df_histplot(dfpix,dfpix.columns[1],bounds=[0.6,1.5],Nbins=100,doStat=True)
+h,step=df_histplot(dfpix,dfpix.columns[1],bounds=[0.8,1.5],Nbins=100,doStat=True)
 xlabel("pixel radius")
 title(tit)
 savefig(method+"_nside{}_1d.png".format(nside))

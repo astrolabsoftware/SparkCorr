@@ -17,7 +17,7 @@ package com.sparkcorr.Tiling
 import com.sparkcorr.Geometry.{Point3D,arr2}
 
 import org.scalatest.{BeforeAndAfter, FunSuite}
-import scala.math.{Pi,abs,acos,sqrt,toRadians,toDegrees}
+import scala.math.{Pi,abs,acos,asin,sqrt,toRadians,toDegrees}
 import scala.util.Random
 import java.util.Locale
 
@@ -149,7 +149,8 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
 
     //theoretical values for square
     val Asq=4*Pi/(6*N*N)
-    val Rmax=1.1*sqrt(Asq/2)
+    val Rsq=sqrt(Asq/2)
+    val Rmax=1.1*Rsq
 
     val Ntot=1000000
     //random angles
