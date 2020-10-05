@@ -4,7 +4,8 @@
 
 myexec="Tiling.PixelSize"
 #args="hp 128 10000000"
-args="cs 180 10000000"
+#args="cs 180 10000000"
+args="sa 180 1000000000"
 
 
 if [ -z "$SPARKOPTS" ] ; then

@@ -59,7 +59,7 @@ object PixelSize {
 
     val grid = tile match {
       case "cs" => new CubedSphere(Nf)
-      case "sars" => new SARSPix(Nf)
+      case "sa" => new SARSPix(Nf)
       case "hp" => HealpixGrid(Nf, NESTED)
       case _ =>  {require(false,s"unknow tiling=$tile"); null}
     }
