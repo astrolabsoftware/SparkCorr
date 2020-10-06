@@ -26,6 +26,8 @@ import org.apache.log4j.{Level, Logger}
 import java.io._
 import java.util.Locale
 
+import scala.collection.mutable.ArrayBuffer
+
 
 class CubedSphere(nside:Int) extends SphereTiling with Serializable {
 
@@ -88,10 +90,20 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
     }
     nodes
   }
+
+  val Rsq:Double=sqrt(2*Pi/6)/N
+  var radii=new ArrayBuffer[Double] 
+
+  //in rad
+  def Rmin:Double=radii.min*Rsq
+  def Rmax:Double=radii.max*Rsq
+
   /* compute pixel centers as barycenter of cells */
   def buildPixels(nodes:Array[arr2[Point3D]]):Array[(Double,Double)]={
+
     require(nodes.size==6)
     val pixarray=new Array[(Double,Double)](N*N*10-4)
+
     for (face <- 0 to 5) {
       val facenodes=nodes(face)
       //compute centers as cell barycenter
@@ -99,11 +111,13 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
         val cell=facenodes(i,j)::facenodes(i+1,j)::facenodes(i,j+1)::facenodes(i+1,j+1)::Nil
         val bary=Point.barycenter(cell)
         val cen=new Point3D(bary/bary.norm())
+        radii+=cell.map(c=>c.dist(cen)).max/Rsq
         val ipix:Int=coord2pix(face,i,j)
         pixarray(ipix)=cen.unitAngle
       }
 
     }// end face
+    println(f"pixel radii: Rmin=${Rmin/Rsq}%5.3f Rmax=${Rmax/Rsq}%5.3f (Rsq=${toDegrees(Rsq)*60}%3.2f arcim)")
     pixarray
   }
 
@@ -283,6 +297,19 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
   println(fn+ " written")
 
    }
+
+  def writeRadii(fn:String):Unit={
+
+    val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fn,false)))
+    for (r<- radii) {
+      val s=f"$r%f\n"
+      writer.write(s)
+    }
+
+  writer.close
+  println(fn+ " written")
+
+   }
  
  def writeNeighbours(ipix:Int):Unit={
 
@@ -368,9 +395,9 @@ object CubedSphere {
   def main(args:Array[String]):Unit= {
 
 
-    if (args.size!=4){
+    if (args.size!=1){
       println("*****************************************")
-      println(">>>> Usage: CubedSphere nside f i j")
+      println(">>>> Usage: CubedSphere N")
       println("*****************************************")
       return
     }
@@ -385,31 +412,19 @@ object CubedSphere {
     println(s"-> Constructing cubedsphere of size $N Npix=${6*N*N/1000000.0} M")
 
 
+    val c=new CubedSphere(args(0).toInt)
 
-    val tiling=new CubedSphere(args(0).toInt)
 
+    c.writeCenters(s"EACScenters$N.txt")
+    c.writeRadii(s"EACSradii$N.txt")
 
-    tiling.writeCenters("centers.txt")
-
+      /*
     val f=args(1).toInt
     val i=args(2).toInt
     val j=args(3).toInt
     tiling.writeNeighbours(tiling.coord2pix(f,i,j))
+       */
 
-
-    //benchmarks
-    /*
-    val Ntot=args(1).toInt
-    println(s"done.\n-> Calling ang2pix on ${Ntot/1000000} M random angles")
-
-    val angles= for (i <-1 to Ntot) yield ((math.acos(2*Random.nextDouble-1),2*Pi*Random.nextDouble))
-
-    time {
-      for ((t,f) <- angles) {
-        tiling.pix2ang(tiling.ang2pix(t,f))
-      }
-    }
-     */
 
   }
 }

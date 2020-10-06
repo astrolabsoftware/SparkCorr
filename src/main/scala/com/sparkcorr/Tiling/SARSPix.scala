@@ -275,9 +275,9 @@ object SARSPix {
     Locale.setDefault(Locale.US)
 
 
-    if (args.size!=4){
+    if (args.size!=1){
       println("*****************************************")
-      println(">>>> Usage: SARSPix nside f i j")
+      println(">>>> Usage: SARSPix N")
       println("*****************************************")
       return
     }
@@ -293,25 +293,27 @@ object SARSPix {
 
     val c=new SARSPix(args(0).toInt)
 
-
+    //basic test
     for (ipix<-c.pixNums) {
       val (f,ii,jj)=c.pix2coord(ipix)
           //coords
           val (q,i,j)=c.face2localBinIndex(ii,jj)
-          println(s"\npix=$ipix f=$f q=$q ($i,$j)")
+          //println(s"\npix=$ipix f=$f q=$q ($i,$j)")
           //pos
           val Array(theta,phi)=c.pix2ang(ipix)
           //ang2pix
           val p=new Point3D(theta,phi)
-          println(s"center=  ai=${toDegrees(phi)} bij=${toDegrees(Pi/2-theta)} $p")
+          //println(s"center=  ai=${toDegrees(phi)} bij=${toDegrees(Pi/2-theta)} $p")
           val (fb,qb,ib,jb)=c.getLocalIndex(p)
-          println(s"back f=$fb q=$qb ($ib,$jb)")
+          //println(s"back f=$fb q=$qb ($ib,$jb)")
           require(f==fb & qb==q & ib==i & jb==j)
     }
 
+    c.writeCenters(s"SARScenters$N.txt")
+    c.writeRadii(s"SARSradii$N.txt")
 
-    c.writeCenters("centers.txt")
 
+      /*
     val fc=args(1).toInt
     val ic=args(2).toInt
     val jc=args(3).toInt
@@ -333,8 +335,8 @@ object SARSPix {
       val p=new Point3D(ang(0),ang(1))
       //println(s"voisin pixel=$in ($f,$i,$j): angles=${ang(0)},${ang(1)} "+p)
     }
+       */
+  } //main
 
-  }
 
-
-}
+}//object
