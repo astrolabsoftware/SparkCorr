@@ -7,6 +7,9 @@ myexec="Tiling.PixelSize"
 #args="cs 180 10000000"
 args="sa 180 1000000000"
 
+myexec="Tiling.BenchPix"
+args=$*
+
 
 if [ -z "$SPARKOPTS" ] ; then
 echo "missing SPARKOPTS"
