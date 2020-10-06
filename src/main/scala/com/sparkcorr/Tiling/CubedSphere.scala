@@ -18,7 +18,7 @@ package com.sparkcorr.Tiling
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
 import scala.math
-import scala.math.{Pi,sqrt,toRadians,ceil,floor,toDegrees}
+import scala.math.{Pi,sqrt,toRadians,ceil,floor,toDegrees,abs}
 
 import scala.util.Random
 
@@ -180,6 +180,14 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
     else 5
 
   }
+
+
+  def getFace(p:Point3D):Int={
+    val x=p.coord.zip(List((0,2),(1,3),(4,5))).reduceLeft((x1,x2)=> if (abs(x1._1)>abs(x2._1)) x1 else x2)
+    if (x._1>0) x._2._1 else x._2._2 
+  }
+
+
 
 /** get pixel neighbours. yes that's pretty painfull for the borders but not
   *  a big deal since I code bug-free. (yes this was checked)

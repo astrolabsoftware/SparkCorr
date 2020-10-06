@@ -127,6 +127,7 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
       val cen=new Point3D(tc,fc)
       val r=cen.dist(p)
       assert(r<Rmax,s"\n ipix=$ipix theta=$t phi=$f r=$r")
+      assert(c.getFace(t,f)==c.getFace(p))
     }
   }
 
