@@ -7,9 +7,9 @@ myexec="Tiling.CubedSphere"
 #args="cs 180 100000000"
 #args="sars 180 100000000"
 
-#myexec="Tiling.SARSPix"
+myexec="Tiling.SARSPix"
 
-myexec="Tiling.BenchPix"
+#myexec="Tiling.BenchPix"
 
 
 args=$*

@@ -178,9 +178,9 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
     (z0<0)*(1<<0)+(y0<0)*(1<<1)
   }
 
-  def getFaceQuadrant(theta:Double,phi:Double):(Int,Int)={
-    val face:Int=getFace(theta,phi)
-    val q:Int=getQuadrant(face,new Point3D(theta,phi))
+  def getFaceQuadrant(p:Point3D):(Int,Int)={
+    val face:Int=getFace(p)
+    val q:Int=getQuadrant(face,p)
     (face,q)
   }
 
@@ -189,13 +189,8 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
 
     val (x,y,z)=(p.x,p.y,p.z)
 
-    val (theta,phi)=p.unitAngle()
-    //println(s"\ngetLocalIndex for theta=$theta, phi=$phi")
-
-
-    //TODO  simpler method based on x y z
     //face
-     val face:Int=getFace(theta,phi)
+     val face:Int=getFace(p)
 
     //rotate to face 0
     val (x0,y0,z0)= face match {
@@ -238,6 +233,13 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
 
     val p0=new Point3D(x0,y0,z0)
     //println(s"point after rotation $p0")
+
+    val (i,j)=index0(p0) match {
+      case (i,j) if (j<=i) => (i,j)
+      case _ => index0(new Point3D(x0,signa*signb*z0,signa*signb*y0)).swap
+    }
+
+    /*
     var (i,j)=index0(p0)
     if (j>i) {
       //println("swap coordinates")
@@ -247,6 +249,7 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
       j=symi
     }
     //println(s"i=$i j=$j")
+     */
 
 
     //output

@@ -181,10 +181,14 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
 
   }
 
-
+  // this is FP!
   def getFace(p:Point3D):Int={
-    val x=p.coord.zip(List((0,2),(1,3),(4,5))).reduceLeft((x1,x2)=> if (abs(x1._1)>abs(x2._1)) x1 else x2)
-    if (x._1>0) x._2._1 else x._2._2 
+    p.coord.zip(List((0,2),(1,3),(4,5))).foldLeft((0.0,0))( (acc,x)=> {val v =abs(x._1)
+      if (v>acc._1)
+        if (x._1>0) (v,x._2._1) else (v,x._2._2)
+        else
+          acc })._2
+
   }
 
 
