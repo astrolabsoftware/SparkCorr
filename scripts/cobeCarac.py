@@ -104,26 +104,20 @@ for ip in range(N*N):
     Rmin[i,j]=amin(ri)
 
 
-
 Aexp=4*pi/6/(N-1)**2
 Rexp=sqrt(Aexp/2)
 
-
-
-figure()
 imshowXY(arange(N-1),arange(N-1),Air/Aexp,vmin=0.85,vmax=1.15)
 title("area")
 
-figure()
 imshowXY(arange(N-1),arange(N-1),abs(e-1),vmin=0,vmax=0.8)
 title("ellipticity")
 
-figure()
 imshowXY(arange(N-1),arange(N-1),Rmax/Rexp,vmin=0.85,vmax=1.35)
 title("radius")
 
 #histo R
 figure()
-hist_plot(Rmax.flatten()/Rexp,range=[0.85,1.35],bins=50)
-
+hist_plot(Rmax.flatten()/Rexp,range=[0.8,1.5],bins=100)
+xlabel("R")
 show()
