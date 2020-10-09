@@ -91,12 +91,27 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
     nodes
   }
 
+  //pixel radius (in rad)
   val Rsq:Double=sqrt(2*Pi/6)/N
   var radii=new ArrayBuffer[Double] 
+  def Rmin():Double=radii.min*Rsq
+  def Rmax():Double=radii.max*Rsq
 
-  //in rad
-  def Rmin:Double=radii.min*Rsq
-  def Rmax:Double=radii.max*Rsq
+  //N below which all pix radius are greater than R
+  //R in arcmin
+  def pixRadiusGt(R:Double):Int = {
+    val Nsq:Double=toDegrees(sqrt(Pi/3)/R)*60
+    val N:Int=floor(Nsq*Rmin()).toInt
+     N-N%2
+  }
+
+  //N above which all pixels have radii lower than R
+  //R in arcmin
+  def pixRadiusLt(R:Double):Int = {
+    val Nsq=toDegrees(sqrt(Pi/3)/R)*60
+    val N=ceil(Nsq*Rmax()).toInt
+    N+N%2
+  }
 
   /* compute pixel centers as barycenter of cells */
   def buildPixels(nodes:Array[arr2[Point3D]]):Array[(Double,Double)]={
@@ -117,7 +132,7 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
       }
 
     }// end face
-    println(f"pixel radii: Rmin=${Rmin/Rsq}%5.3f Rmax=${Rmax/Rsq}%5.3f (Rsq=${toDegrees(Rsq)*60}%3.2f arcim)")
+    println(f"pixel radii: Rmin=${Rmin()/Rsq}%5.3f Rmax=${Rmax()/Rsq}%5.3f (Rsq=${toDegrees(Rsq)*60}%3.2f arcim)")
     pixarray
   }
 
@@ -351,31 +366,6 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
 }
 
 object CubedSphere {
-
-  //output in arcmin
-  def minmaxRadius(N:Int):(Double,Double) = 
-  { val Rsq=toDegrees(sqrt(Pi/3)/N)*60 
-    (0.85*Rsq,1.26*Rsq)
-  }
-
-  //nside for which any value lower have a pix radius greater than R
-  //R in arcmin
-  def pixRadiusGt(R:Double):Int = {
-    val Nsq:Double=toDegrees(sqrt(Pi/3)/R)*60
-    val N:Int=floor(Nsq*0.85).toInt
-     N-N%2
-  }
-
-  //nside for which any higher lower have a pix radius lower than R
-  //R in arcmin
-  def pixRadiusLt(R:Double):Int = {
-    val Nsq=toDegrees(sqrt(Pi/3)/R)*60
-    val N=ceil(Nsq*1.26).toInt
-    N+N%2
-  }
-
-
-
 
   /** utility to benchmarks */
   def time[R](block: => R) = {

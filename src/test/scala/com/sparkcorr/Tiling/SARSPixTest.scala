@@ -103,22 +103,22 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
     for (f <- 0 to 3) {
       val f0=f*Pi/2
       val t0=Pi/2
-      assert(c.getFaceQuadrant(t0-Pi/8,f0+Pi/8)==(f,0))
-      assert(c.getFaceQuadrant(t0+Pi/8,f0+Pi/8)==(f,1))
-      assert(c.getFaceQuadrant(t0-Pi/8,(f0-Pi/8+2*Pi)%(2*Pi))==(f,2))
-      assert(c.getFaceQuadrant(t0+Pi/8,(f0-Pi/8+2*Pi)%(2*Pi))==(f,3))
+      assert(c.getFaceQuadrant(new Point3D(t0-Pi/8,f0+Pi/8))==(f,0))
+      assert(c.getFaceQuadrant(new Point3D(t0+Pi/8,f0+Pi/8))==(f,1))
+      assert(c.getFaceQuadrant(new Point3D(t0-Pi/8,(f0-Pi/8+2*Pi)%(2*Pi)))==(f,2))
+      assert(c.getFaceQuadrant(new Point3D(t0+Pi/8,(f0-Pi/8+2*Pi)%(2*Pi)))==(f,3))
     }
     //upper face (4)
-    assert(c.getFaceQuadrant(Pi/8,Pi/4)==(4,1))
-    assert(c.getFaceQuadrant(Pi/8,Pi/4+Pi/2)==(4,0))
-    assert(c.getFaceQuadrant(Pi/8,Pi/4+Pi)==(4,2))
-    assert(c.getFaceQuadrant(Pi/8,Pi/4+3*Pi/2)==(4,3))
+    assert(c.getFaceQuadrant(new Point3D(Pi/8,Pi/4))==(4,1))
+    assert(c.getFaceQuadrant(new Point3D(Pi/8,Pi/4+Pi/2))==(4,0))
+    assert(c.getFaceQuadrant(new Point3D(Pi/8,Pi/4+Pi))==(4,2))
+    assert(c.getFaceQuadrant(new Point3D(Pi/8,Pi/4+3*Pi/2))==(4,3))
 
     //bottom face (5)
-    assert(c.getFaceQuadrant(Pi-Pi/8,Pi/4)==(5,0))
-    assert(c.getFaceQuadrant(Pi-Pi/8,Pi/4+Pi/2)==(5,1))
-    assert(c.getFaceQuadrant(Pi-Pi/8,Pi/4+Pi)==(5,3))
-    assert(c.getFaceQuadrant(Pi-Pi/8,Pi/4+3*Pi/2)==(5,2))
+    assert(c.getFaceQuadrant(new Point3D(Pi-Pi/8,Pi/4))==(5,0))
+    assert(c.getFaceQuadrant(new Point3D(Pi-Pi/8,Pi/4+Pi/2))==(5,1))
+    assert(c.getFaceQuadrant(new Point3D(Pi-Pi/8,Pi/4+Pi))==(5,3))
+    assert(c.getFaceQuadrant(new Point3D(Pi-Pi/8,Pi/4+3*Pi/2))==(5,2))
 
   }
 
