@@ -21,10 +21,12 @@ import java.util.Locale
 //class
 class LogBinning(val start:Double,val end:Double,val Nbins:Int) extends Binning {
 
-val logbW:Double = (log(end)-log(start))/Nbins
-val logt=Array.tabulate(Nbins+1)(i=>log(start)+i*logbW)
+  val logbW:Double = (log(end)-log(start))/Nbins
+  val logt=Array.tabulate(Nbins+1)(i=>log(start)+i*logbW)
 
-val bin=logt.map(exp).sliding(2).toArray
+  val bin=logt.map(exp).sliding(2).toArray
+
+  override def toString: String =bin.deep.mkString("\n")
 
 }
 
@@ -45,7 +47,7 @@ object LogBinning {
       return
     }
     val binning=LogBinning(args(0).toDouble,args(1).toDouble,args(2).toInt)
-    //println(binning.bin.deep.mkString("\n"))
+    println(binning)
 
     for (i<-0 until binning.bin.size) 
       println(f"[${binning.bin(i)(0)}%.2f, ${binning.bin(i)(1)}%.2f] w=${binning.binW(i)}%.2f")
