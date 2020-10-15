@@ -11,7 +11,7 @@ myexec="Tiling.SARSPix"
 
 #myexec="Tiling.BenchPix"
 
-
+myexec="Binning.LogBinning"
 args=$*
 
 
