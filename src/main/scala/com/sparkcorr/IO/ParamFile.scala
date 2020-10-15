@@ -29,14 +29,14 @@ class ParamFile(f:String) {
   def contains(key:String) = m.contains(key)
   override def toString = m.mkString("\n")
 
-  def findType[T](key:String,dflt:T,conv: String=>T):T= if (m.contains(key)) conv(m(key)) else dflt
+  def getType[T](key:String,dflt:T,conv: String=>T):T= if (m.contains(key)) conv(m(key)) else dflt
 
-  def find(key:String,dflt:String):String = m.getOrElse(key,dflt).toString
-  def find(key:String,dflt:Short):Short = findType[Short](key,dflt,_.toShort)
-  def find(key:String,dflt:Int):Int = findType[Int](key,dflt,_.toInt)
-  def find(key:String,dflt:Long):Long = findType[Long](key,dflt,_.toLong)
-  def find(key:String,dflt:Float):Float = findType[Float](key,dflt,_.toFloat)
-  def find(key:String,dflt:Double):Double = findType[Double](key,dflt,_.toDouble)
+  def get(key:String,dflt:String):String = m.getOrElse(key,dflt).toString
+  def get(key:String,dflt:Short):Short = getType[Short](key,dflt,_.toShort)
+  def get(key:String,dflt:Int):Int = getType[Int](key,dflt,_.toInt)
+  def get(key:String,dflt:Long):Long = getType[Long](key,dflt,_.toLong)
+  def get(key:String,dflt:Float):Float = getType[Float](key,dflt,_.toFloat)
+  def get(key:String,dflt:Double):Double = getType[Double](key,dflt,_.toDouble)
 
 }
 
@@ -77,9 +77,9 @@ object ParamFile {
     println(s"reading $file")
     val params=new ParamFile(args(0))
     println(params)
-    val a=params.find("a",0L)
-    val b=params.find("b","nice")
-    val c=params.find("c",1.0)
+    val a=params.get("a",0L)
+    val b=params.get("b","nice")
+    val c=params.get("c",1.0)
     println(s"a=$a b=$b c=$c")
 
 
