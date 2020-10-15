@@ -19,6 +19,6 @@ abstract class Binning {
 
 val bin:Array[Array[Double]]
 
-def binW=bin.map(b=>b(1)-b(0)) 
+lazy val binW:Array[Double]=bin.map(b=>b(1)-b(0)) 
 
 }
