@@ -190,9 +190,21 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
 
     } //pixnum
 
-
-
   } //test
+
+  test("pix radius range "){
+    assert(c.Rmin>=SARSPix.minmaxRadius._1*c.Rsq)
+    assert(c.Rmax<=SARSPix.minmaxRadius._2*c.Rsq)
+
+    val Rminacm=toDegrees(c.Rmin)*60.0
+    val n=SARSPix.pixRadiusLt(Rminacm)
+    assert(c.N<=n)
+   
+    val Rmaxacm=toDegrees(c.Rmax)*60.0
+    val m=SARSPix.pixRadiusLt(Rmaxacm)
+    assert(c.N<=m)
+
+  }
 
 
 }

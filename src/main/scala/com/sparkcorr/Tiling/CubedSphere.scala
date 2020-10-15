@@ -93,25 +93,10 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
 
   //pixel radius (in rad)
   val Rsq:Double=sqrt(2*Pi/6)/N
-  var radii=new ArrayBuffer[Double] 
+  var radii=new ArrayBuffer[Double]
   def Rmin():Double=radii.min*Rsq
   def Rmax():Double=radii.max*Rsq
 
-  //N below which all pix radius are greater than R
-  //R in arcmin
-  def pixRadiusGt(R:Double):Int = {
-    val Nsq:Double=toDegrees(sqrt(Pi/3)/R)*60
-    val N:Int=floor(Nsq*Rmin()).toInt
-     N-N%2
-  }
-
-  //N above which all pixels have radii lower than R
-  //R in arcmin
-  def pixRadiusLt(R:Double):Int = {
-    val Nsq=toDegrees(sqrt(Pi/3)/R)*60
-    val N=ceil(Nsq*Rmax()).toInt
-    N+N%2
-  }
 
   /* compute pixel centers as barycenter of cells */
   def buildPixels(nodes:Array[arr2[Point3D]]):Array[(Double,Double)]={
@@ -367,32 +352,29 @@ class CubedSphere(nside:Int) extends SphereTiling with Serializable {
 
 object CubedSphere {
 
-  /** utility to benchmarks */
-  def time[R](block: => R) = {
-    def print_result(s: String, ns: Long) = {
-      val formatter = java.text.NumberFormat.getIntegerInstance
-      println("%-16s".format(s) + formatter.format(ns) + " ms")
-    }
+  val minmaxRadius=(0.94,1.25)
 
-    var t0 = System.nanoTime()/1000000
-    var result = block    // call-by-name
-    var t1 = System.nanoTime()/1000000
 
-    print_result("First Run", (t1 - t0))
+  //N below which all pix radius are greater than R
+  //R in arcmin
+  def pixRadiusGt(R:Double):Int = {
+    val Rmin=minmaxRadius._1
+    println(s"Rmin=$Rmin")
+    val Nsq:Double=toDegrees(sqrt(Pi/3)/R)*60
+    val N:Int=floor(Nsq*Rmin).toInt
+     N-N%2
+  }
 
-    var lst = for (i <- 1 to 5) yield {
-      t0 = System.nanoTime()/1000000
-      result = block    // call-by-name
-      t1 = System.nanoTime()/1000000
-      print_result("Run #" + i, (t1 - t0))
-      (t1 - t0).toLong
-    }
+  //N above which all pixels have radii lower than R
+  //R in arcmin
+  def pixRadiusLt(R:Double):Int = {
+    val Rmax=minmaxRadius._2
+    println(s"Rmax=$Rmax")
+    val Nsq=toDegrees(sqrt(Pi/3)/R)*60
+    val N=ceil(Nsq*Rmax).toInt
+    N+N%2
+  }
 
-    println("------------------------")
-    print_result("Max", lst.max)
-    print_result("Min", lst.min)
-    print_result("Avg", (lst.sum / lst.length))
-}
 
   def main(args:Array[String]):Unit= {
 

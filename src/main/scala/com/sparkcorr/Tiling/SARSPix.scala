@@ -17,7 +17,7 @@ package com.sparkcorr.Tiling
 
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
-import scala.math.{Pi,sqrt,cos,sin,acos,toDegrees,abs}
+import scala.math.{Pi,sqrt,cos,sin,acos,toDegrees,abs,floor,ceil}
 
 import org.apache.log4j.{Level, Logger}
 
@@ -273,6 +273,27 @@ class SARSPix(nside:Int) extends CubedSphere(nside) {
 
 // companion
 object SARSPix {
+
+  val minmaxRadius=(1.0,1.1)
+
+//N below which all pix radius are greater than R
+  //R in arcmin
+  def pixRadiusGt(R:Double):Int = {
+    val Rmin=minmaxRadius._1
+    val Nsq:Double=toDegrees(sqrt(Pi/3)/R)*60
+    val N:Int=floor(Nsq*Rmin).toInt
+     N-N%2
+  }
+  //N above which all pixels have radii lower than R
+  //R in arcmin
+  def pixRadiusLt(R:Double):Int = {
+    val Rmax=minmaxRadius._2
+    val Nsq=toDegrees(sqrt(Pi/3)/R)*60
+    val N=ceil(Nsq*Rmax).toInt
+    N+N%2
+  }
+
+
 
   def main(args:Array[String]):Unit= {
     Locale.setDefault(Locale.US)
