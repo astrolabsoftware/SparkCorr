@@ -47,10 +47,9 @@ object LogBinning {
       return
     }
     val binning=LogBinning(args(0).toDouble,args(1).toDouble,args(2).toInt)
-    println(binning)
-
-    for (i<-0 until binning.bin.size) 
-      println(f"[${binning.bin(i)(0)}%.2f, ${binning.bin(i)(1)}%.2f] w=${binning.binW(i)}%.2f")
+    //println(binning)
+    for ((b,w) <- binning.bin.zip(binning.binW))
+      println(f"[${b(0)}%6.2f,${b(1)}%6.2f] w=${w}%.2f")
       
   }
 

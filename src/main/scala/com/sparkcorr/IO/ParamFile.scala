@@ -29,14 +29,16 @@ class ParamFile(f:String) {
   def contains(key:String) = m.contains(key)
   override def toString = m.mkString("\n")
 
-  def getType[T](key:String,dflt:T,conv: String=>T):T= if (m.contains(key)) conv(m(key)) else dflt
+  //with Option
+  def get[T](key:String,conv: String=>T):Option[T]= if (m.contains(key)) Some(conv(m(key))) else None
 
-  def get(key:String,dflt:String):String = m.getOrElse(key,dflt).toString
-  def get(key:String,dflt:Short):Short = getType[Short](key,dflt,_.toShort)
-  def get(key:String,dflt:Int):Int = getType[Int](key,dflt,_.toInt)
-  def get(key:String,dflt:Long):Long = getType[Long](key,dflt,_.toLong)
-  def get(key:String,dflt:Float):Float = getType[Float](key,dflt,_.toFloat)
-  def get(key:String,dflt:Double):Double = getType[Double](key,dflt,_.toDouble)
+  //specifying default value
+  def get(key:String,dflt:String):String = get[String](key,_.toString).getOrElse(dflt)
+  def get(key:String,dflt:Short):Short = get[Short](key,_.toShort).getOrElse(dflt)
+  def get(key:String,dflt:Int):Int = get[Int](key,_.toInt).getOrElse(dflt)
+  def get(key:String,dflt:Long):Long = get[Long](key,_.toLong).getOrElse(dflt)
+  def get(key:String,dflt:Float):Float = get[Float](key,_.toFloat).getOrElse(dflt)
+  def get(key:String,dflt:Double):Double = get[Double](key,_.toDouble).getOrElse(dflt)
 
 }
 
