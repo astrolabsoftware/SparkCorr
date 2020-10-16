@@ -32,7 +32,7 @@ object PixelSize {
 
     if (args.size!=3){
       println("**********************************************")
-      println(">>>> Usage: PixelSize cs/hp N(side) Ngen")
+      println(">>>> Usage: PixelSize sa/cs/hp N(side) Ngen")
       println("**********************************************")
       return
     }

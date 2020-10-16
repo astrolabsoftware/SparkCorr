@@ -20,6 +20,7 @@ import healpix.essentials.HealpixBase
 import healpix.essentials.Pointing
 import healpix.essentials.Vec3
 import healpix.essentials.Scheme
+import scala.math.{log,toDegrees,floor,ceil,Pi,sqrt}
 
 class ExtPointing extends Pointing with java.io.Serializable
 
@@ -47,5 +48,28 @@ class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends SphereTiling with
 object HealpixGrid {
 
   def apply(nside:Long,sch:Scheme)=new HealpixGrid(new HealpixBase(nside, sch), new ExtPointing)
+
+
+  val minmaxRadius=(0.89,1.46)
+
+//N below which all pix radius are greater than R
+  //R in arcmin
+  def pixRadiusGt(R:Double):Int = {
+    val Rmin=minmaxRadius._1
+    val Nsq:Double=toDegrees(sqrt(Pi/6)/R)*60
+    val N:Int=floor(log(Nsq*Rmin)/log(2.0)).toInt
+    val nside:Int=1<<N
+    12*nside*nside
+  }
+  //N above which all pixels have radii lower than R
+  //R in arcmin
+  def pixRadiusLt(R:Double):Int = {
+    val Rmax=minmaxRadius._2
+    val Nsq=toDegrees(sqrt(Pi/6)/R)*60
+    val N=ceil(log(Nsq*Rmax)/log(2.0)).toInt
+    val nside:Int=1<<N
+    12*nside*nside
+  }
+
 
 }

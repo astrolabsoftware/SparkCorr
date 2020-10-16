@@ -55,7 +55,12 @@ object SphereCounting {
     }
 
     //PRINT
-   for ((b,w) <- binning.bin.zip(binning.binW)) println(f"[${b(0)}%6.2f,${b(1)}%6.2f] w=${w}%.2f")
+    println("td,tu,w,Nc,Npixc,Nj,Npixj")
+   for ((b,w) <- binning.bin.zip(binning.binW)) {
+     val Nc=SARSPix.pixRadiusLt(w/2)
+     val Nj=SARSPix.pixRadiusGt(b(1)/2)
+     println(f"${b(0)}%.1f,${b(1)}%.1f,${w}%.1f,$Nc%d,${6.0*Nc*Nc/1e6},$Nj%d,${6*Nj*Nj/1e3}")
+   }
       
   }
 
