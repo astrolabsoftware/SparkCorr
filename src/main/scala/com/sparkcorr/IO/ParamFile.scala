@@ -24,13 +24,26 @@ import scala.io.Source
 import collection.mutable.Map
 
 class ParamFile(f:String) {
+
+  require(scala.reflect.io.File(f).exists,"\n file "+f+" does not exist")
+
   val m=ParamFile.parsefile(f)
 
   def contains(key:String) = m.contains(key)
   override def toString = m.mkString("\n")
 
   //with Option
-  def get[T](key:String,conv: String=>T):Option[T]= if (m.contains(key)) Some(conv(m(key))) else None
+  def get[T](key:String,conv: String=>T):Option[T]= {
+    if (m.contains(key)) {
+      val s=m(key)
+      println("Parsing "+f+": --> "+key+"="+s) 
+      Some(conv(s))
+    }
+    else {
+      println("Parsing "+f+": --> WARNING: "+key+" not found") 
+      None
+    }
+  }
 
   //specifying default value
   def get(key:String,dflt:String):String = get[String](key,_.toString).getOrElse(dflt)
@@ -60,7 +73,7 @@ object ParamFile {
 
   def main(args:Array[String]):Unit= {
 
-    require(args.size==1 && scala.reflect.io.File(args(0)).exists)
+    require(args.size==1)
     val file=args(0)
 
    // Set verbosity

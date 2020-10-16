@@ -11,7 +11,9 @@ myexec="Tiling.SARSPix"
 
 #myexec="Tiling.BenchPix"
 
-myexec="Binning.LogBinning"
+#myexec="Binning.LogBinning"
+
+myexec="2PCF.SphereCounting"
 args=$*
 
 
