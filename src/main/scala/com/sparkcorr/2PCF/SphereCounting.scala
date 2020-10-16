@@ -17,7 +17,7 @@ package com.sparkcorr.`2PCF`
 
 import com.sparkcorr.Binning.{LogBinning}
 import com.sparkcorr.IO.{ParamFile}
-import com.sparkcorr.Tiling.{SARSPix}
+import com.sparkcorr.Tiling.{SARSPix,HealpixGrid}
 
 
 
@@ -42,12 +42,14 @@ object SphereCounting {
     require(scala.reflect.io.File(args(0)).exists)
 
     val params=new ParamFile(args(0))
+    val til=params.get("tiling","SARSPix").toLowerCase 
 
     //binning
     val Nbins:Int=params.get("Nbins",0)
-    val bmin:Double=params.get("bin_start",0.0)
-    val bmax:Double=params.get("bin_end",0.0)
+    val bmin:Double=params.get("bin_min",0.0)
+    val bmax:Double=params.get("bin_max",0.0)
     val btype=params.get("bin_type","log")
+
 
     val binning=btype match {
       case "log" => new LogBinning(bmin,bmax,Nbins)
@@ -57,11 +59,16 @@ object SphereCounting {
     //PRINT
     println("td,tu,w,Nc,Npixc,Nj,Npixj")
    for ((b,w) <- binning.bin.zip(binning.binW)) {
-     val Nc=SARSPix.pixRadiusLt(w/2)
-     val Nj=SARSPix.pixRadiusGt(b(1)/2)
-     println(f"${b(0)}%.1f,${b(1)}%.1f,${w}%.1f,$Nc%d,${6.0*Nc*Nc/1e6},$Nj%d,${6*Nj*Nj/1e3}")
+     val (a,nc,nj)= til match {
+       case "sarspix" => (6,SARSPix.pixRadiusLt(w/2),SARSPix.pixRadiusGt(b(1)/2))
+       case "healpix" => (12,HealpixGrid.pixRadiusLt(w/2),HealpixGrid.pixRadiusGt(w/2))
+       case _ => throw new Exception("Unknown tiling: "+til)
+     }
+
+     println(f"${b(0)}%.1f,${b(1)}%.1f,${w}%.1f,$nc%d,${a*nc*nc.toDouble/1e6},$nj%d,${a*nj*nj.toDouble/1e3}")
    }
-      
+   params.checkRemaining
+
   }
 
 }

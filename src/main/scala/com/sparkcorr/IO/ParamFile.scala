@@ -27,7 +27,7 @@ class ParamFile(f:String) {
 
   require(scala.reflect.io.File(f).exists,"\n file "+f+" does not exist")
 
-  val m=ParamFile.parsefile(f)
+  var m=ParamFile.parsefile(f)
 
   def contains(key:String) = m.contains(key)
   override def toString = m.mkString("\n")
@@ -36,7 +36,8 @@ class ParamFile(f:String) {
   def get[T](key:String,conv: String=>T):Option[T]= {
     if (m.contains(key)) {
       val s=m(key)
-      println("Parsing "+f+": --> "+key+"="+s) 
+      println("Parsing "+f+": --> "+key+"="+s)
+      m=m.-(key)
       Some(conv(s))
     }
     else {
@@ -53,6 +54,13 @@ class ParamFile(f:String) {
   def get(key:String,dflt:Float):Float = get[Float](key,_.toFloat).getOrElse(dflt)
   def get(key:String,dflt:Double):Double = get[Double](key,_.toDouble).getOrElse(dflt)
 
+  def checkRemaining():Unit={
+    if (! m.isEmpty) {
+      println("WARNING parameters not used:")
+      for ((k,v)<-m) println("--->"+k+"="+v)
+    }
+  }
+
 }
 
 //companion
@@ -66,6 +74,8 @@ object ParamFile {
       if (line.count(_ == '=') == 1)
         ) {
       val a=line.split("=").map(_.trim)
+      if (m.contains(a(0)))
+        throw new Exception("parameter "+a(0)+ " already defined")
       m(a(0))=a(1)
     }
     m

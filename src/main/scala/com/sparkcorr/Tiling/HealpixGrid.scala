@@ -58,8 +58,8 @@ object HealpixGrid {
     val Rmin=minmaxRadius._1
     val Nsq:Double=toDegrees(sqrt(Pi/6)/R)*60
     val N:Int=floor(log(Nsq*Rmin)/log(2.0)).toInt
-    val nside:Int=1<<N
-    12*nside*nside
+    val nside=1<<N
+    nside
   }
   //N above which all pixels have radii lower than R
   //R in arcmin
@@ -67,8 +67,8 @@ object HealpixGrid {
     val Rmax=minmaxRadius._2
     val Nsq=toDegrees(sqrt(Pi/6)/R)*60
     val N=ceil(log(Nsq*Rmax)/log(2.0)).toInt
-    val nside:Int=1<<N
-    12*nside*nside
+    val nside=1<<N
+    nside
   }
 
 
