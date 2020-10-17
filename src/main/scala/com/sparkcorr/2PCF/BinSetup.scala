@@ -27,7 +27,7 @@ import java.util.Locale
 
 
 //companion
-object SphereCounting {
+object BinSetup {
  
  //main
   def main(args:Array[String]):Unit= {
@@ -35,7 +35,7 @@ object SphereCounting {
 
     if (args.size!= 1){
       println("*****************************************")
-      println(">>>> Usage: SphereCounting paramFile")
+      println(">>>> Usage: BinSetup paramFile")
       println("*****************************************")
       return
     }
@@ -48,7 +48,7 @@ object SphereCounting {
     val Nbins:Int=params.get("Nbins",0)
     val bmin:Double=params.get("bin_min",0.0)
     val bmax:Double=params.get("bin_max",0.0)
-    val btype=params.get("bin_type","log")
+    val btype:String=params.get("bin_type","log")
 
 
     val binning=btype match {
@@ -61,7 +61,7 @@ object SphereCounting {
    for ((b,w) <- binning.bin.zip(binning.binW)) {
      val (a,nc,nj)= til match {
        case "sarspix" => (6,SARSPix.pixRadiusLt(w/2),SARSPix.pixRadiusGt(b(1)/2))
-       case "healpix" => (12,HealpixGrid.pixRadiusLt(w/2),HealpixGrid.pixRadiusGt(w/2))
+       case "healpix" => (12,HealpixGrid.pixRadiusLt(w/2),HealpixGrid.pixRadiusGt(b(1)/2))
        case _ => throw new Exception("Unknown tiling: "+til)
      }
 

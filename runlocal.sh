@@ -7,13 +7,13 @@ myexec="Tiling.CubedSphere"
 #args="cs 180 100000000"
 #args="sars 180 100000000"
 
-myexec="Tiling.SARSPix"
+#myexec="Tiling.SARSPix"
 
 #myexec="Tiling.BenchPix"
 
 #myexec="Binning.LogBinning"
 
-myexec="2PCF.SphereCounting"
+myexec="2PCF.BinSetup"
 args=$*
 
 

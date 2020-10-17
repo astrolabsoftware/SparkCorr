@@ -292,6 +292,7 @@ object SARSPix {
     val N=ceil(Nsq*Rmax).toInt
     N+N%2
   }
+  def Npix(Nf:Int):Int=6*Nf*Nf
 
 
 
