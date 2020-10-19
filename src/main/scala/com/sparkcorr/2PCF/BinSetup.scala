@@ -58,7 +58,7 @@ object BinSetup {
 
     //PRINT
     println("td,tu,w,Nc,Npixc,Nj,Npixj")
-   for ((b,w) <- binning.bin.zip(binning.binW)) {
+   for ((b,w) <- binning.bins.zip(binning.binW)) {
      val (a,nc,nj)= til match {
        case "sarspix" => (6,SARSPix.pixRadiusLt(w/2),SARSPix.pixRadiusGt(b(1)/2))
        case "healpix" => (12,HealpixGrid.pixRadiusLt(w/2),HealpixGrid.pixRadiusGt(b(1)/2))
