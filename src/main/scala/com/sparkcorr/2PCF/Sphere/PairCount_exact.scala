@@ -278,7 +278,7 @@ object PairCount_exact {
     println(s"TOT TIME=${fulltime} mins")
 
     //cori oriented
-    val nodes=System.getenv("SLURM_JOB_NUM_NODES")
+    val nodes=params.get("nodes",-1)
 
 
     println("Summary: ************************************")
