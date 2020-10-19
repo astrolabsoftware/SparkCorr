@@ -13,6 +13,6 @@ imax=4
 tiling=SARSPix
 
 # input data
-data1=/home/plaszczy/data/tomo10M.parquet
+data1=/lsst/tomo10M.parquet
 ra_name=RA
 dec_name=DEC

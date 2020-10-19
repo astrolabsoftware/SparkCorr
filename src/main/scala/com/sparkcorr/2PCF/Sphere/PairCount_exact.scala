@@ -101,8 +101,7 @@ object PairCount_exact {
     val imin:Int=params.get("imin",0)
     val imax:Int=params.get("imax",0)
     
-    val bins=fullbin.bins.slice(imin,imax+2)
-
+    val bins=fullbin.bins.slice(imin,imax+1)
 
     val binning=sc.parallelize(bins.zipWithIndex)
       .toDF("interval","ibin")
@@ -154,6 +153,7 @@ object PairCount_exact {
     val Ns=source.count
     println(f"Source size=${Ns/1e6}%3.2f M")
     val tsource=timer.step
+    timer.print("input source")
     source.show(5)
 
 

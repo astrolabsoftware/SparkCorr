@@ -2,7 +2,7 @@
 package com.sparkcorr.tools
 
 //Timer
-class Timer (var t0:Double=System.nanoTime().toDouble,   var dt:Double=0)  extends Serializable  {
+class Timer (var t0:Double=System.nanoTime().toDouble,var dt:Double=0)  extends Serializable  {
 
   def time:Double=System.nanoTime().toDouble
 
@@ -13,7 +13,6 @@ class Timer (var t0:Double=System.nanoTime().toDouble,   var dt:Double=0)  exten
     dt
   }
   def print(msg:String):Unit={
-    step
     val sep="----------------------------------------"
     println(f"\n$msg: $dt%.1fs (${dt/60}%.2fmin)\n"+sep)
 
