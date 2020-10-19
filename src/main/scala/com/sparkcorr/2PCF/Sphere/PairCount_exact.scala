@@ -22,14 +22,13 @@ import org.apache.log4j.{Level, Logger}
 
 import com.sparkcorr.Binning.{LogBinning}
 import com.sparkcorr.IO.{ParamFile}
-import com.sparkcorr.Tiling.{SARSPix}
+import com.sparkcorr.Tiling.{SARSPix,HealpixGrid,CubedSphere}
 import com.sparkcorr.tools.{Timer}
 
 import scala.math.{log,toRadians}
 
 import java.util.Locale
-
-
+import healpix.essentials.Scheme.{NESTED,RING}
 
 
 
@@ -113,12 +112,29 @@ object PairCount_exact {
 
 
     //joining pixelization
-    val til=params.get("tiling","SARSPix").toLowerCase
-    val Nf=SARSPix.pixRadiusGt(bins.last(1)/2)
-    val Npix=SARSPix.Npix(Nf)
-    println(s"Use SARSPIx as joining pixelization Nf=$Nf NpixJ=$Npix")
+    val tiling=params.get("tiling","SARSPix").toLowerCase
+    //val Nf=SARSPix.pixRadiusGt(bins.last(1)/2)
+    //val Npix=SARSPix.Npix(Nf)
 
-    val grid=new SARSPix(Nf)
+    val grid=tiling match {
+      case "sarspix" => {
+        val Nf=SARSPix.pixRadiusGt(bins.last(1)/2)
+        new SARSPix(Nf)
+      }
+      case "cubedsphere" => {
+        val Nf=CubedSphere.pixRadiusGt(bins.last(1)/2)
+        new CubedSphere(Nf)
+      }
+      case "healpix" => {
+        val nside=HealpixGrid.pixRadiusGt(bins.last(1)/2)
+        HealpixGrid(nside, NESTED)
+      }
+
+    }
+
+    //println(s"Use SARSPIx as joining pixelization Nf=$Nf NpixJ=$Npix")
+
+    //val grid=new SARSPix(Nf)
     def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
 
     val timer=new Timer
@@ -158,7 +174,7 @@ object PairCount_exact {
 
 
     // 2. duplicates
-    def Neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours(ipix))
+    def Neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours8(ipix))
 
     val dfn=source.withColumn("neighbours",Neighbours($"ipix"))
 
@@ -233,7 +249,7 @@ object PairCount_exact {
     val np3=edges.rdd.getNumPartitions
     println("edges numParts="+np3)
 
-    println("==> joining with Nf="+Nf+" output="+edges.columns.mkString(", "))
+    println("==> joining "+edges.columns.mkString(", "))
 
 
     //count edges? no

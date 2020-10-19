@@ -35,7 +35,7 @@ class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends SphereTiling with
     hp.ang2pix(ptg).toInt
   }
   override def neighbours8(ipix:Int):Array[Int] =  {
-    hp.neighbours(ipix.toLong).map(n=>n.toInt)
+    hp.neighbours(ipix.toLong).map(_.toInt)
   }
   override def pix2ang(ipix:Int):Array[Double]=
   {
