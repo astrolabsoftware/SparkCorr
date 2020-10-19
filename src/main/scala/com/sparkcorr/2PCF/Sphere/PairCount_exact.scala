@@ -110,6 +110,8 @@ object PairCount_exact {
     binning.cache.count
     binning.show(truncate=false)
 
+    val timer=new Timer
+    val start=timer.time
 
     //joining pixelization
     val tiling=params.get("tiling","SARSPix").toLowerCase
@@ -138,10 +140,10 @@ object PairCount_exact {
     //spark udf
     def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
 
-    val timer=new Timer
-    val start=timer.time
+    timer.step
+    timer.print("construct pixelization")
 
-    //and index and replace by cartesian coords
+    //addd index and replace by cartesian coords
     var source=input
       .withColumn("id",F.monotonicallyIncreasingId)
       .withColumn("theta_s",F.radians(F.lit(90)-F.col(dec_name)))
@@ -160,13 +162,11 @@ object PairCount_exact {
       case None=> println("---> no repartitioning specified")
     }
 
-    source=source.cache
-    
-
     val np1=source.rdd.getNumPartitions
     println("source #part="+np1)
 
     println("*** caching source: "+source.columns.mkString(", "))
+    source=source.cache    
     val Ns=source.count
     println(f"Source size=${Ns/1e6}%3.2f M")
     val tsource=timer.step
