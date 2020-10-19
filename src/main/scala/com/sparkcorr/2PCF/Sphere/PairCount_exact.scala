@@ -17,13 +17,15 @@ package com.sparkcorr.`2PCF`.Sphere
 
 import org.apache.spark.sql.{functions=>F,SparkSession,DataFrame,Row}
 import org.apache.spark.SparkContext
-
+import org.apache.spark.sql.types._
 import org.apache.log4j.{Level, Logger}
 
 import com.sparkcorr.Binning.{LogBinning}
 import com.sparkcorr.IO.{ParamFile}
 import com.sparkcorr.Tiling.{SARSPix}
 import com.sparkcorr.tools.{Timer}
+
+import scala.math.{log,toRadians}
 
 import java.util.Locale
 
@@ -61,7 +63,6 @@ object PairCount_exact {
 
     //decode parameter file
     val params=new ParamFile(args(0))
-    val til=params.get("tiling","SARSPix").toLowerCase
 
     //binning
     val Nbins:Int=params.get("Nbins",0)
@@ -113,7 +114,7 @@ object PairCount_exact {
 
 
     //joining pixelization
-    val tile=params.get("tiling","sarspix").toLowerCase
+    val til=params.get("tiling","SARSPix").toLowerCase
     val Nf=SARSPix.pixRadiusGt(bins.last(1)/2)
     val Npix=SARSPix.Npix(Nf)
     println(s"Use SARSPIx as joining pixelization Nf=$Nf NpixJ=$Npix")
@@ -156,6 +157,141 @@ object PairCount_exact {
     source.show(5)
 
 
+    // 2. duplicates
+    def Neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours(ipix))
+
+    val dfn=source.withColumn("neighbours",Neighbours($"ipix"))
+
+    val dups=new Array[org.apache.spark.sql.DataFrame](9)
+
+    for (i <- 0 to 7) {
+      println(i)
+      val df1=dfn.drop("ipix").withColumn("ipix",$"neighbours"(i))
+      val dfclean1=df1.filter(F.not(df1("ipix")===F.lit(-1))).drop("neighbours")
+      dups(i)=dfclean1
+    }
+    val cols=dups(0).columns
+    dups(8)=source.select(cols.head,cols.tail:_*)
+
+    var dup=dups.reduceLeft(_.union(_))
+      .withColumnRenamed("id","id2")
+      .withColumnRenamed("x_s","x_t")
+      .withColumnRenamed("y_s","y_t")
+      .withColumnRenamed("z_s","z_t")
+
+
+    numPart match {
+      case Some(np)=> dup=dup.repartition(np,$"ipix")
+      case None=> println("---> no repartitioning specified")
+    }
+
+    dup=dup.cache
+
+
+    println("*** caching duplicates: "+dup.columns.mkString(", "))
+    val Ndup=dup.count
+    println(f"duplicates size=${Ndup/1e6}%3.2f M")
+    dup.show(5)
+
+    val tdup=timer.step
+    timer.print("dup cache")
+    val np2=dup.rdd.getNumPartitions
+    println("dup partitions="+np2)
+
+
+    // 3. pairs
+    val pairs=source.join(dup,"ipix")
+      .drop("ipix")
+      .filter($"id"<$"id2")
+      .drop("id","id2")
+
+    println("pairs:")
+    pairs.printSchema
+
+    //cuts on cart distance^2 + add (log) bin number
+    val rmin:Double =toRadians(bins.head(0)/60.0)
+    val rmax:Double =toRadians(bins.last(1)/60.0)
+    val r2min:Double =rmin*rmin
+    val r2max:Double =rmax*rmax
+    //really logged here
+    val lrmin:Double =log(rmin)
+    val b:Double = (log(bmax)-log(bmin))/Nbins
+
+    val edges=pairs
+      .withColumn("dx",$"x_s"-$"x_t").withColumn("dy",$"y_s"-$"y_t").withColumn("dz",$"z_s"-$"z_t")
+      .withColumn("r2",$"dx"*$"dx"+$"dy"*$"dy"+$"dz"*$"dz")
+      .filter(F.col("r2").between(r2min,r2max))
+      .drop("dx","dy","dz","x_t","x_s","y_s","y_t","z_s","z_t")
+      .withColumn("logr",F.log($"r2")/2.0)
+      .drop("r2")
+      .withColumn("ibin",(($"logr"-lrmin)/b).cast(IntegerType))
+      .drop("logr")
+    //  .persist(StorageLevel.MEMORY_AND_DISK)
+
+    println("edges:")
+    edges.printSchema
+    val np3=edges.rdd.getNumPartitions
+    println("edges numParts="+np3)
+
+    println("==> joining with Nf="+Nf+" output="+edges.columns.mkString(", "))
+
+
+    //count edges? no
+    //val nedges=edges.count()
+    //println(f"#edges=${nedges/1e9}%3.2f G")
+    //val nedges=0.0
+
+
+    val tjoin=timer.step
+    timer.print("join")
+
+    //bin!
+    val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("ibin").cache
+    //val binned=edges.rdd.map(r=>(r.getInt(0),r.getLong(1))).reduceByKey(_+_).toDF("ibin","Nbin")
+
+
+    println("#bins="+binned.count)
+    binned.show(Nbins)
+
+    //nedges
+    val sumbins=binned.agg(F.sum($"Nbin"))
+    val nedges=sumbins.take(1)(0).getLong(0)
+
+    val tbin=timer.step
+    timer.print("binning")
+
+    /*
+     //degree
+     val deg=edges.groupBy("id").count
+     dup.unpersist
+
+     println("waiting for deg...")
+     println(deg.cache.count)
+     //stats
+     deg.describe("count").show()
+
+     val tdeg=timer.step
+     timer.print("degree")
+     */
+
+    val fulltime=(timer.time-start)*1e-9/60
+    println(s"TOT TIME=${fulltime} mins")
+
+    //cori oriented
+    val nodes=System.getenv("SLURM_JOB_NUM_NODES")
+
+
+    println("Summary: ************************************")
+    println("x@ imin imax Ndata nedges nodes part1 part2 part3 ts td tj tb t")
+    println(s"x@@$imin $imax $nedges%g $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} {tbin.toInt} $fulltime%.2f")
+
+
+
+    //nice output+sum
+    binning.join(binned,"ibin").show(Nbins,truncate=false)
+    sumbins.show
+
+    spark.close
 
 
 

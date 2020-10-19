@@ -13,7 +13,8 @@ myexec="Tiling.CubedSphere"
 
 #myexec="Binning.LogBinning"
 
-myexec="2PCF.BinSetup"
+#myexec="2PCF.BinSetup"
+myexec="2PCF.Sphere.PairCount_exact"
 args=$*
 
 
