@@ -135,10 +135,7 @@ object PairCount_exact {
       }
 
     }
-
-    //println(s"Use SARSPIx as joining pixelization Nf=$Nf NpixJ=$Npix")
-
-    //val grid=new SARSPix(Nf)
+    //spark udf
     def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
 
     val timer=new Timer
