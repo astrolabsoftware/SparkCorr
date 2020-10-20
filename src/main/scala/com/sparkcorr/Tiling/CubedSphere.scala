@@ -29,9 +29,10 @@ import java.util.Locale
 import scala.collection.mutable.ArrayBuffer
 
 
-class CubedSphere(nside:Int) extends SphereTiling with Serializable {
+class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
-  val N:Int=nside
+  val N:Int=Nbase
+  val Npix=6*Nbase*Nbase
 
   val a=1/math.sqrt(3.0)
   val step=Pi/2/N

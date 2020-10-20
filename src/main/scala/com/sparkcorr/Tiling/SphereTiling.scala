@@ -30,4 +30,7 @@ abstract class SphereTiling {
 
   val pixNums:IndexedSeq[Int]
 
+  val Nbase:Int
+  val Npix:Int
+
 }

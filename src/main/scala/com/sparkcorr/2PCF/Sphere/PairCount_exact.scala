@@ -299,8 +299,8 @@ object PairCount_exact {
 
 
     println("Summary: ************************************")
-    println("x@ imin imax Ndata nedges nodes part1 part2 part3 ts td tj tb t")
-    println(s"x@@$imin $imax $nedges%g $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} {tbin.toInt} $fulltime%.2f")
+    println("x@ imin imax Ndata Ndup nedges Nj NpixJ nodes part1 part2 part3 ts td tj tb t")
+    println(s"x@@$imin $imax $Ns $Ndup $nedges%g ${grid.Nbase} ${grid.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} {tbin.toInt} $fulltime%.2f")
 
 
 

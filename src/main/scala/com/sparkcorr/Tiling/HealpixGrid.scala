@@ -42,6 +42,10 @@ class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends SphereTiling with
     val p:Pointing=hp.pix2ang(ipix.toLong)
     Array(p.theta,p.phi)
   }
+
+  val Nbase=hp.getNside
+  val Npix=12*Nbase*Nbase
+
 }
 
 //companion for simple factory

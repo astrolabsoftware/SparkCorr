@@ -85,6 +85,7 @@ object BenchPix {
 
     df.select(F.min($"theta_c"),F.min($"phi_c")).show()
 
+    timer.step
     timer.print(s"ang2pix+pix2ang on $N samples")
 
   }
