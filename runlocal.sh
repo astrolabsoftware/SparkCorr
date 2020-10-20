@@ -9,11 +9,11 @@ myexec="Tiling.CubedSphere"
 
 #myexec="Tiling.SARSPix"
 
-myexec="Tiling.BenchPix"
+#myexec="Tiling.BenchPix"
 
 #myexec="Binning.LogBinning"
 
-#myexec="2PCF.BinSetup"
+myexec="2PCF.BinSetup"
 #myexec="2PCF.Sphere.PairCount_exact"
 args=$*
 

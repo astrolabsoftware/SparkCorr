@@ -25,10 +25,10 @@ import java.io._
 import java.util.Locale
 
 
-class SARSPix(nside:Int) extends CubedSphere(nside) {
+class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
 
 
-  require(nside%2==0,"nside for SARS must be even")
+  require(Nb%2==0,"nside for SARS must be even")
 
   //Nodes construction
   override  def buildNodes():Array[arr2[Point3D]]={

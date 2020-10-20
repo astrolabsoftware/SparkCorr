@@ -347,20 +347,17 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
    }
  
 
-
-
 }
 
 object CubedSphere {
 
-  val minmaxRadius=(0.94,1.25)
+  val minmaxRadius=(0.94,1.26)
 
 
   //N below which all pix radius are greater than R
   //R in arcmin
   def pixRadiusGt(R:Double):Int = {
     val Rmin=minmaxRadius._1
-    println(s"Rmin=$Rmin")
     val Nsq:Double=toDegrees(sqrt(Pi/3)/R)*60
     val N:Int=floor(Nsq*Rmin).toInt
      N-N%2
@@ -370,7 +367,6 @@ object CubedSphere {
   //R in arcmin
   def pixRadiusLt(R:Double):Int = {
     val Rmax=minmaxRadius._2
-    println(s"Rmax=$Rmax")
     val Nsq=toDegrees(sqrt(Pi/3)/R)*60
     val N=ceil(Nsq*Rmax).toInt
     N+N%2

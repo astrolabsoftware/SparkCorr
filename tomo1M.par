@@ -11,6 +11,7 @@ imax=4
 
 
 #tiling=SARSPix
+#tiling=CubedSphere
 tiling=healpix
 
 # input data

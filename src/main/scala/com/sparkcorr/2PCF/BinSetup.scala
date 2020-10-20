@@ -17,7 +17,7 @@ package com.sparkcorr.`2PCF`
 
 import com.sparkcorr.Binning.{LogBinning}
 import com.sparkcorr.IO.{ParamFile}
-import com.sparkcorr.Tiling.{SARSPix,HealpixGrid}
+import com.sparkcorr.Tiling.{SARSPix,HealpixGrid,CubedSphere}
 
 
 
@@ -57,16 +57,24 @@ object BinSetup {
     }
 
     //PRINT
-    println("td,tu,w,Nd,NpixD,Nj,NpixJ")
-   for ((b,w) <- binning.bins.zip(binning.binW)) {
-     val (a,nc,nj)= til match {
+    val sep=List.tabulate(75)(i=>"-").reduce(_+_) 
+    println(sep)
+    println("id\ttd\ttu\tw\tNd\tNpixD(M)\tNj\tNpixJ(k)")
+    println(sep)
+   for (((b,w),id) <- binning.bins.zip(binning.binW).zipWithIndex) {
+     val a = til match {
        case "sarspix" => (6,SARSPix.pixRadiusLt(w/2),SARSPix.pixRadiusGt(b(1)/2))
+       case "cubedsphere" => (6,CubedSphere.pixRadiusLt(w/2),CubedSphere.pixRadiusGt(b(1)/2))
        case "healpix" => (12,HealpixGrid.pixRadiusLt(w/2),HealpixGrid.pixRadiusGt(b(1)/2))
        case _ => throw new Exception("Unknown tiling: "+til)
      }
+     val f=a._1
+     val Nd=a._2
+     val Nj=a._3
 
-     println(f"${b(0)}%.1f,${b(1)}%.1f,${w}%.1f,$nc%d,${a*nc*nc.toDouble/1e6},$nj%d,${a*nj*nj.toDouble/1e3}")
+     println(f"$id\t${b(0)}%.1f\t${b(1)}%.1f\t${w}%.1f\t$Nd%d\t${f*Nd*Nd.toDouble/1e6}\t$Nj%d\t${f*Nj*Nj.toDouble/1e3}")
    }
+    println(sep)
    params.checkRemaining
 
   }
