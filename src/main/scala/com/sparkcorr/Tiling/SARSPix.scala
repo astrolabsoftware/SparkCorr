@@ -335,9 +335,6 @@ object SARSPix {
     }
 
     c.writeCenters(s"SARScenters$N.txt")
-    c.writeRadii(s"SARSradii$N.txt")
-
-
       /*
     val fc=args(1).toInt
     val ic=args(2).toInt

@@ -17,6 +17,8 @@
 package com.sparkcorr.Tiling
 
 import org.apache.spark.sql.{functions=>F,SparkSession}
+import org.apache.spark.SparkContext
+
 import org.apache.log4j.{Level, Logger}
 import java.util.Locale
 
@@ -28,6 +30,8 @@ import scala.math.{Pi,sqrt,toRadians,ceil,floor,toDegrees}
 import scala.util.Random
 
 import healpix.essentials.Scheme.{NESTED,RING}
+
+import org.apache.spark.storage.StorageLevel._
 
 object BenchPix {
 
@@ -55,38 +59,66 @@ object BenchPix {
     //spark stuff
     val spark = SparkSession
       .builder()
-      .appName("CubedSphereSize")
+      .appName("Bench"+tile)
       .getOrCreate()
+
+
+    val sc=spark.sparkContext
+    //val conf =sc.getConf
+
+    //conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    //conf.set("spark.kryoserializer.buffer", "4096")
+    //conf.set("spark.kryo.registrationRequired", "true")
+    //conf.registerKryoClasses(Array(classOf[CubedSphere], classOf[SphereTiling]))
+
+    //val sc = new SparkContext(conf)
 
     import spark.implicits._
 
+/*
     val grid = tile match {
       case "cs" => new CubedSphere(Nf)
       case "sa" => new SARSPix(Nf)
       case "hp" => HealpixGrid(Nf, NESTED)
       case _ =>  {require(false,s"unknow tiling=$tile"); null}
     }
+ */
+
+    val timer=new Timer()
+
+
+    val grid=new CubedSphere(Nf)
+    //sc.broadcast(grid)
+    val pixc:Array[ Array[Double] ]=grid.pixcenter.map{ case (t,f) => Array(t,f) case null=>null }
+
+    sc.broadcast(pixc)
+
+    timer.step
+    timer.print("grid creation")
 
     def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
-    val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> grid.pix2ang(ipix))
+  //val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> grid.pix2ang(ipix))
+    val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> pixc(ipix))
 
 
     var df=spark.range(0,N).withColumn("theta",F.acos(F.rand*2-1.0)).withColumn("phi",F.rand*2*Pi).drop("id")
 
-    val timer=new Timer()
-
     //add pixelnum
     df=df.withColumn("ipix",Ang2Pix($"theta",$"phi"))
+    df=df.persist(MEMORY_ONLY)
+
+    df.select(F.min($"ipix"),F.max($"ipix")).show()
+    timer.step
+    timer.print(s"ang2pix")
 
     //add pixel center
     df=df.withColumn("ang",Pix2Ang($"ipix"))
-
     df=df.withColumn("theta_c",$"ang"(0)).withColumn("phi_c",$"ang"(1)).drop("ang")
 
     df.select(F.min($"theta_c"),F.min($"phi_c")).show()
 
     timer.step
-    timer.print(s"ang2pix+pix2ang on $N samples")
+    timer.print("pix2ang")
 
   }
 

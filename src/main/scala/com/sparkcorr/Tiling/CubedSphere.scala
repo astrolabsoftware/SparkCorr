@@ -31,40 +31,19 @@ import scala.collection.mutable.ArrayBuffer
 
 class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
+  println(s"Creating CubedSphere($Nbase)")
   val N:Int=Nbase
   val Npix=6*Nbase*Nbase
 
   val a=1/math.sqrt(3.0)
   val step=Pi/2/N
 
-  /* position of nodes on a face*/
-  /* for equal angle */
-  val localPos:arr2[(Double,Double)] = {
-    val facenodes=new arr2[(Double,Double)](N+1)
-    val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
-      for (i<-0 to N; j<-0 to N){
-        val x=a*math.tan(alpha(i))
-        val y=a*math.tan(alpha(j))
-        facenodes(i,j)=(x,y)
-      }
-    facenodes
-  }
-
-
-  /** for equal angles */
-  def ang2LocalIndex(face:Int,theta:Double,phi:Double):(Int,Int)= {
-    val (x,y)=ang2Local(face)(theta,phi)
-    val alpha=math.atan(x)
-    val beta=math.atan(y)
-    val i:Int=math.floor((alpha+Pi/4)/step).toInt
-    val j:Int=math.floor((beta+Pi/4)/step).toInt
-    (i,j)
-  }
-  
 
 
   /** compute equal-angle nodes */
   def buildNodes():Array[arr2[Point3D]]={
+    val nodes=new Array[arr2[Point3D]](6)
+
     /** project coordinates from face to unit sphere. index is the face */
     val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
     projector(0)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
@@ -74,15 +53,17 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
     projector(4)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
     projector(5)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
 
-    val nodes=new Array[arr2[Point3D]](6)
     
+    //equiangular
+    val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
+
     //build nodes/pixels
     for (face <- 0 to 5) {
       val proj=projector(face)
       val facenodes=new arr2[Point3D](N+1)
       //fill nodes for this face
       for (i<-0 to N; j<-0 to N){
-        val (x,y)=localPos(i,j)
+        val (x,y)=(a*math.tan(alpha(i)),a*math.tan(alpha(j)))
         val XYZ=proj(x,y)
         val p=new Point3D(XYZ._1,XYZ._2,XYZ._3)
         facenodes(i,j)=p
@@ -94,9 +75,8 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
   //pixel radius (in rad)
   val Rsq:Double=sqrt(2*Pi/6)/N
-  var radii=new ArrayBuffer[Double]
-  def Rmin():Double=radii.min*Rsq
-  def Rmax():Double=radii.max*Rsq
+  var Rmin:Double=_
+  var Rmax:Double=_
 
 
   /* compute pixel centers as barycenter of cells */
@@ -104,7 +84,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
     require(nodes.size==6)
     val pixarray=new Array[(Double,Double)](N*N*10-4)
-
+    var radii=new ArrayBuffer[Double]
     for (face <- 0 to 5) {
       val facenodes=nodes(face)
       //compute centers as cell barycenter
@@ -112,13 +92,14 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
         val cell=facenodes(i,j)::facenodes(i+1,j)::facenodes(i,j+1)::facenodes(i+1,j+1)::Nil
         val bary=Point.barycenter(cell)
         val cen=new Point3D(bary/bary.norm())
-        radii+=cell.map(c=>c.dist(cen)).max/Rsq
+        radii+=cell.map(c=>c.dist(cen)).max
         val ipix:Int=coord2pix(face,i,j)
         pixarray(ipix)=cen.unitAngle
       }
-
     }// end face
-    println(f"pixel radii: Rmin=${Rmin()/Rsq}%5.3f Rmax=${Rmax()/Rsq}%5.3f (Rsq=${toDegrees(Rsq)*60}%3.2f arcim)")
+    Rmin=radii.min
+    Rmax=radii.max
+    println(f"pixel radii: Rmin=${Rmin/Rsq}%5.3f Rmax=${Rmax/Rsq}%5.3f (Rsq=${toDegrees(Rsq)*60}%3.2f arcim)")
     pixarray
   }
 
@@ -156,25 +137,10 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
     coord2pix(face,i,j)
   }
 
-  val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
-  ang2Local(0)=(t,f)=>(math.tan(f),1.0/math.tan(t)/math.cos(f))
-  ang2Local(1)=(t,f)=>(-1/math.tan(f),1.0/math.tan(t)/math.sin(f))
-  ang2Local(2)=(t,f)=>(math.tan(f),-1.0/math.tan(t)/math.cos(f))
-  ang2Local(3)=(t,f)=>(-1/math.tan(f),-1.0/math.tan(t)/math.sin(f))
-  ang2Local(4)=(t,f)=>(math.sin(f)*math.tan(t),-math.cos(f)*math.tan(t))
-  ang2Local(5)=(t,f)=>(-math.sin(f)*math.tan(t),-math.cos(f)*math.tan(t))
-
-
-  //extract independent x/y functions
-  val ang2Local_x=ang2Local.map{
-     case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._1}
-  val ang2Local_y=ang2Local.map{
-     case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._2}
-
 
   def getFace(theta:Double,phi:Double):Int={
     val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
-    val y=ang2Local_y(testface)(theta,phi)
+    val y=CubedSphere.ang2Local_y(testface)(theta,phi)
 
     if (math.abs(y)<=1.0) testface
     else if (y>1) 4  
@@ -193,6 +159,16 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   }
 
 
+  /** for equal angles */
+  def ang2LocalIndex(face:Int,theta:Double,phi:Double):(Int,Int)= {
+    val (x,y)=CubedSphere.ang2Local(face)(theta,phi)
+    val alpha=math.atan(x)
+    val beta=math.atan(y)
+    val i:Int=math.floor((alpha+Pi/4)/step).toInt
+    val j:Int=math.floor((beta+Pi/4)/step).toInt
+    (i,j)
+  }
+  
 
 /** get pixel neighbours. yes that's pretty painfull for the borders but not
   *  a big deal since I code bug-free. (yes this was checked)
@@ -311,18 +287,6 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
    }
 
-  def writeRadii(fn:String):Unit={
-
-    val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fn,false)))
-    for (r<- radii) {
-      val s=f"$r%f\n"
-      writer.write(s)
-    }
-
-  writer.close
-  println(fn+ " written")
-
-   }
  
  def writeNeighbours(ipix:Int):Unit={
 
@@ -350,6 +314,23 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 }
 
 object CubedSphere {
+
+//staic functions
+  val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
+  ang2Local(0)=(t,f)=>(math.tan(f),1.0/math.tan(t)/math.cos(f))
+  ang2Local(1)=(t,f)=>(-1/math.tan(f),1.0/math.tan(t)/math.sin(f))
+  ang2Local(2)=(t,f)=>(math.tan(f),-1.0/math.tan(t)/math.cos(f))
+  ang2Local(3)=(t,f)=>(-1/math.tan(f),-1.0/math.tan(t)/math.sin(f))
+  ang2Local(4)=(t,f)=>(math.sin(f)*math.tan(t),-math.cos(f)*math.tan(t))
+  ang2Local(5)=(t,f)=>(-math.sin(f)*math.tan(t),-math.cos(f)*math.tan(t))
+
+
+  //extract independent x/y functions
+  val ang2Local_x=ang2Local.map{
+     case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._1}
+  val ang2Local_y=ang2Local.map{
+     case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._2}
+
 
   val minmaxRadius=(0.94,1.26)
 
@@ -399,7 +380,6 @@ object CubedSphere {
 
 
     c.writeCenters(s"EACScenters$N.txt")
-    c.writeRadii(s"EACSradii$N.txt")
 
       /*
     val f=args(1).toInt
