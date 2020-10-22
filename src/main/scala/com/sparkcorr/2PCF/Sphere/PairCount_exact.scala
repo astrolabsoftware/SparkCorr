@@ -39,10 +39,10 @@ object PairCount_exact {
   def main(args:Array[String]):Unit= {
     Locale.setDefault(Locale.US)
 
-    if (args.size!= 1){
+    if (args.size!= 2){
       val sep=List.tabulate(25)(i=>"*").reduce(_+_) 
       println(sep)
-      println(">>>> Usage: PairCount_exact paramfile")
+      println(">>>> Usage: PairCount_exact paramfile numPart")
       println(sep)
       return
     }
@@ -68,6 +68,7 @@ object PairCount_exact {
 
     //decode parameter file
     val params=new ParamFile(args(0))
+    val numPart=args(1).toInt
 
     //binning
     val Nbins:Int=params.get("Nbins",0)
@@ -148,10 +149,6 @@ object PairCount_exact {
 
     timer.step
     timer.print(s"Building "+tiling+"("+grid.Nbase+")")
-
-    //optional repartionning
-    require(params.contains("numPart"))
-    val numPart=params.get("numPart",-1)
 
     //addd index and replace by cartesian coords
     val source=input
@@ -287,7 +284,7 @@ object PairCount_exact {
     println(s"TOT TIME=${fulltime} mins")
 
     //cori oriented
-    val nodes=params.get("nodes",-1)
+    val nodes=System.getenv("SLURM_JOB_NUM_NODES")
 
 
     println("Summary: ************************************")
