@@ -57,7 +57,13 @@ object PairCount_exact {
       .getOrCreate()
     
     val sc:SparkContext = spark.sparkContext
-    
+    val conf =sc.getConf
+
+    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    conf.set("spark.kryoserializer.buffer", "1024")
+    conf.registerKryoClasses(Array(classOf[CubedSphere],classOf[SARSPix],classOf[HealpixGrid]))
+
+
     import spark.implicits._
 
     //decode parameter file
@@ -90,7 +96,7 @@ object PairCount_exact {
     
     val input=df_all.select(ra_name,dec_name)
 
-    val N1=input.count()
+    //val N1=input.count()
 
 
     //find automatically imax
@@ -141,10 +147,14 @@ object PairCount_exact {
     def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
 
     timer.step
-    timer.print("construct pixelization")
+    timer.print(s"Building "+tiling+"("+grid.Nbase+")")
+
+    //optional repartionning
+    require(params.contains("numPart"))
+    val numPart=params.get("numPart",-1)
 
     //addd index and replace by cartesian coords
-    var source=input
+    val source=input
       .withColumn("id",F.monotonicallyIncreasingId)
       .withColumn("theta_s",F.radians(F.lit(90)-F.col(dec_name)))
       .withColumn("phi_s",F.radians(ra_name))
@@ -153,20 +163,13 @@ object PairCount_exact {
       .withColumn("y_s",F.sin($"theta_s")*F.sin($"phi_s"))
       .withColumn("z_s",F.cos($"theta_s"))
       .drop(ra_name,dec_name,"theta_s","phi_s")
-
-    //optional repartionning
-    val numPart=params.get[Int]("numPart",_.toInt)
-
-    numPart match {
-      case Some(np)=> source=source.repartition(np,$"ipix")
-      case None=> println("---> no repartitioning specified")
-    }
+      .repartition(numPart,$"ipix")
+      .cache
 
     val np1=source.rdd.getNumPartitions
     println("source #part="+np1)
 
     println("*** caching source: "+source.columns.mkString(", "))
-    source=source.cache    
     val Ns=source.count
     println(f"Source size=${Ns/1e6}%3.2f M")
     val tsource=timer.step
@@ -175,34 +178,23 @@ object PairCount_exact {
 
 
     // 2. duplicates
-    def Neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours8(ipix))
+    def Neighbours=spark.udf.register("Neighbours",(ipix:Int)=>grid.neighbours(ipix))
 
+    //dataframe of neigbours
     val dfn=source.withColumn("neighbours",Neighbours($"ipix"))
+      .drop("ipix")
+      .withColumn("ipix",F.explode($"neighbours"))
+      .drop("neighbours")
 
-    val dups=new Array[org.apache.spark.sql.DataFrame](9)
-
-    for (i <- 0 to 7) {
-      println(i)
-      val df1=dfn.drop("ipix").withColumn("ipix",$"neighbours"(i))
-      val dfclean1=df1.filter(F.not(df1("ipix")===F.lit(-1))).drop("neighbours")
-      dups(i)=dfclean1
-    }
-    val cols=dups(0).columns
-    dups(8)=source.select(cols.head,cols.tail:_*)
-
-    var dup=dups.reduceLeft(_.union(_))
+    //add input source (with same labels)
+    val cols=dfn.columns
+    val dup=dfn.union(source.select(cols.head,cols.tail:_*))
       .withColumnRenamed("id","id2")
       .withColumnRenamed("x_s","x_t")
       .withColumnRenamed("y_s","y_t")
       .withColumnRenamed("z_s","z_t")
-
-
-    numPart match {
-      case Some(np)=> dup=dup.repartition(np,$"ipix")
-      case None=> println("---> no repartitioning specified")
-    }
-
-    dup=dup.cache
+      .repartition(numPart,$"ipix")
+      .cache
 
 
     println("*** caching duplicates: "+dup.columns.mkString(", "))
@@ -300,7 +292,7 @@ object PairCount_exact {
 
     println("Summary: ************************************")
     println("x@ imin imax Ndata Ndup nedges Nj NpixJ nodes part1 part2 part3 ts td tj tb t")
-    println(s"x@@$imin $imax $Ns $Ndup $nedges%g ${grid.Nbase} ${grid.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} {tbin.toInt} $fulltime%.2f")
+    println(f"x@@$imin $imax $Ns $Ndup $nedges%g ${grid.Nbase} ${grid.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
 
 
 

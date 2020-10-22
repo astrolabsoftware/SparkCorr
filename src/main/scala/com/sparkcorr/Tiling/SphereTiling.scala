@@ -25,8 +25,8 @@ abstract class SphereTiling {
   def pix2ang(ipix:Int):Array[Double]
   def ang2pix(theta:Double,phi:Double):Int
 
-  //fixed size 8 array adding -1 when no pixels
-  def neighbours8(ipix:Int):Array[Int]
+  //neighbours index array
+  def neighbours(ipix:Int):Array[Int]
 
   val pixNums:IndexedSeq[Int]
 

@@ -241,11 +241,12 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   }
 
   /** get the pixel neighbors (generally 8 sometimes 7) */
-  def neighbours(ipix:Int):List[Int]= {
+  def neighbours(ipix:Int):Array[Int]= {
     val (f:Int,i:Int,j:Int)=pix2coord(ipix)
 
-    val n:List[(Int,Int,Int)]=
-      (f,i,j+1)::(f,i,j-1)::(f,i+1,j)::(f,i+1,j+1)::(f,i+1,j-1)::(f,i-1,j)::(f,i-1,j+1)::(f,i-1,j-1)::Nil
+    val n:Array[(Int,Int,Int)]=Array(
+      (f,i,j+1),(f,i,j-1),(f,i+1,j),(f,i+1,j+1),(f,i+1,j-1),(f,i-1,j),(f,i-1,j+1),(f,i-1,j-1)
+    )
 
     val p=n.map(wrapcoord)
 
@@ -254,8 +255,8 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   }
 
   //fixed size array (8) adding -1 if only 7 neighbors
-  override def neighbours8(ipix:Int):Array[Int]= {
-    val a=neighbours(ipix).toArray
+  def neighbours8(ipix:Int):Array[Int]= {
+    val a=neighbours(ipix)
     if (a.size==8) a else a:+ -1
   }
 
@@ -293,7 +294,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
    val fn="neighbours.txt"
    val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fn,false)))
 
-   val n=neighbours(ipix)
+   val n=neighbours(ipix).toList
     for (in <- List(ipix):::n) {
       val (f,i,j)=pix2coord(in)
       val ang=pix2ang(in)
