@@ -241,7 +241,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   }
 
   /** get the pixel neighbors (generally 8 sometimes 7) */
-  def neighbours(ipix:Int):Array[Int]= {
+  override def neighbours(ipix:Int):Array[Int]= {
     val (f:Int,i:Int,j:Int)=pix2coord(ipix)
 
     val n:Array[(Int,Int,Int)]=Array(
