@@ -60,7 +60,7 @@ object PairCount_exact {
     val conf =sc.getConf
 
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    conf.set("spark.kryoserializer.buffer", "4096")
+    conf.set("spark.kryoserializer.buffer", "1024")
     conf.registerKryoClasses(Array(classOf[CubedSphere],classOf[SARSPix],classOf[HealpixGrid]))
 
 

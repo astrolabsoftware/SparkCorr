@@ -21,7 +21,8 @@ VERSION=${SBTVERSION//\"/}
 echo "SparkCorr version $VERSION"
 SCALA_VERSION_SPARK=2.11
 
-prefix="PairCountX"
+m=$(grep ^tiling $parfile | cut -d "=" -f2)
+prefix="PairCountX_$m"
 
 slfile="run_$prefix.sl"
 echo $slfile
