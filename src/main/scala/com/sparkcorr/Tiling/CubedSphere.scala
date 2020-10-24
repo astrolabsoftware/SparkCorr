@@ -31,7 +31,6 @@ import scala.collection.mutable.ArrayBuffer
 
 class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
-  println(s"Creating CubedSphere($Nbase)")
   val N:Int=Nbase
   val Npix=6*Nbase*Nbase
 
@@ -249,24 +248,23 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
     )
 
     val p=n.map(wrapcoord)
-
     p.map{case (f:Int,i:Int,j:Int)=>coord2pix(f,i,j)}.distinct
 
   }
 
-  //fixed size array (8) adding -1 if only 7 neighbors
-  def neighbours8(ipix:Int):Array[Int]= {
-    val a=neighbours(ipix)
-    if (a.size==8) a else a:+ -1
+  /*
+  val allneighbours=getallneighbours()
+
+  def getallneighbours()={
+    val n=new Array[Array[Int] ](N*N*10-4)
+    for (ipix <- pixNums) {
+      n(ipix)=neighboursLoc(ipix)
+    }
+    n
   }
 
-
-
-
-  /** construct nodes on the sphere with a given strategy 
-    *  here equal angles for each point on a 
-    *  face viewed from the center 
-    */
+  override def neighbours(ipix:Int):Array[Int]= allneighbours(ipix)
+   */
 
   //output centers
   def writeCenters(fn:String):Unit={

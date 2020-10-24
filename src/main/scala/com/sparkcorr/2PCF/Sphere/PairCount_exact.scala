@@ -19,6 +19,7 @@ import org.apache.spark.sql.{functions=>F,SparkSession,DataFrame,Row}
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.types._
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.storage.StorageLevel._
 
 import com.sparkcorr.Binning.{LogBinning}
 import com.sparkcorr.IO.{ParamFile}
@@ -127,13 +128,13 @@ object PairCount_exact {
       case "sarspix" => {
         val Nf=SARSPix.pixRadiusGt(bins.last(1)/2)
         val Npix=SARSPix.Npix(Nf)
-        println(f"* SARSPix pixelization: Nf=$Nf Npix=${Npix/1e6}%gM")
+        println(f"* SARSPix pixelization: Nbase=$Nf Npix=${Npix/1e6}%gM")
         new SARSPix(Nf)
       }
       case "cubedsphere" => {
         val Nf=CubedSphere.pixRadiusGt(bins.last(1)/2)
         val Npix=CubedSphere.Npix(Nf)
-        println(f"* Cubedsphere pixelization: Nf=$Nf Npix=${Npix/1e6}%gM")
+        println(f"* Cubedsphere pixelization: Nbase=$Nf Npix=${Npix/1e6}%gM")
         new CubedSphere(Nf)
       }
       case "healpix" => {
@@ -161,7 +162,7 @@ object PairCount_exact {
       .withColumn("z_s",F.cos($"theta_s"))
       .drop(ra_name,dec_name,"theta_s","phi_s")
       .repartition(numPart,$"ipix")
-      .cache
+      .persist(MEMORY_ONLY)
 
     val np1=source.rdd.getNumPartitions
     println("source #part="+np1)
@@ -173,9 +174,43 @@ object PairCount_exact {
     timer.print("input source")
     source.show(5)
 
-
     // 2. duplicates
-    def Neighbours=spark.udf.register("Neighbours",(ipix:Int)=>grid.neighbours(ipix))
+
+    /*
+    //2.1 method join with dfpix (not for hp)
+    //extract neigbours array and build df
+    val nb=new Array[Array[Int]](10*grid.Nbase*grid.Nbase-4)
+    for (ipix <-grid.pixNums) nb(ipix)=grid.neighbours(ipix)
+    val pixn=nb.zipWithIndex.toSeq.toDF("neighbours","ipix")
+      //.repartition(numPart,$"ipix")
+
+    val dfj=source.join(pixn,"ipix")
+
+    println(dfj.count)
+    timer.step
+    timer.print("joining neigbours")
+
+
+    val dfn=dfj
+      .drop("ipix")
+      .withColumn("ipix",F.explode($"neighbours"))
+      .drop("neighbours")
+
+    //add input source (with same labels)
+    val cols=dfn.columns
+    val dup=dfn.union(source.select(cols.head,cols.tail:_*))
+      .withColumnRenamed("id","id2")
+      .withColumnRenamed("x_s","x_t")
+      .withColumnRenamed("y_s","y_t")
+      .withColumnRenamed("z_s","z_t")
+      //.repartition(numPart,$"ipix")
+      .persist(MEMORY_ONLY)
+     */
+
+
+    /*
+     //method 2.2 udf+explode
+    def Neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours(ipix))
 
     //dataframe of neigbours
     val dfn=source.withColumn("neighbours",Neighbours($"ipix"))
@@ -191,7 +226,32 @@ object PairCount_exact {
       .withColumnRenamed("y_s","y_t")
       .withColumnRenamed("z_s","z_t")
       .repartition(numPart,$"ipix")
-      .cache
+      .persist(MEMORY_ONLY)
+     */
+
+     //method 2.3 udf+union dfs
+    def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours8(ipix))
+
+    val dfn=source.withColumn("neighbours",pix_neighbours($"ipix"))
+
+    val dups=new Array[org.apache.spark.sql.DataFrame](9)
+
+    for (i <- 0 to 7) {
+      println(i)
+      val df1=dfn.drop("ipix").withColumn("ipix",$"neighbours"(i))
+      val dfclean1=df1.filter(F.not(df1("ipix")===F.lit(-1))).drop("neighbours")
+      dups(i)=dfclean1
+    }
+    val cols=dups(0).columns
+    dups(8)=source.select(cols.head,cols.tail:_*)
+
+    val dup=dups.reduceLeft(_.union(_))
+      .withColumnRenamed("id","id2")
+      .withColumnRenamed("x_s","x_t")
+      .withColumnRenamed("y_s","y_t")
+      .withColumnRenamed("z_s","z_t")
+      .repartition(numPart,$"ipix")
+      .persist(MEMORY_ONLY)
 
 
     println("*** caching duplicates: "+dup.columns.mkString(", "))
@@ -252,7 +312,8 @@ object PairCount_exact {
     timer.print("join")
 
     //bin!
-    val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("ibin").cache
+    val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("ibin").persist(MEMORY_AND_DISK)
+
     //val binned=edges.rdd.map(r=>(r.getInt(0),r.getLong(1))).reduceByKey(_+_).toDF("ibin","Nbin")
 
 

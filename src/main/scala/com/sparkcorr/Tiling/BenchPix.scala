@@ -76,14 +76,12 @@ object BenchPix {
 
     val timer=new Timer()
 
-
     val grid = tile match {
       case "cs" => new CubedSphere(Nf)
       case "sa" => new SARSPix(Nf)
       case "hp" => HealpixGrid(Nf, NESTED)
       case _ =>  {require(false,s"unknow tiling=$tile"); null}
     }
-
 
     //val grid=new CubedSphere(Nf)
     //sc.broadcast(grid.pixcenter)
@@ -121,9 +119,8 @@ object BenchPix {
     timer.step
     timer.print("pix2ang")
 
-    //df=df.persist(MEMORY_ONLY)
+    df=df.persist(MEMORY_ONLY)
 
-    //create neighbours
     def Neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours(ipix))
 
     val dup=df.withColumn("neigbours",Neighbours($"ipix"))

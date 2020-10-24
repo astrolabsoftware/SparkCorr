@@ -1,10 +1,7 @@
 #!/bin/bash
 
 #myexec="Tiling.CubedSphere"
-myexec="Tiling.PixelSize"
-#args="hp 128 10000000"
-#args="cs 180 10000000"
-#args="sa 180 1000000000"
+#myexec="Tiling.PixelSize"
 
 #myexec="Tiling.BenchPix"
 
@@ -22,7 +19,7 @@ fi
 # Package it
 SBTVERSION=$(grep version build.sbt | awk '{print $3}')
 VERSION=${SBTVERSION//\"/}
-echo "Running version $VERSION"
+echo "Running SparkCorr version $VERSION"
 
 
 SCALA_VERSION_SPARK=2.11

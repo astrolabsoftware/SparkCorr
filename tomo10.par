@@ -9,19 +9,14 @@ bin_type=log
 imin=0
 
 
-#imax=4
+
+imax=8
+#tiling=cubedSphere
+tiling=SARSPix
 #tiling=Healpix
-
-imax=5
-tiling=cubedSphere
-
-#tiling=SARSPix
 
 # input data
 data1=/lsst/tomo10M.parquet
 ra_name=RA
 dec_name=DEC
 
-#
-numPart=255
-nodes=5

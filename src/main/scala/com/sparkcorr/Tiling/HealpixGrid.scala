@@ -37,6 +37,10 @@ class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends SphereTiling with
   override def neighbours(ipix:Int):Array[Int] =  {
     hp.neighbours(ipix.toLong).map(_.toInt).filter(_ != -1)
   }
+  override def neighbours8(ipix:Int):Array[Int] =  {
+    hp.neighbours(ipix.toLong).map(_.toInt)
+  }
+
   override def pix2ang(ipix:Int):Array[Double]=
   {
     val p:Pointing=hp.pix2ang(ipix.toLong)
