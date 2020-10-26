@@ -71,8 +71,6 @@ for ip in range(N*N):
     Rmin[i,j]=amin(ri)
 
 
-
-
 Aexp=4*pi/6/(N)**2
 Rexp=sqrt(Aexp/2)
 
@@ -87,6 +85,8 @@ title("radius")
 
 #histo R
 figure()
-hist_plot(Rmax.flatten()/Rexp,range=[0.8,1.5],bins=100)
+hist(Rmin.flat/Rexp,bins=80,range=[0.7,1.5])
+hist(Rmax.flat/Rexp,bins=80,alpha=0.5,range=[0.7,1.5])
+xlabel("R/Rsq")
 
 show()

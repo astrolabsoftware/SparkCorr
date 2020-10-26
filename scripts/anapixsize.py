@@ -20,9 +20,10 @@ else :
     tit="SARSPix (nside={})".format(nside)
     Npix=6*nside**2
 
-Rsq=rad2arcmin(sqrt(4*pi/Npix/2))
+A=4*pi/Npix
+Rsq=sqrt(A/2)
 
-print("Rsq={} arcmin".format(Rsq))
+print("Rsq={} arcmin".format(rad2arcmin(Rsq)))
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -31,16 +32,17 @@ print("reading: "+fn)
 
 df=spark.read.parquet(fn)
 
-df=df.withColumn("dx",F.degrees(F.sin((df["theta"]+df["theta_c"])/2)*(df["phi"]-df["phi_c"]))*60/Rsq)
+df=df.withColumn("dx",F.sin((df["theta"]+df["theta_c"])/2)*(df["phi"]-df["phi_c"])/Rsq)
 
-df=df.withColumn("dy",F.degrees(df["theta"]-df["theta_c"])*60/Rsq)
+df=df.withColumn("dy",(df["theta"]-df["theta_c"])/Rsq)
 
 #df=df.drop("theta","phi","theta_c","phi_c")
 #df=df.withColumn("R",F.hypot(df["dx"],df["dy"]))
 
 df=df.withColumn("x",F.sin(df["theta"])*F.cos(df["phi"])).withColumn("y",F.sin(df["theta"])*F.sin(df["phi"])).withColumn("z",F.cos(df["theta"])).drop("theta","phi")
 df=df.withColumn("xc",F.sin(df["theta_c"])*F.cos(df["phi_c"])).withColumn("yc",F.sin(df["theta_c"])*F.sin(df["phi_c"])).withColumn("zc",F.cos(df["theta_c"])).drop("theta_c","phi_c")
-df=df.withColumn("R",F.degrees(F.hypot(df.x-df.xc,F.hypot(df.y-df.yc,df.z-df.zc)))*60/Rsq).drop("x","y","z","xc","yc","zc")
+df=df.withColumn("R",F.hypot(df.x-df.xc,F.hypot(df.y-df.yc,df.z-df.zc))).drop("x","y","z","xc","yc","zc")
+#df=df.withColumn("R",F.degrees(df['Rad'])*60/Rsq)
 
 #df=df.withColumn("RR",F.hypot(df.dx,df.dy))
 
@@ -69,12 +71,21 @@ title(tit+" [log]")
 savefig(method+"_nside{}_2dlog.png".format(nside))
 
 
-#Rmax by pixel                                              
+#Rmax by pixel         
 dfpix=df.groupBy("ipix").agg(F.max(df["R"]))
-h,step=df_histplot(dfpix,dfpix.columns[1],bounds=[0.8,1.5],Nbins=100,doStat=True)
-xlabel("pixel radius")
+R=dfpix.toPandas()
+
+Rmax=R[dfpix.columns[1]]
+Rmin=A/2./Rmax
+
+figure()
+hist(Rmax/Rsq,bins=100)
+hist(Rmin/Rsq,bins=100,alpha=0.5)
+xlabel("R/Rsq")
+
 title(tit)
 savefig(method+"_nside{}_1d.png".format(nside))
+
 
 #area
 dfc=df.groupBy("ipix").count()

@@ -25,6 +25,7 @@ ff=open("centers.txt",'w')
 Air=zeros((N-1,N-1))
 e=zeros((N-1,N-1))
 Rmax=zeros((N-1,N-1))
+Rmin=zeros((N-1,N-1))
 for ip in range(N*N):
     i,j=ip//N,ip%N
     #skip borders
@@ -53,6 +54,7 @@ for ip in range(N*N):
     #ff.write(line)
     ri=array([dist(cen,A),dist(cen,B),dist(cen,C),dist(cen,B)])
     Rmax[i,j]=amax(ri)
+    Rmin[i,j]=amin(ri)
 
 ##
 ff.close()
@@ -72,6 +74,9 @@ title("radius")
 
 #histo R
 figure()
-hist_plot(Rmax.flatten()/Rexp,range=[0.8,1.5],bins=100,histtype='bar')
+hist(Rmin.flat/Rexp,bins=80,range=[0.7,1.5])
+hist(Rmax.flat/Rexp,bins=80,alpha=0.5,range=[0.7,1.5])
+xlabel("R/Rsq")
+
 
 show()
