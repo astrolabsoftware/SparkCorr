@@ -28,11 +28,13 @@ abstract class SphereTiling {
   //neighbours index array
   def neighbours(ipix:Int):Array[Int]
 
+  /*
   //fixed size 8 array adding -1 if 7
   def neighbours8(ipix:Int):Array[Int]= {
     val a=neighbours(ipix)
     if (a.size==8) a else a:+ -1
   }
+   */
 
   //list of valid pixel indices
   val pixNums:IndexedSeq[Int]

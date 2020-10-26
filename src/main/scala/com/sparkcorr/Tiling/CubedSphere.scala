@@ -241,6 +241,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
   /** get the pixel neighbors (generally 8 sometimes 7) */
   override def neighbours(ipix:Int):Array[Int]= {
+
     val (f:Int,i:Int,j:Int)=pix2coord(ipix)
 
     val n:Array[(Int,Int,Int)]=Array(
@@ -331,7 +332,7 @@ object CubedSphere {
      case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._2}
 
 
-  val minmaxRadius=(0.94,1.26)
+  val minmaxRadius=(0.7,1.26)
 
 
   //N below which all pix radius are greater than R
