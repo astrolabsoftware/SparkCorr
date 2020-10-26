@@ -274,7 +274,7 @@ class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
 // companion
 object SARSPix {
 
-  val minmaxRadius=(0.7,1.1)
+  val minmaxRadius=(0.6,1.1)
 
 //N below which all pix radius are greater than R
   //R in arcmin

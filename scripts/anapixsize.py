@@ -75,16 +75,22 @@ savefig(method+"_nside{}_2dlog.png".format(nside))
 dfpix=df.groupBy("ipix").agg(F.max(df["R"]))
 R=dfpix.toPandas()
 
-Rmax=R[dfpix.columns[1]]
+Rmax=R[dfpix.columns[1]].values
 Rmin=A/2./Rmax
 
+Rmax/=Rsq
+Rmin/=Rsq
+
 figure()
-hist(Rmax/Rsq,bins=100)
-hist(Rmin/Rsq,bins=100,alpha=0.5)
+hist(Rmax,bins=100,range=[0.5,1.5])
+hist(Rmin,bins=100,alpha=0.5,range=[0.5,1.5])
 xlabel("R/Rsq")
 
 title(tit)
 savefig(method+"_nside{}_1d.png".format(nside))
+
+Rin=Rmin*Rmax/sqrt(Rmin**2+Rmax**2)
+hist_plot(Rin)
 
 
 #area

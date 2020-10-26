@@ -85,8 +85,14 @@ title("radius")
 
 #histo R
 figure()
-hist(Rmin.flat/Rexp,bins=80,range=[0.7,1.5])
-hist(Rmax.flat/Rexp,bins=80,alpha=0.5,range=[0.7,1.5])
+Rmin=Rmin.flatten()/Rexp
+hist(Rmin,bins=80,range=[0.7,1.5])
+
+Rmax=Rmax.flatten()/Rexp
+hist(Rmax,bins=80,alpha=0.5,range=[0.7,1.5])
 xlabel("R/Rsq")
+
+Rin=Rmin*Rmax/sqrt(Rmin**2+Rmax**2)
+hist_plot(Rin)
 
 show()
