@@ -12,7 +12,9 @@ exit
 fi
 
 myexec="2PCF.Sphere.PairCount_exact"
-parfile=$1
+parfile=$(mktemp -p .)
+\cp $1 $parfile
+#parfile=$1
 echo "Running $myexec $parfile"
 
 
@@ -54,10 +56,11 @@ nodes=\$((\$SLURM_JOB_NUM_NODES-1))
 ncores=\$((\$nodes*32))
 part=\$((\$ncores*3))
 
+cat $parfile
 
 shifter spark-submit $SPARKOPTS --jars \$JARS --class com.sparkcorr.$myexec $PWD/target/scala-${SCALA_VERSION_SPARK}/sparkcorr_${SCALA_VERSION_SPARK}-$VERSION.jar $parfile \$part
 
-
+\rm $parfile
 
 stop-all.sh
 

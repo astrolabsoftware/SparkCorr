@@ -208,12 +208,11 @@ object PairCount_exact {
      */
 
 
-    /*
      //method 2.2 udf+explode
-    def Neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours(ipix))
+    def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours(ipix))
 
     //dataframe of neigbours
-    val dfn=source.withColumn("neighbours",Neighbours($"ipix"))
+    val dfn=source.withColumn("neighbours",pix_neighbours($"ipix"))
       .drop("ipix")
       .withColumn("ipix",F.explode($"neighbours"))
       .drop("neighbours")
@@ -227,8 +226,9 @@ object PairCount_exact {
       .withColumnRenamed("z_s","z_t")
       .repartition(numPart,$"ipix")
       .persist(MEMORY_ONLY)
-     */
 
+
+    /*
      //method 2.3 udf+union dfs
     def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours8(ipix))
 
@@ -252,7 +252,7 @@ object PairCount_exact {
       .withColumnRenamed("z_s","z_t")
       .repartition(numPart,$"ipix")
       .persist(MEMORY_ONLY)
-
+     */
 
     println("*** caching duplicates: "+dup.columns.mkString(", "))
     val Ndup=dup.count
