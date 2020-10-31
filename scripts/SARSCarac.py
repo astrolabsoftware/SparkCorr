@@ -61,7 +61,7 @@ ff.close()
 
 
 Aexp=4*pi/6/(N-1)**2
-Rexp=sqrt(Aexp/2)
+Rsq=sqrt(Aexp/2)
 
 imshowXY(arange(N-1),arange(N-1),Air/Aexp,vmin=0.85,vmax=1.15)
 title("area")
@@ -69,20 +69,24 @@ title("area")
 imshowXY(arange(N-1),arange(N-1),abs(e-1),vmin=0,vmax=0.8)
 title("ellipticity")
 
-imshowXY(arange(N-1),arange(N-1),Rmax/Rexp,vmin=0.85,vmax=1.35)
+imshowXY(arange(N-1),arange(N-1),Rmax/Rsq,vmin=0.85,vmax=1.35)
 title("radius")
 
 #histo R
+
 figure()
-Rmin=Rmin.flatten()/Rexp
-Rmax=Rmax.flatten()/Rexp
-
-hist(Rmin,bins=80,range=[0.7,1.5])
-hist(Rmax,bins=80,alpha=0.5,range=[0.7,1.5])
-xlabel("R/Rsq")
-
+Rmin=Rmin.flatten()
+Rmax=Rmax.flatten()
 Rin=Rmin*Rmax/sqrt(Rmin**2+Rmax**2)
-hist_plot(Rin)
 
-
+Rsqin=Rsq/sqrt(2)
+#hist(Rmin,bins=80,range=[0.7,1.5])
+range=[0.8,1.5]
+hist(Rin/Rsqin,bins=80,range=range,label=r"$R_{in}$")
+hist(Rmax/Rsq,color='red',bins=80,alpha=0.7,range=range,label=r"$R_{out}$")
+xlabel(r"$R/R_{sq}$")
+legend()
+xlim(range)
+xticks(linspace(0.8,1.5,8))
+semilogy()
 show()

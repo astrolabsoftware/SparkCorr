@@ -77,22 +77,23 @@ R=dfpix.toPandas()
 
 Rmax=R[dfpix.columns[1]].values
 Rmin=A/2./Rmax
-
-Rmax/=Rsq
-Rmin/=Rsq
-
-figure()
-hist(Rmax,bins=100,range=[0.5,1.5])
-hist(Rmin,bins=100,alpha=0.5,range=[0.5,1.5])
-xlabel("R/Rsq")
-
-title(tit)
-savefig(method+"_nside{}_1d.png".format(nside))
-
 Rin=Rmin*Rmax/sqrt(Rmin**2+Rmax**2)
-hist_plot(Rin)
+
+
+Rsqin=Rsq/sqrt(2)
+#hist(Rmin,bins=80,range=[0.7,1.5])
+figure()
+range=[0.8,1.5]
+hist(Rin/Rsqin,bins=80,range=range,label=r"$R_{in}$")
+hist(Rmax/Rsq,color='red',bins=80,alpha=0.7,range=range,label=r"$R_{out}$")
+xlabel(r"$R/R_{sq}$")
+legend()
+xlim(range)
+xticks(linspace(0.8,1.5,8))
+semilogy()
+show()
 
 
 #area
-dfc=df.groupBy("ipix").count()
-h,s=df_histplot(dfc,"count")
+#dfc=df.groupBy("ipix").count()
+#h,s=df_histplot(dfc,"count")
