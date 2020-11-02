@@ -39,7 +39,7 @@ object BenchPix {
 
     if (args.size!=3){
       println("**********************************************")
-      println(">>>> Usage: BenchPix cs/hp N Ngen")
+      println(">>>> Usage: BenchPix cs/sa/hp N Ngen")
       println("**********************************************")
       return
     }

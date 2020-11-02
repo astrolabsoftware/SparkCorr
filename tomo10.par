@@ -9,8 +9,7 @@ bin_type=log
 imin=0
 
 
-
-imax=8
+imax=4
 #tiling=cubedSphere
 tiling=SARSPix
 #tiling=Healpix
