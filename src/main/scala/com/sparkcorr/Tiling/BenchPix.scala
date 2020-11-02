@@ -68,6 +68,7 @@ object BenchPix {
 
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     conf.set("spark.kryoserializer.buffer", "4096")
+    //conf.set("spark.broadcast.blockSize","100")
     //conf.set("spark.kryo.registrationRequired", "true")
     conf.registerKryoClasses(Array(classOf[CubedSphere],classOf[SARSPix],classOf[HealpixGrid]))
 
@@ -76,12 +77,13 @@ object BenchPix {
 
     val timer=new Timer()
 
-    val grid = tile match {
+    val griddriver = tile match {
       case "cs" => new CubedSphere(Nf)
       case "sa" => new SARSPix(Nf)
       case "hp" => HealpixGrid(Nf, NESTED)
       case _ =>  {require(false,s"unknow tiling=$tile"); null}
     }
+    val grid=sc.broadcast(griddriver)
 
     //val grid=new CubedSphere(Nf)
     //sc.broadcast(grid.pixcenter)
@@ -94,8 +96,8 @@ object BenchPix {
     timer.step
     timer.print("grid creation")
 
-    def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
-    val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> grid.pix2ang(ipix))
+    def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.value.ang2pix(theta,phi))
+    val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> grid.value.pix2ang(ipix))
     //val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> {val p=pixc(ipix); Array(p._1,p._2)})
 
 
@@ -121,10 +123,10 @@ object BenchPix {
 
     df=df.persist(MEMORY_ONLY)
 
-    def Neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours(ipix))
+    def Neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.value.neighbours(ipix))
 
     val dup=df.withColumn("neigbours",Neighbours($"ipix"))
-      .drop("ipix").withColumn("ipix",F.explode($"neigbours")).drop("neighbours")
+      .drop("ipix").withColumn("ipix",F.explode($"neigbours")).drop("neighbours").cache()
 
     dup.select(F.min($"ipix"),F.max($"ipix")).show()
     timer.step

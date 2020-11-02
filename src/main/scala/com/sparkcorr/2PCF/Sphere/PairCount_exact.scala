@@ -63,6 +63,7 @@ object PairCount_exact {
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     conf.set("spark.kryoserializer.buffer", "1024")
     conf.registerKryoClasses(Array(classOf[CubedSphere],classOf[SARSPix],classOf[HealpixGrid]))
+    //conf.set("spark.broadcast.blockSize","100")
 
 
     import spark.implicits._
@@ -124,7 +125,7 @@ object PairCount_exact {
     //joining pixelization
     val tiling=params.get("tiling","SARSPix").toLowerCase
 
-    val grid=tiling match {
+    val rawgrid=tiling match {
       case "sarspix" => {
         val Nf=SARSPix.pixRadiusGt(bins.last(1)/2)
         val Npix=SARSPix.Npix(Nf)
@@ -145,11 +146,14 @@ object PairCount_exact {
       }
 
     }
+
+    val grid=sc.broadcast(rawgrid)
+
     //spark udf
-    def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.ang2pix(theta,phi))
+    def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.value.ang2pix(theta,phi))
 
     timer.step
-    timer.print(s"Building "+tiling+"("+grid.Nbase+")")
+    timer.print(s"Building "+tiling+"("+rawgrid.Nbase+")")
 
     //addd index and replace by cartesian coords
     val source=input
@@ -209,7 +213,7 @@ object PairCount_exact {
 
 
      //method 2.2 udf+explode
-    def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours(ipix))
+    def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.value.neighbours(ipix))
 
     //dataframe of neigbours
     val dfn=source.withColumn("neighbours",pix_neighbours($"ipix"))
@@ -350,7 +354,7 @@ object PairCount_exact {
 
     println("Summary: ************************************")
     println("x@ imin imax Ndata Ndup nedges Nj NpixJ nodes part1 part2 part3 ts td tj tb t")
-    println(f"x@@$imin $imax $Ns $Ndup $nedges%g ${grid.Nbase} ${grid.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
+    println(f"x@@$imin $imax $Ns $Ndup $nedges%g ${rawgrid.Nbase} ${rawgrid.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
 
 
 
