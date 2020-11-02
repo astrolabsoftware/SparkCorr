@@ -144,34 +144,34 @@ Rsqin=Rsq/sqrt(2)
 
 imshowXY(arange(N-1),arange(N-1),Air/Aexp,vmin=0.85,vmax=1.15)
 title("area")
+savefig("cobe_area2.pdf")
 
 imshowXY(arange(N-1),arange(N-1),abs(e-1),vmin=0,vmax=0.8)
 title("ellipticity")
+savefig("cobe_e2.pdf")
 
 imshowXY(arange(N-1),arange(N-1),Rmax/Rsq,vmin=0.85,vmax=1.35)
-title("radius")
+title("outer radius")
+savefig("cobe_rout2.pdf")
 
 
 imshowXY(arange(N-1),arange(N-1),Rint/Rsqin,vmin=0.7,vmax=1.1)
-title("Rin")
-
+title("inner radius")
+savefig("cobe_rin2.pdf")
 
 #histoR
 
 figure()
-Rmin=Rmin.flatten()
-Rmax=Rmax.flatten()
-Rin=Rmin*Rmax/sqrt(Rmin**2+Rmax**2)
 
-#hist(Rmin,bins=80,range=[0.7,1.5])
 range=[0.6,1.5]
 #hist(Rin/Rsqin,bins=80,range=range,label=r"$R_{in}$")
-hist(Rint.flat/Rsqin,bins=80,range=range,label=r"$R_{in}$")
-hist(Rmax/Rsq,color='red',bins=80,alpha=0.7,range=range,label=r"$R_{out}$")
-xlabel(r"$R/R_{sq}$")
+hist(Rint.flat/Rsqin,bins=80,range=range,label="inner")
+hist(Rmax.flat/Rsq,color='red',bins=80,alpha=0.7,range=range,label="outer")
+
+xlabel(r"radius")
 legend()
 xlim(range)
 #xticks(linspace(0.7,1.5,9))
 #semilogy()
 show()
-savefig("cobe_rmax1.png")
+#savefig("cobe_radius.pdf")
