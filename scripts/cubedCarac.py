@@ -127,7 +127,7 @@ Rmax=Rmax.flatten()
 Rin=Rmin*Rmax/sqrt(Rmin**2+Rmax**2)
 
 #hist(Rmin,bins=80,range=[0.7,1.5])
-range=[0.7,1.5]
+range=[0.6,1.5]
 #hist(Rin/Rsqin,bins=80,range=range,label=r"$R_{in}$")
 hist(Rint.flat/Rsqin,bins=80,range=range,label=r"$R_{in}$")
 hist(Rmax/Rsq,color='red',bins=80,alpha=0.7,range=range,label=r"$R_{out}$")
@@ -136,5 +136,6 @@ xlabel(r"$R/R_{sq}$")
 legend()
 xlim(range)
 #xticks(linspace(0.7,1.5,9))
-semilogy()
+#semilogy()
 show()
+savefig("cubed_rmax1.png")
