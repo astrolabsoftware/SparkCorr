@@ -33,6 +33,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
   val N:Int=Nbase
   val Npix=6*Nbase*Nbase
+  val SIZE=10*Nbase*Nbase-4
 
   val a=1/math.sqrt(3.0)
   val step=Pi/2/N
@@ -82,7 +83,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   def buildPixels(nodes:Array[arr2[Point3D]]):Array[(Double,Double)]={
 
     require(nodes.size==6)
-    val pixarray=new Array[(Double,Double)](N*N*10-4)
+    val pixarray=new Array[(Double,Double)](SIZE)
     var radii=new ArrayBuffer[Double]
     for (face <- 0 to 5) {
       val facenodes=nodes(face)
@@ -133,6 +134,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   override def ang2pix(theta:Double,phi:Double):Int = {
     val face:Int=getFace(theta,phi)
     val (i,j)=ang2LocalIndex(face,theta,phi)
+    //require(face>=0 & face<=5 & i>=0 & i<=N & j>=0 & j<=N,s"\n fail face=$face i=$i j=$j")
     coord2pix(face,i,j)
   }
 
@@ -161,8 +163,11 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   /** for equal angles */
   def ang2LocalIndex(face:Int,theta:Double,phi:Double):(Int,Int)= {
     val (x,y)=CubedSphere.ang2Local(face)(theta,phi)
-    val alpha=math.atan(x)
-    val beta=math.atan(y)
+    //protection
+    val xx=math.max(-1.0,math.min(1.0,x))
+    val yy=math.max(-1.0,math.min(1.0,y))
+    val alpha=math.atan(xx)
+    val beta=math.atan(yy)
     val i:Int=math.floor((alpha+Pi/4)/step).toInt
     val j:Int=math.floor((beta+Pi/4)/step).toInt
     (i,j)
@@ -257,7 +262,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   val allneighbours=getallneighbours()
 
   def getallneighbours()={
-    val n=new Array[Array[Int] ](N*N*10-4)
+    val n=new Array[Array[Int] ](SIZE)
     for (ipix <- pixNums) {
       n(ipix)=neighboursLoc(ipix)
     }

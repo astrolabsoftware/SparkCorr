@@ -93,9 +93,23 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
 
       for (t<-tet;p<-phi){
         val face=c.getFace(t,p)
-        val (x,y)=c.ang2Local(face)(t,p)
+        val (x,y)=CubedSphere.ang2Local(face)(t,p)
         assert(abs(x)<1 & abs(y)<1,s"fail on f=$face")
       }
+  }
+
+  test("ang2pix on edges"){
+    val tet=List(2.0260583888217623)
+    val phi=List(2.356194490192345)
+
+    for (t<-tet;p<-phi){
+      val face:Int=c.getFace(t,p)
+      assert(face>=0 & face<=5,s"\n fail face=$face")
+      val (x,y)=CubedSphere.ang2Local(face)(t,p)
+      val (i,j)=c.ang2LocalIndex(face,t,p)
+      assert((i>= 0) & (i< c.N) & (j>=0) & (j< c.N) ,s"\n fail f=$face i=$i j=$j")
+    }
+
   }
 
 

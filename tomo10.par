@@ -9,13 +9,14 @@ bin_type=log
 imin=0
 
 
-imax=4
-#tiling=cubedSphere
-tiling=SARSPix
+imax=8
+tiling=cubedSphere
+#tiling=SARSPix
 #tiling=Healpix
 
 # input data
-data1=/lsst/tomo10M.parquet
+#data1=/lsst/tomo10M.parquet
+data1=/home/plaszczy/data/tomo10M.parquet
 ra_name=RA
 dec_name=DEC
 

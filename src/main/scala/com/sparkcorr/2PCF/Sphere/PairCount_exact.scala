@@ -162,13 +162,11 @@ object PairCount_exact {
       .withColumn("phi_s",F.radians(ra_name))
       .drop(ra_name,dec_name)
       .withColumn("ipix",Ang2Pix($"theta_s",$"phi_s"))
-    /*
       .withColumn("x_s",F.sin($"theta_s")*F.cos($"phi_s"))
       .withColumn("y_s",F.sin($"theta_s")*F.sin($"phi_s"))
       .withColumn("z_s",F.cos($"theta_s"))
-     */
-      //.drop("theta_s","phi_s")
-      //.repartition(numPart,$"ipix")
+      .drop("theta_s","phi_s")
+      .repartition(numPart,$"ipix")
       .persist(MEMORY_ONLY)
 
     val np1=source.rdd.getNumPartitions
@@ -185,18 +183,19 @@ object PairCount_exact {
     println(s"Nans=${Ns-Nain}")
     require(Nain==Ns)
 
-    val dfpix=source.groupBy("ipix").count()
-    dfpix.describe("ipix").show
+    //val dfpix=source.groupBy("ipix").count()
+    //dfpix.describe("ipix").show
 
-    val Nsize=10*rawgrid.Nbase*rawgrid.Nbase-4
+    val Nsize=rawgrid.SIZE
     val Npix=rawgrid.Npix
-    println(s"expected Npix=$Npix Size=$Nsize") 
+    println(s"expecting Npix=$Npix Size=$Nsize") 
     val bad=source.filter($"ipix"<0 || $"ipix">=Nsize)
-    println("bad size="+bad.count)
-    bad.show()
+    val bc=bad.count
+    println("bad size="+bc)
+    bad.show(truncate=false)
+    require(bc==0,"wrong pixel index")
 
 
-    return
     // 2. duplicates
 
     /*
@@ -244,13 +243,11 @@ object PairCount_exact {
     val cols=dfn.columns
     val dup=dfn.union(source.select(cols.head,cols.tail:_*))
       .withColumnRenamed("id","id2")
-    /*
       .withColumnRenamed("x_s","x_t")
       .withColumnRenamed("y_s","y_t")
       .withColumnRenamed("z_s","z_t")
       .repartition(numPart,$"ipix")
       .persist(MEMORY_ONLY)
-     */
 
     /*
      //method 2.3 udf+union dfs
