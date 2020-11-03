@@ -31,6 +31,7 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
 
   before {
     Locale.setDefault(Locale.US)
+    //println(s"creating SARSPix($N)")
     c= new SARSPix(N)
   }
 
@@ -82,6 +83,21 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
       }
     }
   }
+
+
+  test("ang2pix on edges"){
+    val tet=List(2.0260583888217623)
+    val phi=List(2.356194490192345)
+
+    for (t<-tet;p<-phi){
+      val ipix=c.ang2pix(t,p)
+      assert(ipix>=0 & ipix<c.SIZE)
+    }
+
+  }
+
+
+
 
   test("test all indices") {
      for (ipix<-c.pixNums) {

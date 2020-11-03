@@ -260,11 +260,17 @@ class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
     
     val p=new Point3D(theta,phi)
     val (f,q,i,j)=getLocalIndex(p)
+    //protection for edges
+    val ip=math.max(0,math.min(N/2-1,i))
+    val jp=math.max(0,math.min(N/2-1,j))
+
     //face index
-    val (ii,jj)=local2faceBinIndex(q,i,j)
-    //println(s"f=$f q=$q i=$i j=$j I=$ii J=$jj")
+    val (ii,jj)=local2faceBinIndex(q,ip,jp)
+
     //pixel index
-    coord2pix(f,ii,jj)
+    val ipix=coord2pix(f,ii,jj)
+
+    ipix
   }
 
 }
