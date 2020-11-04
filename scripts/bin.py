@@ -1,13 +1,15 @@
 import pandas
-
-#p=pandas.read_csv("binning.txt",sep="\s+")   
-p=pandas.read_csv("bin_setup.csv")   
-
 pandas.options.display.float_format = '{:,.1f}'.format
 
+p=pandas.read_csv("sa_binning.csv",sep="\s+")   
 
-cols=[pp for pp in p.columns if pp!="Nc" and pp !="Nj"]  
 
-cols=[pp for pp in p.columns if pp!="Nj" and pp !="NpixJ(k)"]  
+#cols=[pp for pp in p.columns if pp!="Nj" and pp !="NpixJ(k)"]  
 
-p[cols].to_latex("bin_setup.tex",index=False) 
+cols=['w','Nd', 'NpixD(M)','tu','Nj', 'NpixJ(k)']
+
+
+
+
+
+p[cols].to_latex("hp_setup.tex",index=True) 

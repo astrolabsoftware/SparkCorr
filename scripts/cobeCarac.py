@@ -172,6 +172,10 @@ xlabel(r"radius")
 legend()
 xlim(range)
 #xticks(linspace(0.7,1.5,9))
-#semilogy()
+semilogy()
 show()
-#savefig("cobe_radius.pdf")
+savefig("cobe_radius.pdf")
+
+
+print("Rmin={:.3f}".format(amin(Rint.flat/Rsqin)))
+print("Rmax={:.3f}".format(amax(Rmax.flat/Rsq)))

@@ -58,7 +58,7 @@ object HealpixGrid {
   def apply(nside:Long,sch:Scheme)=new HealpixGrid(new HealpixBase(nside, sch), new ExtPointing)
 
 
-  val minmaxRadius=(0.65,1.45)
+  val minmaxRadius=(0.65,1.48)
 
 //N below which all pix radius are greater than R
   //R in arcmin

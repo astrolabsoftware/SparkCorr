@@ -10,8 +10,9 @@ imin=0
 
 
 imax=8
-#tiling=cubedSphere
-tiling=SARSPix
+tiling=cubedSphere
+#tiling=SARSPix
+
 #tiling=Healpix
 
 # input data

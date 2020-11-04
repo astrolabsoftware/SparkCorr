@@ -26,14 +26,12 @@ e=zeros(Npix)
 Rmax=zeros(Npix)
 Rmin=zeros(Npix)
 Rint=zeros(Npix)
+
+nodes=boundaries(nside,arange(Npix),1)
+
 for ip in arange(Npix):
     
-    nodes=boundaries(nside,ip,1).T
-
-    A=nodes[0]
-    B=nodes[1]
-    C=nodes[2]
-    D=nodes[3]
+    A,B,C,D=nodes[ip].T 
     
     p2=dist2(A,C)
     q2=dist2(B,D)
@@ -103,6 +101,10 @@ legend()
 xlim(range)
 tight_layout()
 #xticks(linspace(0.7,1.5,9))
-#semilogy()
+semilogy()
 show()
+savefig("hp_radius.pdf")
 
+
+print("Rmin={:.3f}".format(amin(Rint/Rsqin)))
+print("Rmax={:.3f}".format(amax(Rmax/Rsq)))
