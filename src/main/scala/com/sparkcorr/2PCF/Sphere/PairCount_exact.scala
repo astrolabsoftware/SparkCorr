@@ -26,7 +26,7 @@ import com.sparkcorr.IO.{ParamFile}
 import com.sparkcorr.Tiling.{SARSPix,HealpixGrid,CubedSphere}
 import com.sparkcorr.tools.{Timer}
 
-import scala.math.{log,toRadians}
+import scala.math.{log,toRadians,sqrt}
 
 import java.util.Locale
 import healpix.essentials.Scheme.{NESTED,RING}
@@ -72,6 +72,9 @@ object PairCount_exact {
     val params=new ParamFile(args(0))
     val numPart=args(1).toInt
 
+    //joining pixelization
+    val tiling=params.get("tiling","SARSPix").toLowerCase
+
     //binning
     val Nbins:Int=params.get("Nbins",0)
     val bmin:Double=params.get("bin_min",0.0)
@@ -99,9 +102,6 @@ object PairCount_exact {
     
     val input=df_all.select(ra_name,dec_name)
 
-    //val N1=input.count()
-
-
     //find automatically imax
 
     //choose range
@@ -122,31 +122,28 @@ object PairCount_exact {
     val timer=new Timer
     val start=timer.time
 
-    //joining pixelization
-    val tiling=params.get("tiling","SARSPix").toLowerCase
-
     val rawgrid=tiling match {
       case "sarspix" => {
-        val Nf=SARSPix.pixRadiusGt(bins.last(1)/2)
+        val Nf=SARSPix.pixRadiusGt(bins.last(1)/sqrt(2))
         val Npix=SARSPix.Npix(Nf)
         println(f"* SARSPix pixelization: Nbase=$Nf Npix=${Npix/1e6}%gM")
         new SARSPix(Nf)
       }
       case "cubedsphere" => {
-        val Nf=CubedSphere.pixRadiusGt(bins.last(1)/2)
+        val Nf=CubedSphere.pixRadiusGt(bins.last(1)/sqrt(2))
         val Npix=CubedSphere.Npix(Nf)
         println(f"* Cubedsphere pixelization: Nbase=$Nf Npix=${Npix/1e6}%gM")
         new CubedSphere(Nf)
       }
       case "healpix" => {
-        val nside=HealpixGrid.pixRadiusGt(bins.last(1)/2)
+        val nside=HealpixGrid.pixRadiusGt(bins.last(1)/sqrt(2))
         val Npix=HealpixGrid.Npix(nside)
         println(f"* Healpix pixelization nside=$nside Npix=${Npix/1e6}%gM")
         HealpixGrid(nside, NESTED)
       }
 
     }
-
+    //broadcast object to executors
     val grid=sc.broadcast(rawgrid)
 
     //spark udf
@@ -197,40 +194,7 @@ object PairCount_exact {
 
 
     // 2. duplicates
-
-    /*
-    //2.1 method join with dfpix (not for hp)
-    //extract neigbours array and build df
-    val nb=new Array[Array[Int]](10*grid.Nbase*grid.Nbase-4)
-    for (ipix <-grid.pixNums) nb(ipix)=grid.neighbours(ipix)
-    val pixn=nb.zipWithIndex.toSeq.toDF("neighbours","ipix")
-      //.repartition(numPart,$"ipix")
-
-    val dfj=source.join(pixn,"ipix")
-
-    println(dfj.count)
-    timer.step
-    timer.print("joining neigbours")
-
-
-    val dfn=dfj
-      .drop("ipix")
-      .withColumn("ipix",F.explode($"neighbours"))
-      .drop("neighbours")
-
-    //add input source (with same labels)
-    val cols=dfn.columns
-    val dup=dfn.union(source.select(cols.head,cols.tail:_*))
-      .withColumnRenamed("id","id2")
-      .withColumnRenamed("x_s","x_t")
-      .withColumnRenamed("y_s","y_t")
-      .withColumnRenamed("z_s","z_t")
-      //.repartition(numPart,$"ipix")
-      .persist(MEMORY_ONLY)
-     */
-
-
-     //method 2.2 udf+explode
+    //method 2.2 udf+explode
     def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.value.neighbours(ipix))
 
     //dataframe of neigbours
@@ -248,32 +212,6 @@ object PairCount_exact {
       .withColumnRenamed("z_s","z_t")
       .repartition(numPart,$"ipix")
       .persist(MEMORY_ONLY)
-
-    /*
-     //method 2.3 udf+union dfs
-    def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.neighbours8(ipix))
-
-    val dfn=source.withColumn("neighbours",pix_neighbours($"ipix"))
-
-    val dups=new Array[org.apache.spark.sql.DataFrame](9)
-
-    for (i <- 0 to 7) {
-      println(i)
-      val df1=dfn.drop("ipix").withColumn("ipix",$"neighbours"(i))
-      val dfclean1=df1.filter(F.not(df1("ipix")===F.lit(-1))).drop("neighbours")
-      dups(i)=dfclean1
-    }
-    val cols=dups(0).columns
-    dups(8)=source.select(cols.head,cols.tail:_*)
-
-    val dup=dups.reduceLeft(_.union(_))
-      .withColumnRenamed("id","id2")
-      .withColumnRenamed("x_s","x_t")
-      .withColumnRenamed("y_s","y_t")
-      .withColumnRenamed("z_s","z_t")
-      .repartition(numPart,$"ipix")
-      .persist(MEMORY_ONLY)
-     */
 
     println("*** caching duplicates: "+dup.columns.mkString(", "))
     val Ndup=dup.count
@@ -370,6 +308,7 @@ object PairCount_exact {
 
 
     println("Summary: ************************************")
+    println("@"+tiling+"("+rawgrid.Nbase+")")
     println("x@ imin imax Ndata Ndup nedges Nj NpixJ nodes part1 part2 part3 ts td tj tb t")
     println(f"x@@$imin $imax $Ns $Ndup $nedges%g ${rawgrid.Nbase} ${rawgrid.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
 

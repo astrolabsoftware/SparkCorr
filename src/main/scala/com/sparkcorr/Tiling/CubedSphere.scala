@@ -337,7 +337,7 @@ object CubedSphere {
      case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._2}
 
 
-  val minmaxRadius=(0.65,1.26)
+  val minmaxRadius=(0.77,1.26)
 
 
   //N below which all pix radius are greater than R
