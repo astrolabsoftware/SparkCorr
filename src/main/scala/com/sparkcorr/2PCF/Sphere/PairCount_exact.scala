@@ -100,7 +100,12 @@ object PairCount_exact {
     println("reading input data="+f1)
     df_all.printSchema
     
+    //read RA,DEC , add id, convert to theta/phi
     val input=df_all.select(ra_name,dec_name)
+      .withColumn("id",F.monotonicallyIncreasingId)
+      .withColumn("theta_s",F.radians(F.lit(90)-F.col(dec_name)))
+      .withColumn("phi_s",F.radians(ra_name))
+      .drop(ra_name,dec_name)
 
     //find automatically imax
 
@@ -147,18 +152,18 @@ object PairCount_exact {
     val grid=sc.broadcast(rawgrid)
 
     //spark udf
-    def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.value.ang2pix(theta,phi))
+    //def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.value.ang2pix(theta,phi))
 
     timer.step
     timer.print(s"Building "+tiling+"("+rawgrid.Nbase+")")
 
-    //addd index and replace by cartesian coords
-    val source=input
-      .withColumn("id",F.monotonicallyIncreasingId)
-      .withColumn("theta_s",F.radians(F.lit(90)-F.col(dec_name)))
-      .withColumn("phi_s",F.radians(ra_name))
-      .drop(ra_name,dec_name)
-      .withColumn("ipix",Ang2Pix($"theta_s",$"phi_s"))
+    //add index
+    val indexedInput=input
+      .map(r=>(r.getLong(0),grid.value.ang2pix(r.getDouble(1),r.getDouble(2)),r.getDouble(1),r.getDouble(2)))
+      .toDF("id","ipix","theta_s","phi_s")
+
+    val source=indexedInput
+      //.withColumn("ipix",Ang2Pix($"theta_s",$"phi_s"))
       .withColumn("x_s",F.sin($"theta_s")*F.cos($"phi_s"))
       .withColumn("y_s",F.sin($"theta_s")*F.sin($"phi_s"))
       .withColumn("z_s",F.cos($"theta_s"))
@@ -194,14 +199,21 @@ object PairCount_exact {
 
 
     // 2. duplicates
-    //method 2.2 udf+explode
-    def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.value.neighbours(ipix))
-
-    //dataframe of neigbours
+    /* udf way
+    //def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.value.neighbours(ipix))
     val dfn=source.withColumn("neighbours",pix_neighbours($"ipix"))
       .drop("ipix")
       .withColumn("ipix",F.explode($"neighbours"))
       .drop("neighbours")
+     */
+
+
+    //map way
+    val neib=source.map(r=>(r.getLong(0),grid.value.neighbours(r.getInt(1)),r.getDouble(2),r.getDouble(3),r.getDouble(4)))
+    .toDF("id","neighbours","x_s","y_s","z_s")
+
+
+  val dfn=neib.withColumn("ipix",F.explode($"neighbours")).drop("neighbours")
 
     //add input source (with same labels)
     val cols=dfn.columns
