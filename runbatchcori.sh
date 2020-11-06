@@ -24,7 +24,9 @@ echo "SparkCorr version $VERSION"
 SCALA_VERSION_SPARK=2.11
 
 m=$(grep ^tiling $parfile | cut -d "=" -f2)
-prefix="PairCountX_$m"
+imax=$(grep ^imax $parfile | cut -d "=" -f2)
+
+prefix="PairCountX_${m}_${imax}"
 
 slfile="run_$prefix.sl"
 echo $slfile
