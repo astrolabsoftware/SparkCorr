@@ -57,24 +57,22 @@ object HealpixGrid {
 
   def apply(nside:Long,sch:Scheme)=new HealpixGrid(new HealpixBase(nside, sch), new ExtPointing)
 
-
-  val minmaxRadius=(0.65,1.48)
+  val Rin:Double=0.65
+  val Rout:Double=1.48
 
 //N below which all pix radius are greater than R
   //R in arcmin
   def pixRadiusGt(R:Double):Int = {
-    val Rmin=minmaxRadius._1
-    val Nsq:Double=toDegrees(sqrt(Pi/6)/R)*60
-    val N:Int=floor(log(Nsq*Rmin)/log(2.0)).toInt
+    val Nsq:Double=toDegrees(sqrt(Pi/12)/R)*60
+    val N:Int=floor(log(Nsq*Rin)/log(2.0)).toInt
     val nside=1<<N
     nside
   }
   //N above which all pixels have radii lower than R
   //R in arcmin
   def pixRadiusLt(R:Double):Int = {
-    val Rmax=minmaxRadius._2
     val Nsq=toDegrees(sqrt(Pi/6)/R)*60
-    val N=ceil(log(Nsq*Rmax)/log(2.0)).toInt
+    val N=ceil(log(Nsq*Rout)/log(2.0)).toInt
     val nside=1<<N
     nside
   }

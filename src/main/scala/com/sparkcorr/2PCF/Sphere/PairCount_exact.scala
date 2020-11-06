@@ -129,19 +129,19 @@ object PairCount_exact {
 
     val rawgrid=tiling match {
       case "sarspix" => {
-        val Nf=SARSPix.pixRadiusGt(bins.last(1)/sqrt(2))
+        val Nf=SARSPix.pixRadiusGt(bins.last(1)/2)
         val Npix=SARSPix.Npix(Nf)
         println(f"* SARSPix pixelization: Nbase=$Nf Npix=${Npix/1e6}%gM")
         new SARSPix(Nf)
       }
       case "cubedsphere" => {
-        val Nf=CubedSphere.pixRadiusGt(bins.last(1)/sqrt(2))
+        val Nf=CubedSphere.pixRadiusGt(bins.last(1)/2)
         val Npix=CubedSphere.Npix(Nf)
         println(f"* Cubedsphere pixelization: Nbase=$Nf Npix=${Npix/1e6}%gM")
         new CubedSphere(Nf)
       }
       case "healpix" => {
-        val nside=HealpixGrid.pixRadiusGt(bins.last(1)/sqrt(2))
+        val nside=HealpixGrid.pixRadiusGt(bins.last(1)/2)
         val Npix=HealpixGrid.Npix(nside)
         println(f"* Healpix pixelization nside=$nside Npix=${Npix/1e6}%gM")
         HealpixGrid(nside, NESTED)

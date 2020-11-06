@@ -278,29 +278,9 @@ class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
 
 
 // companion
-object SARSPix {
+object SARSPix extends cubedRadius(0.82,1.1) {
 
-  val minmaxRadius=(0.82,1.10)
-
-//N below which all pix radius are greater than R
-  //R in arcmin
-  def pixRadiusGt(R:Double):Int = {
-    val Rmin=minmaxRadius._1
-    val Nsq:Double=toDegrees(sqrt(Pi/3)/R)*60
-    val N:Int=floor(Nsq*Rmin).toInt
-     N-N%2
-  }
-  //N above which all pixels have radii lower than R
-  //R in arcmin
-  def pixRadiusLt(R:Double):Int = {
-    val Rmax=minmaxRadius._2
-    val Nsq=toDegrees(sqrt(Pi/3)/R)*60
-    val N=ceil(Nsq*Rmax).toInt
-    N+N%2
-  }
   def Npix(Nf:Int):Int=6*Nf*Nf
-
-
 
   def main(args:Array[String]):Unit= {
     Locale.setDefault(Locale.US)

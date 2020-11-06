@@ -64,9 +64,9 @@ object BinSetup {
     println(sep)
    for (((b,w),id) <- binning.bins.zip(binning.binW).zipWithIndex) {
      val a = til match {
-       case "sarspix" => (6,SARSPix.pixRadiusLt(w/2),SARSPix.pixRadiusGt(b(1)/sqrt(2)))
-       case "cubedsphere" => (6,CubedSphere.pixRadiusLt(w/2),CubedSphere.pixRadiusGt(b(1)/sqrt(2)))
-       case "healpix" => (12,HealpixGrid.pixRadiusLt(w/2),HealpixGrid.pixRadiusGt(b(1)/sqrt(2)))
+       case "sarspix" => (6,SARSPix.pixRadiusLt(w/2),SARSPix.pixRadiusGt(b(1)/2))
+       case "cubedsphere" => (6,CubedSphere.pixRadiusLt(w/2),CubedSphere.pixRadiusGt(b(1)/2))
+       case "healpix" => (12,HealpixGrid.pixRadiusLt(w/2),HealpixGrid.pixRadiusGt(b(1)/2))
        case _ => throw new Exception("Unknown tiling: "+til)
      }
      val f=a._1

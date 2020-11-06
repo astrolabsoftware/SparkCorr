@@ -318,7 +318,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
 }
 
-object CubedSphere {
+object CubedSphere extends cubedRadius(0.77,1.26) {
 
 //staic functions
   val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
@@ -336,28 +336,7 @@ object CubedSphere {
   val ang2Local_y=ang2Local.map{
      case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._2}
 
-
-  val minmaxRadius=(0.77,1.26)
-
-
-  //N below which all pix radius are greater than R
-  //R in arcmin
-  def pixRadiusGt(R:Double):Int = {
-    val Rmin=minmaxRadius._1
-    val Nsq:Double=toDegrees(sqrt(Pi/3)/R)*60
-    val N:Int=floor(Nsq*Rmin).toInt
-     N-N%2
-  }
-
-  //N above which all pixels have radii lower than R
-  //R in arcmin
-  def pixRadiusLt(R:Double):Int = {
-    val Rmax=minmaxRadius._2
-    val Nsq=toDegrees(sqrt(Pi/3)/R)*60
-    val N=ceil(Nsq*Rmax).toInt
-    N+N%2
-  }
-
+   
   def Npix(Nf:Int):Int=6*Nf*Nf
 
 

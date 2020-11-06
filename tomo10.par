@@ -11,8 +11,8 @@ imin=0
 
 imax=8
 #tiling=cubedSphere
-tiling=SARSPix
-#tiling=Healpix
+#tiling=SARSPix
+tiling=Healpix
 
 # input data
 data1=/lsst/tomo10M.parquet
