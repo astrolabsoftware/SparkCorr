@@ -1,0 +1,20 @@
+
+#binning
+Nbins=20
+bin_min=2.5
+bin_max=250
+bin_type=log
+
+#bin range
+imin=0
+
+
+imax=1
+tiling=cubedSphere
+
+# input data
+#data1=/global/cscratch1/sd/plaszczy/tomo100M.parquet
+#data1=/global/cscratch1/sd/plaszczy/tomo500M.parquet
+data1=/global/cscratch1/sd/plaszczy/tomo1G.parquet
+ra_name=RA
+dec_name=DEC
