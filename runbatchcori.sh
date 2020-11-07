@@ -43,7 +43,7 @@ cat > $slfile <<EOF
 #!/bin/bash
 
 #SBATCH -q debug
-#SBATCH -t 00:10:00
+#SBATCH -t 00:25:00
 #SBATCH -N $nodes
 #SBATCH -C haswell
 #SBATCH -e ${prefix}_%j.err
