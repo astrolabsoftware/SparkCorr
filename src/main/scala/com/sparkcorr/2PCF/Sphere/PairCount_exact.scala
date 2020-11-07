@@ -181,12 +181,10 @@ object PairCount_exact {
     timer.print("input source")
     source.show(5)
 
+    /*
     val Nain=source.na.drop.count
     println(s"Nans=${Ns-Nain}")
     require(Nain==Ns)
-
-    //val dfpix=source.groupBy("ipix").count()
-    //dfpix.describe("ipix").show
 
     val Nsize=rawgrid.SIZE
     val Npix=rawgrid.Npix
@@ -196,7 +194,7 @@ object PairCount_exact {
     println("bad size="+bc)
     bad.show(truncate=false)
     require(bc==0,"wrong pixel index")
-
+     */
 
     // 2. duplicates
     /* udf way
@@ -322,7 +320,7 @@ object PairCount_exact {
     println("Summary: ************************************")
     println("@"+tiling+"("+rawgrid.Nbase+")")
     println("x@ imin imax Ndata Ndup nedges Nj NpixJ nodes part1 part2 part3 ts td tj tb t")
-    println(f"x@@$imin $imax $Ns $Ndup $nedges%g ${rawgrid.Nbase} ${rawgrid.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
+    println(f"x@@ $imin $imax $Ns $Ndup $nedges%g ${rawgrid.Nbase} ${rawgrid.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
 
 
 

@@ -3,18 +3,20 @@
 declare -i nargs
 nargs=$#
 
-if [ $nargs -ne 1 ]; then
+if [ $nargs -ne 2 ]; then
 echo "##################################################################################"
 echo "usage: "
-echo "./${0##*/} parfile"
+echo "./${0##*/} parfile nodes"
 echo "##################################################################################"
 exit
 fi
 
 myexec="2PCF.Sphere.PairCount_exact"
-parfile=$(mktemp -p .)
+parfile=$1_$RANDOM
 \cp $1 $parfile
-#parfile=$1
+
+nodes=$2
+
 echo "Running $myexec $parfile"
 
 
@@ -24,9 +26,12 @@ echo "SparkCorr version $VERSION"
 SCALA_VERSION_SPARK=2.11
 
 m=$(grep ^tiling $parfile | cut -d "=" -f2)
+imin=$(grep ^imin $parfile | cut -d "=" -f2)
 imax=$(grep ^imax $parfile | cut -d "=" -f2)
-
-prefix="PairCountX_${m}_${imax}"
+f=$(grep ^data1 $1 | cut -d "=" -f2)
+s=$(basename $f)
+data=${s%".parquet"}
+prefix="${data}_${imin}_${imax}_${nodes}"
 
 slfile="run_$prefix.sl"
 echo $slfile
@@ -39,7 +44,7 @@ cat > $slfile <<EOF
 
 #SBATCH -q debug
 #SBATCH -t 00:10:00
-#SBATCH -N 16
+#SBATCH -N $nodes
 #SBATCH -C haswell
 #SBATCH -e ${prefix}_%j.err
 #SBATCH -o ${prefix}_%j.out
