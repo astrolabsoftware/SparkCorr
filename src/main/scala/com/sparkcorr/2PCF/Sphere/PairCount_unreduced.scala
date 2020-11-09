@@ -34,7 +34,7 @@ import healpix.essentials.Scheme.{NESTED,RING}
 
 
 //companion
-object PairCount_exact {
+object PairCount_unreduced {
  
  //main
   def main(args:Array[String]):Unit= {
@@ -43,7 +43,7 @@ object PairCount_exact {
     if (args.size!= 2){
       val sep=List.tabulate(25)(i=>"*").reduce(_+_) 
       println(sep)
-      println(">>>> Usage: PairCount_exact paramfile numPart")
+      println(">>>> Usage: PairCount_unreduced paramfile numPart")
       println(sep)
       return
     }
@@ -54,7 +54,7 @@ object PairCount_exact {
 
     val spark = SparkSession
       .builder()
-      .appName("PairCount_exact")
+      .appName("PairCount_unreduced")
       .getOrCreate()
     
     val sc:SparkContext = spark.sparkContext
@@ -71,9 +71,6 @@ object PairCount_exact {
     //decode parameter file
     val params=new ParamFile(args(0))
     val numPart=args(1).toInt
-
-    //joining pixelization
-    val tiling=params.get("tiling","SARSPix").toLowerCase
 
     //binning
     val Nbins:Int=params.get("Nbins",0)
@@ -93,6 +90,9 @@ object PairCount_exact {
 
     val ra_name=params.get("ra_name","ra")
     val dec_name=params.get("dec_name","dec")
+
+    //joining pixelization
+    val tilingJ=params.get("tilingJ","cubedSphere").toLowerCase
 
 
     //suppose parquet for the moment
@@ -127,7 +127,7 @@ object PairCount_exact {
     val timer=new Timer
     val start=timer.time
 
-    val rawgrid=tiling match {
+    val rawgridJ=tilingJ match {
       case "sarspix" => {
         val Nf=SARSPix.pixRadiusGt(bins.last(1)/2)
         val Npix=SARSPix.Npix(Nf)
@@ -149,17 +149,17 @@ object PairCount_exact {
 
     }
     //broadcast object to executors
-    val grid=sc.broadcast(rawgrid)
+    val gridJ=sc.broadcast(rawgridJ)
 
     //spark udf
-    //def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.value.ang2pix(theta,phi))
+    //def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>gridJ.value.ang2pix(theta,phi))
 
     timer.step
-    timer.print(s"Building "+tiling+"("+rawgrid.Nbase+")")
+    timer.print(s"Building "+tilingJ+"("+rawgridJ.Nbase+")")
 
     //add index
     val indexedInput=input
-      .map(r=>(r.getLong(0),grid.value.ang2pix(r.getDouble(1),r.getDouble(2)),r.getDouble(1),r.getDouble(2)))
+      .map(r=>(r.getLong(0),gridJ.value.ang2pix(r.getDouble(1),r.getDouble(2)),r.getDouble(1),r.getDouble(2)))
       .toDF("id","ipix","theta_s","phi_s")
 
     val source=indexedInput
@@ -186,8 +186,8 @@ object PairCount_exact {
     println(s"Nans=${Ns-Nain}")
     require(Nain==Ns)
 
-    val Nsize=rawgrid.SIZE
-    val Npix=rawgrid.Npix
+    val Nsize=rawgridJ.SIZE
+    val Npix=rawgridJ.Npix
     println(s"expecting Npix=$Npix Size=$Nsize") 
     val bad=source.filter($"ipix"<0 || $"ipix">=Nsize)
     val bc=bad.count
@@ -198,7 +198,7 @@ object PairCount_exact {
 
     // 2. duplicates
     /* udf way
-    //def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.value.neighbours(ipix))
+    //def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>gridJ.value.neighbours(ipix))
     val dfn=source.withColumn("neighbours",pix_neighbours($"ipix"))
       .drop("ipix")
       .withColumn("ipix",F.explode($"neighbours"))
@@ -207,7 +207,7 @@ object PairCount_exact {
 
 
     //map way
-    val neib=source.map(r=>(r.getLong(0),grid.value.neighbours(r.getInt(1)),r.getDouble(2),r.getDouble(3),r.getDouble(4)))
+    val neib=source.map(r=>(r.getLong(0),gridJ.value.neighbours(r.getInt(1)),r.getDouble(2),r.getDouble(3),r.getDouble(4)))
     .toDF("id","neighbours","x_s","y_s","z_s")
 
 
@@ -318,9 +318,9 @@ object PairCount_exact {
 
 
     println("Summary: ************************************")
-    println("@"+tiling+"("+rawgrid.Nbase+")")
+    println("@"+tilingJ+"("+rawgridJ.Nbase+")")
     println("x@ imin imax Ndata Ndup nedges Nj NpixJ nodes part1 part2 part3 ts td tj tb t")
-    println(f"x@@ $imin $imax $Ns $Ndup $nedges%g ${rawgrid.Nbase} ${rawgrid.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
+    println(f"x@@ $imin $imax $Ns $Ndup $nedges%g ${rawgridJ.Nbase} ${rawgridJ.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
 
 
 

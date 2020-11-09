@@ -172,8 +172,8 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
   } //test
 
     test("pix radius range "){
-    assert(c.Rmin>=CubedSphere.minmaxRadius._1*c.Rsq)
-    assert(c.Rmax<=CubedSphere.minmaxRadius._2*c.Rsq)
+    assert(c.Rmin>=CubedSphere.Rin*c.Rsq)
+    assert(c.Rmax<=CubedSphere.Rout*c.Rsq)
   }
 
 

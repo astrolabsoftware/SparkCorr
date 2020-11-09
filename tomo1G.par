@@ -10,7 +10,7 @@ imin=0
 
 
 imax=1
-tiling=cubedSphere
+tilingJ=cubedSphere
 
 # input data
 data1=/global/cscratch1/sd/plaszczy/tomo1G.parquet

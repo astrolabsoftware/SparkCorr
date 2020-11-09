@@ -9,7 +9,7 @@ bin_type=log
 imin=0
 
 imax=5
-tiling=cubedSphere
+tilingJ=cubedSphere
 
 # input data
 data1=/global/cscratch1/sd/plaszczy/tomo500M.parquet
