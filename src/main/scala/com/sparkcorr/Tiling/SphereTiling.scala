@@ -39,9 +39,9 @@ abstract class SphereTiling {
   val pixNums:IndexedSeq[Int]
 
   val Nbase:Int
-  val Npix:Int
+  val Npix:Long
 
   //size of the array holding pixels
-  val SIZE:Int
+  val SIZE:Long
 
 }

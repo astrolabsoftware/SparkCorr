@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 AstroLab Software
+ * Copyright 2020 AstroLab SoftwareS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,19 +48,13 @@ class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends SphereTiling with
   }
 
   val Nbase=hp.getNside
-  val Npix=12*Nbase*Nbase
+  val Npix=12L*Nbase*Nbase
   val SIZE=Npix
 }
 
-//companion for simple factory
-object HealpixGrid {
 
-  def apply(nside:Long,sch:Scheme)=new HealpixGrid(new HealpixBase(nside, sch), new ExtPointing)
-
-  val Rin:Double=0.65
-  val Rout:Double=1.48
-
-//N below which all pix radius are greater than R
+class HealpixProps(val Rin:Double,val Rout:Double)  extends PixProps {
+  //N below which all pix radius are greater than R
   //R in arcmin
   def pixRadiusGt(R:Double):Int = {
     val Nsq:Double=toDegrees(sqrt(Pi/12)/R)*60
@@ -77,6 +71,14 @@ object HealpixGrid {
     nside
   }
 
-  def Npix(nside:Int):Int=12*nside*nside
+  def Npix(nside:Int):Long=12L*nside*nside
+
+}
+
+//companion for simple factory
+object HealpixGrid extends HealpixProps(0.65,1.48) {
+
+  def apply(nside:Long,sch:Scheme)=new HealpixGrid(new HealpixBase(nside, sch), new ExtPointing)
+
 
 }

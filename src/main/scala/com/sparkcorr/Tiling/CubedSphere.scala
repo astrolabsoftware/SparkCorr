@@ -32,8 +32,8 @@ import scala.collection.mutable.ArrayBuffer
 class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
   val N:Int=Nbase
-  val Npix=6*Nbase*Nbase
-  val SIZE=10*Nbase*Nbase-4
+  val Npix:Long=6L*Nbase*Nbase
+  val SIZE:Long=10L*Nbase*Nbase-4L
 
   val a=1/math.sqrt(3.0)
   val step=Pi/2/N
@@ -83,7 +83,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   def buildPixels(nodes:Array[arr2[Point3D]]):Array[(Double,Double)]={
 
     require(nodes.size==6)
-    val pixarray=new Array[(Double,Double)](SIZE)
+    val pixarray=new Array[(Double,Double)](SIZE.toInt)
     var radii=new ArrayBuffer[Double]
     for (face <- 0 to 5) {
       val facenodes=nodes(face)
@@ -318,7 +318,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
 }
 
-object CubedSphere extends cubedRadius(0.77,1.26) {
+object CubedSphere extends CubedProps(0.77,1.26) {
 
 //staic functions
   val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
@@ -337,8 +337,6 @@ object CubedSphere extends cubedRadius(0.77,1.26) {
      case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._2}
 
    
-  def Npix(Nf:Int):Int=6*Nf*Nf
-
 
   def main(args:Array[String]):Unit= {
 

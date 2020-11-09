@@ -12,6 +12,7 @@ tilingJ=cubedSphere
 
 imax=10
 tilingR=SARSPix
+#tilingR=HealPix
 
 
 # input data

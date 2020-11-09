@@ -278,9 +278,7 @@ class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
 
 
 // companion
-object SARSPix extends cubedRadius(0.82,1.1) {
-
-  def Npix(Nf:Int):Int=6*Nf*Nf
+object SARSPix extends CubedProps(0.82,1.1) {
 
   def main(args:Array[String]):Unit= {
     Locale.setDefault(Locale.US)

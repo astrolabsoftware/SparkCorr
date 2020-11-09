@@ -43,7 +43,6 @@ object BinSetup {
     require(scala.reflect.io.File(args(0)).exists)
 
     val params=new ParamFile(args(0))
-    val til=params.get("tiling","SARSPix").toLowerCase 
 
     //binning
     val Nbins:Int=params.get("Nbins",0)
@@ -57,23 +56,37 @@ object BinSetup {
       case _ => throw new Exception("Invalid binning type: "+btype)
     }
 
+    val tilJ=params.get("tilingJ","cubedSphere").toLowerCase 
+    val gridJ= tilJ match {
+      case "sarspix" => SARSPix
+      case "cubedsphere" => CubedSphere
+      case "healpix" => HealpixGrid
+      case _ => throw new Exception("Invalid tiling type: "+tilJ)
+    }
+
+    val tilR=params.get("tilingR","SARspix").toLowerCase 
+    val gridR= tilR match {
+      case "sarspix" => SARSPix
+      case "cubedsphere" => CubedSphere
+      case "healpix" => HealpixGrid
+      case _ => throw new Exception("Invalid tiling type: "+tilR)
+    }
+
+
     //PRINT
     val sep=List.tabulate(75)(i=>"-").reduce(_+_) 
     println(sep)
-    println("id\ttd\ttu\tw\tNd\tNpixD(M)\tNj\tNpixJ(k)")
+    println("id\ttd\ttu\tw\tnbaseD\tNpixD(M)\tnbaseJ\tNpixJ(k)")
     println(sep)
    for (((b,w),id) <- binning.bins.zip(binning.binW).zipWithIndex) {
-     val a = til match {
-       case "sarspix" => (6,SARSPix.pixRadiusLt(w/2),SARSPix.pixRadiusGt(b(1)/2))
-       case "cubedsphere" => (6,CubedSphere.pixRadiusLt(w/2),CubedSphere.pixRadiusGt(b(1)/2))
-       case "healpix" => (12,HealpixGrid.pixRadiusLt(w/2),HealpixGrid.pixRadiusGt(b(1)/2))
-       case _ => throw new Exception("Unknown tiling: "+til)
-     }
-     val f=a._1
-     val Nd=a._2
-     val Nj=a._3
 
-     println(f"$id\t${b(0)}%.1f\t${b(1)}%.1f\t${w}%.1f\t$Nd%d\t${f*Nd*Nd.toDouble/1e6}\t$Nj%d\t${f*Nj*Nj.toDouble/1e3}")
+     val nbaseJ=gridJ.pixRadiusGt(b(1)/2)
+     val NpixJ=gridJ.Npix(nbaseJ)
+
+     val nbaseD=gridR.pixRadiusLt(w/2)
+     val NpixD=gridR.Npix(nbaseD)
+     
+     println(f"$id\t${b(0)}%.1f\t${b(1)}%.1f\t${w}%.1f\t$nbaseD%d\t${NpixD.toDouble/1e6}%f\t$nbaseJ%d\t${NpixJ.toDouble/1e3}%f")
    }
     println(sep)
    params.checkRemaining

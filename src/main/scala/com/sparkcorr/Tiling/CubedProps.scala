@@ -19,7 +19,7 @@ package com.sparkcorr.Tiling
 import scala.math.{Pi,sqrt,ceil,floor,toDegrees}
 
 
-class cubedRadius(val Rin:Double, val Rout:Double) {
+class CubedProps(val Rin:Double, val Rout:Double) extends PixProps{
 
   //N below which all pix radius are greater than R
   //R in arcmin
@@ -37,6 +37,6 @@ class cubedRadius(val Rin:Double, val Rout:Double) {
     N+N%2
   }
 
-
+  def Npix(nbase:Int):Long= 6L*nbase*nbase
 }
 
