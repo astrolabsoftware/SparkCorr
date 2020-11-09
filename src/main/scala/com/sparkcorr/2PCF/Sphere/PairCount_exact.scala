@@ -281,7 +281,7 @@ object PairCount_exact {
     timer.print("join")
 
     //bin!
-    val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("ibin").persist(MEMORY_AND_DISK)
+    val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("ibin").persist(MEMORY_ONLY)
 
     //val binned=edges.rdd.map(r=>(r.getInt(0),r.getLong(1))).reduceByKey(_+_).toDF("ibin","Nbin")
 
