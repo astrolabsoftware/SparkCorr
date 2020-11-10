@@ -116,10 +116,12 @@ object PairCount_unreduced {
     
     val bins=fullbin.bins.slice(imin,imax+1)
 
-    val binning=sc.parallelize(bins.zipWithIndex)
-      .toDF("interval","ibin")
+   val binning=sc.parallelize(bins.zipWithIndex)
+      .toDF("interval","bin")
+      .withColumn("ibin",$"bin"+imin).drop("bin")
       .withColumn("width",$"interval"(1)-$"interval"(0))
       .select("ibin","interval","width")
+
 
     binning.cache.count
     binning.show(truncate=false)
@@ -259,7 +261,7 @@ object PairCount_unreduced {
       .drop("dx","dy","dz","x_t","x_s","y_s","y_t","z_s","z_t")
       .withColumn("logr",F.log($"r2")/2.0)
       .drop("r2")
-      .withColumn("ibin",(($"logr"-lrmin)/b).cast(IntegerType))
+      .withColumn("bin",(($"logr"-lrmin)/b).cast(IntegerType))
       .drop("logr")
     //  .persist(StorageLevel.MEMORY_AND_DISK)
 
@@ -281,7 +283,7 @@ object PairCount_unreduced {
     timer.print("join")
 
     //bin!
-    val binned=edges.groupBy("ibin").count.withColumnRenamed("count","Nbin").sort("ibin").persist(MEMORY_ONLY)
+    val binned=edges.groupBy("bin").count.withColumnRenamed("count","Nbin").sort("bin").persist(MEMORY_ONLY)
 
     //val binned=edges.rdd.map(r=>(r.getInt(0),r.getLong(1))).reduceByKey(_+_).toDF("ibin","Nbin")
 
@@ -325,14 +327,11 @@ object PairCount_unreduced {
 
 
     //nice output+sum
-    binning.join(binned,"ibin").show(Nbins,truncate=false)
+    binning.join(binned.withColumn("ibin",$"bin"+imin).drop("bin"),"ibin").show(Nbins,truncate=false)
     sumbins.show
 
+
     spark.close
-
-
-
-
 
   }
 
