@@ -115,8 +115,9 @@ object PairCount_reduced {
       .withColumn("theta_s",F.radians(F.lit(90)-F.col(dec_name)))
       .withColumn("phi_s",F.radians(ra_name))
       .drop(ra_name,dec_name)
-
+      .persist(MEMORY_ONLY)
    //from here start countning time
+    println(input.count)
 
     //1 compress data
     val timer=new Timer
@@ -186,10 +187,14 @@ object PairCount_reduced {
 
    println(s"*** Created join pixelization $tilingJ(${rawgridJ.Nbase}): NpixJ=${rawgridJ.Npix}\n")
 
+    val tpix=timer.step
+    timer.print("pixelization")
+
     //add index join indexe
     val indexedInput=newinput
       .map(r=>(r.getLong(0),gridJ.value.ang2pix(r.getDouble(1),r.getDouble(2)),r.getDouble(1),r.getDouble(2)))
       .toDF("w","ipix","theta_s","phi_s")
+
 
     val source=indexedInput
       .withColumn("id",F.monotonicallyIncreasingId)
@@ -202,6 +207,7 @@ object PairCount_reduced {
 
     val np1=source.rdd.getNumPartitions
     println("source #part="+np1)
+    source.printSchema
 
     println("*** caching source: "+source.columns.mkString(", "))
     val Ns=source.count
@@ -327,8 +333,8 @@ object PairCount_reduced {
 
     println("Summary: ************************************")
     println("@"+tilingJ+"("+rawgridJ.Nbase+")")
-    println("x@ imin imax Ndata Ndup nedges nbaseD NpixD nbaseJ NpixJ nodes part1 part2 part3 ts td tj tb t")
-    println(f"x@@ $imin $imax $Ns $Ndup $nedges%g ${rawgridR.Nbase} ${rawgridR.Npix} ${rawgridJ.Nbase} ${rawgridJ.Npix} $nodes $np1 $np2 $np3 ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
+    println("x@ imin imax Ndata Ndup nedges nbaseD NpixD nbaseJ NpixJ nodes part1 part2 part3 tp ts td tj tb t")
+    println(f"x@@ $imin $imax $Ns $Ndup $nedges%g ${rawgridR.Nbase} ${rawgridR.Npix} ${rawgridJ.Nbase} ${rawgridJ.Npix} $nodes $np1 $np2 $np3 ${tpix.toInt} ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
 
 
 
