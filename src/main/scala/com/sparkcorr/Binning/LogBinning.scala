@@ -19,14 +19,9 @@ import scala.math.{log,exp}
 import java.util.Locale
 
 //class
-class LogBinning(val start:Double,val end:Double,val Nbins:Int) extends Binning {
+class LogBinning(val start:Double,val end:Double,val Nbins:Int) 
+    extends Binning(Array.tabulate(Nbins+1)(i=>log(start)+i*(log(end)-log(start))/Nbins).map(exp))
 
-  val logbW:Double = (log(end)-log(start))/Nbins
-  val loc=Array.tabulate(Nbins+1)(i=>log(start)+i*logbW).map(exp)
-
-  override def toString: String =bins.deep.mkString("\n")
-
-}
 
 //companion
 object LogBinning {

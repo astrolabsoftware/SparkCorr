@@ -320,7 +320,8 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
 object CubedSphere extends CubedProps(0.77,1.26) {
 
-//staic functions
+
+  //static functions
   val ang2Local=new Array[(Double,Double)=>(Double,Double)](6)
   ang2Local(0)=(t,f)=>(math.tan(f),1.0/math.tan(t)/math.cos(f))
   ang2Local(1)=(t,f)=>(-1/math.tan(f),1.0/math.tan(t)/math.sin(f))

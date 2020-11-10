@@ -15,14 +15,14 @@
  */
 package com.sparkcorr.Binning
 
-abstract class Binning {
+//loc=bin locations : there are Nbins+1 values
+class Binning(val loc:Array[Double]){
 
-//bin locations : there are Nbins+1 values
-val loc:Array[Double]
+  //intervals
+  val bins:Array[Array[Double]]=loc.sliding(2).toArray
+  //width
+  val binW:Array[Double]=bins.map(b=>b(1)-b(0))
 
-//intervals
-lazy val bins:Array[Array[Double]]=loc.sliding(2).toArray
-//width
-lazy val binW:Array[Double]=bins.map(b=>b(1)-b(0)) 
+  override def toString: String =bins.deep.mkString("\n")
 
 }
