@@ -1,0 +1,21 @@
+
+#binning
+Nbins=20
+bin_min=2.5
+bin_max=250
+bin_type=log
+
+#bin range
+imin=0
+
+
+imax=8
+tilingJ=cubedSphere
+
+
+# input data
+data1=/lsst/tomo10M.parquet
+#data1=/home/plaszczy/data/tomo10M.parquet
+ra_name=RA
+dec_name=DEC
+
