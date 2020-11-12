@@ -10,8 +10,8 @@ imin=6
 imax=10
 
 tilingJ=cubedSphere
-tilingR=SARSPix
-#tilingR=Healpix
+#tilingR=SARSPix
+tilingR=Healpix
 
 # input data
 data1=/global/cscratch1/sd/plaszczy/tomo500M.parquet

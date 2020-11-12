@@ -119,7 +119,7 @@ object PairCount_reduced {
 
 
     input.describe().show()
-    println("input data size=",input.count())
+    println("input data size="+input.count())
 
    //from here start countning time
    //1 compress data
@@ -148,36 +148,52 @@ object PairCount_reduced {
       }
 
     }
-    //broadcast object to executors
-    val gridR=sc.broadcast(rawgridR)
-
     val tpixD=timer.step
     timer.print(s"reducing pixelization $tilingR(${rawgridR.Nbase}): NpixD=${rawgridR.Npix}\n")
 
+
+    //broadcast object to executors
+    val gridR=sc.broadcast(rawgridR)
+    timer.step
+    timer.print("broadcast")
+
     //create cells
+
+    //spark udf
+   //def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>gridR.value.ang2pix(theta,phi))
+   //def Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=>gridR.value.pix2ang(ipix))
+
+
     //add index
-    val pixmap=input
-      .map(r=>gridR.value.ang2pix(r.getDouble(0),r.getDouble(1)))
-      .toDF("cellpix")
+    val pixmap1=input
+      .map(r=>gridR.value.ang2pix(r.getDouble(0),r.getDouble(1))).toDF("cellpix")
+     // .withColumn("cellpix",Ang2Pix($"theta_s",$"phi_s")).drop("theta_s","phi_s")
+      .cache
+
+
+    pixmap1.describe().show
+    timer.step
+    timer.print("ang2pix full data")
+
+
+    val pixmap=pixmap1
       .groupBy("cellpix").count()
       .cache()
 
     pixmap.describe().show
     timer.step
-    timer.print("groupby+count")
-
+    timer.print("groupby+count full data")
 
     val newinput=pixmap
-      .map(r=>(gridR.value.pix2ang(r.getInt(0)),r.getLong(1)))
-      .toDF("ptg","w")
+      .map(r=>(gridR.value.pix2ang(r.getInt(0)),r.getLong(1))).toDF("ptg","w")
+      //.withColumn("ptg",Pix2Ang($"cellpix")).drop("cellpix")
       .withColumn("theta_s",$"ptg"(0)).withColumn("phi_s",$"ptg"(1)).drop("ptg")
     .cache
 
 
     newinput.describe().show
     timer.step
-    timer.print("newinput")
-
+    timer.print("pix2ang on reduced data")
 
 
     val tilingJ=params.get("tilingJ","cubedSphere").toLowerCase
@@ -208,13 +224,6 @@ object PairCount_reduced {
     val indexedInput=newinput
       .map(r=>(r.getLong(0),gridJ.value.ang2pix(r.getDouble(1),r.getDouble(2)),r.getDouble(1),r.getDouble(2)))
       .toDF("w","ipix","theta_s","phi_s")
-      .cache
-
-    indexedInput.describe().show
-    timer.step
-    timer.print("indexed input")
-
-
 
 
     val source=indexedInput
