@@ -36,7 +36,7 @@ abstract class SphereTiling {
   }
 
   //list of valid pixel indices
-  val pixNums:IndexedSeq[Int]
+  def pixNums:IndexedSeq[Int]
 
   val Nbase:Int
   val Npix:Long

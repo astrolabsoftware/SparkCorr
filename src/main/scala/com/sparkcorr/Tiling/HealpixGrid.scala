@@ -24,9 +24,10 @@ import scala.math.{log,toDegrees,floor,ceil,Pi,sqrt}
 
 class ExtPointing extends Pointing with java.io.Serializable
 
+
 class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends SphereTiling with Serializable{
 
-   override val pixNums:IndexedSeq[Int]=
+   override def pixNums:IndexedSeq[Int]=
     for {i <- 0 until hp.getNpix().toInt} yield i
 
   override def ang2pix(theta : Double, phi : Double) : Int = {

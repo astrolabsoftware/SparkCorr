@@ -115,8 +115,6 @@ object PairCount_reduced {
       .withColumn("theta_s",F.radians(F.lit(90)-F.col(dec_name)))
       .withColumn("phi_s",F.radians(ra_name))
       .drop(ra_name,dec_name)
-      .persist(MEMORY_ONLY)
-
 
     input.describe().show()
     println("input data size="+input.count())
@@ -168,7 +166,7 @@ object PairCount_reduced {
     val pixmap1=input
       .map(r=>gridR.value.ang2pix(r.getDouble(0),r.getDouble(1))).toDF("cellpix")
      // .withColumn("cellpix",Ang2Pix($"theta_s",$"phi_s")).drop("theta_s","phi_s")
-      .cache
+      //.cache
 
 
     pixmap1.describe().show
@@ -178,7 +176,7 @@ object PairCount_reduced {
 
     val pixmap=pixmap1
       .groupBy("cellpix").count()
-      .cache()
+      //.cache()
 
     pixmap.describe().show
     timer.step
@@ -188,7 +186,7 @@ object PairCount_reduced {
       .map(r=>(gridR.value.pix2ang(r.getInt(0)),r.getLong(1))).toDF("ptg","w")
       //.withColumn("ptg",Pix2Ang($"cellpix")).drop("cellpix")
       .withColumn("theta_s",$"ptg"(0)).withColumn("phi_s",$"ptg"(1)).drop("ptg")
-    .cache
+    //.cache
 
 
     newinput.describe().show

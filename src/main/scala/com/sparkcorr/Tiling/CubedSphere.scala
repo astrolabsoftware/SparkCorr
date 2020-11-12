@@ -110,7 +110,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
     * not continous (do not assume it is in the [0,6N^2-1] range, it is not)
     * you should access the valid indices with the following function
     */
-  override val pixNums:IndexedSeq[Int]=
+  override def pixNums:IndexedSeq[Int]=
     for {f <- 0 to 5; i<-0 until N; j<-0 until N} yield coord2pix(f,i,j)
 
   /**transformationm to/from (face,i,j) */
