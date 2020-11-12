@@ -5,7 +5,7 @@
 
 #myexec="Tiling.BenchPix"
 #myexec="2PCF.BinSetup"
-myexec="2PCF.Sphere.PairCount_unreduced"
+myexec="2PCF.Sphere.PairCount_reduced"
 args=$*
 
 

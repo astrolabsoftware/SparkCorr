@@ -6,11 +6,11 @@ bin_max=250
 bin_type=log
 
 #bin range
-imin=0
+imin=11
+imax=19
 
-
-imax=8
 tilingJ=cubedSphere
+tilingR=SARSPix
 
 
 # input data
