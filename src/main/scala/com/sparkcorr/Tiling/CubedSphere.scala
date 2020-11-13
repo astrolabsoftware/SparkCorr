@@ -26,9 +26,6 @@ import org.apache.log4j.{Level, Logger}
 import java.io._
 import java.util.Locale
 
-import scala.collection.mutable.ArrayBuffer
-
-
 class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
   val N:Int=Nbase
@@ -38,73 +35,6 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   val a=1/math.sqrt(3.0)
   val step=Pi/2/N
 
-
-
-  /** compute equal-angle nodes */
-  def buildNodes():Array[arr2[Point3D]]={
-    val nodes=new Array[arr2[Point3D]](6)
-
-    /** project coordinates from face to unit sphere. index is the face */
-    val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
-    projector(0)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
-    projector(1)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
-    projector(2)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
-    projector(3)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(x/r,-a/r,y/r)}
-    projector(4)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
-    projector(5)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
-
-    
-    //equiangular
-    val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
-
-    //build nodes/pixels
-    for (face <- 0 to 5) {
-      val proj=projector(face)
-      val facenodes=new arr2[Point3D](N+1)
-      //fill nodes for this face
-      for (i<-0 to N; j<-0 to N){
-        val (x,y)=(a*math.tan(alpha(i)),a*math.tan(alpha(j)))
-        val XYZ=proj(x,y)
-        val p=new Point3D(XYZ._1,XYZ._2,XYZ._3)
-        facenodes(i,j)=p
-      }
-      nodes(face)=facenodes
-    }
-    nodes
-  }
-
-  //pixel radius (in rad)
-  val Rsq:Double=sqrt(2*Pi/6)/N
-  var Rmin:Double=_
-  var Rmax:Double=_
-
-
-  /* compute pixel centers as barycenter of cells */
-  def buildPixels(nodes:Array[arr2[Point3D]]):Array[(Double,Double)]={
-
-    require(nodes.size==6)
-    val pixarray=new Array[(Double,Double)](SIZE.toInt)
-    var radii=new ArrayBuffer[Double]
-    for (face <- 0 to 5) {
-      val facenodes=nodes(face)
-      //compute centers as cell barycenter
-      for(i<-0 until N;j<-0 until N){
-        val cell=facenodes(i,j)::facenodes(i+1,j)::facenodes(i,j+1)::facenodes(i+1,j+1)::Nil
-        val bary=Point.barycenter(cell)
-        val cen=new Point3D(bary/bary.norm())
-        radii+=cell.map(c=>c.dist(cen)).max
-        val ipix:Int=coord2pix(face,i,j)
-        pixarray(ipix)=cen.unitAngle
-      }
-    }// end face
-    Rmin=radii.min
-    Rmax=radii.max
-    println(f"pixel radii: Rmin=${Rmin/Rsq}%5.3f Rmax=${Rmax/Rsq}%5.3f (Rsq=${toDegrees(Rsq)*60}%3.2f arcim)")
-    pixarray
-  }
-
-  // array for fast access
-  val pixcenter:Array[(Double,Double)]=buildPixels(buildNodes)
 
   /** pixel numbering
     * not continous (do not assume it is in the [0,6N^2-1] range, it is not)
@@ -122,10 +52,55 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   /** get pixel centers 
   * output is a (theta,phi) tuple with 0<theta<pi, 0<phi<2pi
     */ 
-  override def pix2ang(ipix:Int):Array[Double]= { 
-    val (t:Double,f:Double)=pixcenter(ipix)
+ 
+  //pure function
+  override def pix2ang(ipix:Int):Array[Double]= {
+    val (face,i,j)=pix2coord(ipix)
+
+     //equiangular
+    val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
+
+    val (x1,y1)=(a*math.tan(alpha(i)),a*math.tan(alpha(j)))
+    val (x2,y2)=(a*math.tan(alpha(i+1)),a*math.tan(alpha(j)))
+    val (x3,y3)=(a*math.tan(alpha(i)),a*math.tan(alpha(j+1)))
+    val (x4,y4)=(a*math.tan(alpha(i+1)),a*math.tan(alpha(j+1)))
+
+    /** project coordinates from face to unit sphere. index is the face */
+    val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
+    projector(0)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
+    projector(1)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
+    projector(2)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
+    projector(3)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(x/r,-a/r,y/r)}
+    projector(4)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
+    projector(5)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
+
+    val proj=projector(face)
+
+    val XYZ1=proj(x1,y1)
+    val p1=new Point3D(XYZ1._1,XYZ1._2,XYZ1._3)
+
+    val XYZ2=proj(x2,y2)
+    val p2=new Point3D(XYZ2._1,XYZ2._2,XYZ2._3)
+
+    val XYZ3=proj(x3,y3)
+    val p3=new Point3D(XYZ3._1,XYZ3._2,XYZ3._3)
+
+    val XYZ4=proj(x4,y4)
+    val p4=new Point3D(XYZ4._1,XYZ4._2,XYZ4._3)
+
+    //println(f"ipix=$ipix ($face,$i,$j) from nodes ($x1%3.2f,$y1%3.2f) ($x2%3.2f,$y2%3.2f) ($x3%3.2f,$y3%3.2f) ($x4%3.2f,$y4%3.2f) ")
+
+
+    val cell=p1::p2::p3::p4::Nil
+    val bary=Point.barycenter(cell)
+    val cen=new Point3D(bary/bary.norm())
+
+    val (t,f)=cen.unitAngle
+
     Array(t,f)
   }
+
+
 
   /** find pixel number corresponding to a given direction 
     *  for the equal angle case
@@ -362,7 +337,13 @@ object CubedSphere extends CubedProps(0.77,1.26) {
     val c=new CubedSphere(args(0).toInt)
 
 
-    c.writeCenters(s"EACScenters$N.txt")
+    //c.writeCenters(s"EACScenters$N.txt")
+
+    for (ipix <- c.pixNums) {
+      val (face,i,j)=c.pix2coord(ipix)
+      val p1=c.pix2ang(ipix)
+    }
+
 
       /*
     val f=args(1).toInt

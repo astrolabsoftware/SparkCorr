@@ -171,11 +171,5 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
     } //pixnum
   } //test
 
-    test("pix radius range "){
-    assert(c.Rmin>=CubedSphere.Rin*c.Rsq)
-    assert(c.Rmax<=CubedSphere.Rout*c.Rsq)
-  }
-
-
 
 }

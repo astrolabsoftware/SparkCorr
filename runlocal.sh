@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#myexec="Tiling.CubedSphere"
+myexec="Tiling.CubedSphere"
 
 #myexec="Tiling.PixelSize"
 #args="hp 128 100000000"
@@ -15,7 +15,8 @@
 
 #myexec="2PCF.BinSetup"
 #myexec="2PCF.Sphere.PairCount_unreduced"
-myexec="2PCF.Sphere.PairCount_reduced"
+#myexec="2PCF.Sphere.PairCount_reduced"
+
 args=$*
 
 

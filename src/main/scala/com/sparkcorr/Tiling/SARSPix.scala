@@ -18,6 +18,7 @@ package com.sparkcorr.Tiling
 import com.sparkcorr.Geometry.{Point,Point3D,arr2}
 
 import scala.math.{Pi,sqrt,cos,sin,acos,toDegrees,abs,floor,ceil}
+import scala.collection.mutable.ArrayBuffer
 
 import org.apache.log4j.{Level, Logger}
 
@@ -31,7 +32,7 @@ class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
   require(Nb%2==0,"nside for SARS must be even")
 
   //Nodes construction
-  override  def buildNodes():Array[arr2[Point3D]]={
+  def buildNodes():Array[arr2[Point3D]]={
 
     val nodes=new Array[arr2[Point3D]](6)
 
@@ -64,6 +65,34 @@ class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
 
     nodes
   }
+
+
+  /* compute pixel centers as barycenter of cells */
+  def buildPixels(nodes:Array[arr2[Point3D]]):Array[(Double,Double)]={
+
+    require(nodes.size==6)
+    val pixarray=new Array[(Double,Double)](SIZE.toInt)
+    for (face <- 0 to 5) {
+      val facenodes=nodes(face)
+      //compute centers as cell barycenter
+      for(i<-0 until N;j<-0 until N){
+        val cell=facenodes(i,j)::facenodes(i+1,j)::facenodes(i,j+1)::facenodes(i+1,j+1)::Nil
+        val bary=Point.barycenter(cell)
+        val cen=new Point3D(bary/bary.norm())
+        val ipix:Int=coord2pix(face,i,j)
+        pixarray(ipix)=cen.unitAngle
+//        println(s"construct pixenter ipix=$ipix ($face,$i,$j) $cen")
+
+     }
+    }// end face
+    pixarray
+  }
+  
+
+  val pixcenter:Array[(Double,Double)]=buildPixels(buildNodes)
+
+
+
 
     //build sufaces for face 0
   def newF0Quadrant(q:Int):arr2[Point3D] = {
@@ -255,6 +284,11 @@ class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
     //output
     (face,q,i,j)
   }
+
+
+
+  override def pix2ang(ipix:Int):Array[Double]= {val (t,f)=pixcenter(ipix); Array(t,f)}
+
 
   override def ang2pix(theta:Double,phi:Double):Int = {
     
