@@ -26,110 +26,10 @@ import java.io._
 import java.util.Locale
 
 
-class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
+class SARSPix(val nbase:Int) extends CubedSphere(nbase) {
 
 
-  require(Nb%2==0,"nside for SARS must be even")
-
-  //Nodes construction
-  def buildNodes():Array[arr2[Point3D]]={
-
-    val nodes=new Array[arr2[Point3D]](6)
-
-    //build FACE0
-    //quadrants
-    val q0:arr2[Point3D]=newF0Quadrant(0)
-    val q1:arr2[Point3D]=newF0Quadrant(1)
-    val q2:arr2[Point3D]=newF0Quadrant(2)
-    val q3:arr2[Point3D]=newF0Quadrant(3)
-
-    //concatenate using face index
-    nodes(0)=new arr2[Point3D](N+1)
-    val f0:Array[arr2[Point3D]]=Array(q0,q1,q2,q3)
-      for (I <- 0 to N) {
-        for (J <- 0 to N) {
-          val (q,i,j)=face2localNodeIndex(I,J)
-          nodes(0)(I,J)=f0(q)(i,j)
-        }
-      }
-
-    //now build other faces by rotating FACE0
-    //partially aplied
-    val rot0=rotateFace0(nodes(0))(_)
-
-    nodes(1)=rot0(1)
-    nodes(2)=rot0(2)
-    nodes(3)=rot0(3)
-    nodes(4)=rot0(4)
-    nodes(5)=rot0(5)
-
-    nodes
-  }
-
-
-  /* compute pixel centers as barycenter of cells */
-  def buildPixels(nodes:Array[arr2[Point3D]]):Array[(Double,Double)]={
-
-    require(nodes.size==6)
-    val pixarray=new Array[(Double,Double)](SIZE.toInt)
-    for (face <- 0 to 5) {
-      val facenodes=nodes(face)
-      //compute centers as cell barycenter
-      for(i<-0 until N;j<-0 until N){
-        val cell=facenodes(i,j)::facenodes(i+1,j)::facenodes(i,j+1)::facenodes(i+1,j+1)::Nil
-        val bary=Point.barycenter(cell)
-        val cen=new Point3D(bary/bary.norm())
-        val ipix:Int=coord2pix(face,i,j)
-        pixarray(ipix)=cen.unitAngle
-//        println(s"construct pixenter ipix=$ipix ($face,$i,$j) $cen")
-
-     }
-    }// end face
-    pixarray
-  }
-  
-
-  val pixcenter:Array[(Double,Double)]=buildPixels(buildNodes)
-
-
-
-
-    //build sufaces for face 0
-  def newF0Quadrant(q:Int):arr2[Point3D] = {
-
-    val (signa,signb):(Int,Int)=q match {
-      case 0 => (1,1)
-      case 1 => (1,-1)
-      case 2 => (-1,1)
-      case 3 => (-1,-1)
-    }
-
-    val M=new arr2[Point3D](N/2+1)
-    val n=N/2
-    //println(s"\ncall to newF0Quadrant q=$q n=$n")
-    M(0,0)=new Point3D(Pi/2,0.0)
-
-    for (i <- 1 to N/2){
-      val gi:Double=Pi/12*(i.toDouble/n)*(i.toDouble/n)+Pi/4
-      val alpha_i:Double=signa*acos(sqrt(2.0)*cos(gi))
-      M(i,0)=new Point3D(Pi/2,alpha_i)
-      val beta_ii:Double=signb*acos(1/(sqrt(2.0)*sin(gi)))
-      //if (q==0) println(s"node:i=$i, gi=$gi, ai=${toDegrees(alpha_i)} bii=${toDegrees(beta_ii)}")
-      M(i,i)=new Point3D(Pi/2-beta_ii,alpha_i)
-      for (j <- 0 to i) {
-        val beta_ij:Double=j*beta_ii/i
-        M(i,j)=new Point3D(Pi/2-beta_ij,alpha_i)
-        //if (q==0) println(s"\tnode:(i=$i,j=$j) ai=${toDegrees(alpha_i)} bij=${toDegrees(beta_ij)}")
-      }
-    }
-    //symetrize
-    for (i <- 1 to N/2){
-        for (j <- 0 until i){
-            M(j,i)=new Point3D(M(i,j).x,signa*signb*M(i,j).z,signa*signb*M(i,j).y)
-        }
-    }
-    M
-  }
+  require(nbase%2==0,"nside for SARS must be even")
 
 
   // convert face (I,J) coordinates to local (q,i,j) ones
@@ -164,33 +64,6 @@ class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
     case 0 => (i+N/2,j+N/2)
   }
 
-  //rotates face0 onto fnum
-  def rotateFace0(face0:arr2[Point3D])(fnum:Int):arr2[Point3D]={
-
-    val face=new arr2[Point3D](face0.size)
-
-    val rot=fnum match {
-      case 0 => (x:Double,y:Double,z:Double)=>(x,y,z)
-      case 1 => (x:Double,y:Double,z:Double)=>(-y,x,z)
-      case 2 => (x:Double,y:Double,z:Double)=>(-x,-y,z)
-      case 3 => (x:Double,y:Double,z:Double)=>(y,-x,z)
-      case 4 => (x:Double,y:Double,z:Double)=>(-z,y,x)
-      case 5 => (x:Double,y:Double,z:Double)=>(z,y,-x)
-
-    }
-
-    for ( i <- 0 until face0.size) 
-    {
-      for ( j <- 0 until face0.size)
-      {
-        val p:Point3D=face0(i,j)
-        val (x,y,z)=rot(p.x,p.y,p.z)
-        face(i,j)=new Point3D(x,y,z)
-      }
-    }
-    face
-  }
-
   def getQuadrant(face:Int,p:Point3D):Int={
     val (x,y,z)=(p.x,p.y,p.z)
     // switch to face 0
@@ -206,6 +79,7 @@ class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
     implicit def bool2int(b:Boolean):Int = if (b) 1 else 0
     (z0<0)*(1<<0)+(y0<0)*(1<<1)
   }
+
 
   def getFaceQuadrant(p:Point3D):(Int,Int)={
     val face:Int=getFace(p)
@@ -268,27 +142,81 @@ class SARSPix(val Nb:Int) extends CubedSphere(Nb) {
       case _ => index0(new Point3D(x0,signa*signb*z0,signa*signb*y0)).swap
     }
 
-    /*
-    var (i,j)=index0(p0)
-    if (j>i) {
-      //println("swap coordinates")
-      val symp=new Point3D(x0,signa*signb*z0,signa*signb*y0)
-      val (symi,symj)=index0(symp)
-      i=symj
-      j=symi
-    }
-    //println(s"i=$i j=$j")
-     */
-
-
     //output
     (face,q,i,j)
   }
 
+  //local point on face 0
+  def getNode0(q:Int,itry:Int,jtry:Int):Point3D={
+  
+    if (itry==0 & jtry==0) {
+      val p0=new Point3D(Pi/2,0.0)
+      //println(s"node0 q=$q i=$itry j=$jtry $p0")
+      return p0
+    }
+    //i must be lower than j
+    val (i,j)=if (jtry<=itry) (itry,jtry) else (jtry,itry)
+
+    val (signa,signb):(Int,Int)=q match {
+      case 0 => (1,1)
+      case 1 => (1,-1)
+      case 2 => (-1,1)
+      case 3 => (-1,-1)
+    }
+
+    val n=N/2
+    val gi:Double=Pi/12*(i.toDouble/n)*(i.toDouble/n)+Pi/4
+    val alpha_i:Double=signa*acos(sqrt(2.0)*cos(gi))
+    if (j==0){
+      val p=new Point3D(Pi/2,alpha_i)
+      val pi0=(if (jtry<itry) p else new Point3D(p.x,signa*signb*p.z,signa*signb*p.y))
+      //println(s"node0 q=$q i=$itry j=$jtry $pi0")
+      return pi0
+    }
+    val beta_ii:Double=signb*acos(1/(sqrt(2.0)*sin(gi)))
+    val beta_ij:Double=j*beta_ii/i
+    val p=new Point3D(Pi/2-beta_ij,alpha_i)
+
+    val pp=(if (jtry<=itry) p else new Point3D(p.x,signa*signb*p.z,signa*signb*p.y))
+    //println(s"node0 q=$q i=$i j=$j $pp")
+    pp
+  }
 
 
-  override def pix2ang(ipix:Int):Array[Double]= {val (t,f)=pixcenter(ipix); Array(t,f)}
+  override def pix2ang(ipix:Int):Array[Double]={
 
+    val (face,ii,jj)=pix2coord(ipix)
+    
+    val (q,i,j)=face2localBinIndex(ii,jj)
+
+    //getnodes on face0
+    val p1:Point3D=getNode0(q,i,j)
+    val p2:Point3D=getNode0(q,(i+1),j)
+    val p3:Point3D=getNode0(q,i,(j+1))
+    val p4:Point3D=getNode0(q,i+1,(j+1))
+
+    val cell:List[Point3D]=p1::p2::p3::p4::Nil
+    val bary:Point=Point.barycenter(cell)
+    val cen0=new Point3D(bary/bary.norm())
+
+    //rotate to face
+    val rot=face match {
+      case 0 => (x:Double,y:Double,z:Double)=>(x,y,z)
+      case 1 => (x:Double,y:Double,z:Double)=>(-y,x,z)
+      case 2 => (x:Double,y:Double,z:Double)=>(-x,-y,z)
+      case 3 => (x:Double,y:Double,z:Double)=>(y,-x,z)
+      case 4 => (x:Double,y:Double,z:Double)=>(-z,y,x)
+      case 5 => (x:Double,y:Double,z:Double)=>(z,y,-x)
+    }
+
+    val XYZ=rot(cen0.x,cen0.y,cen0.z)
+    val cen=new Point3D(XYZ._1,XYZ._2,XYZ._3)
+    val (t,f)=cen.unitAngle
+
+    Array(t,f)
+
+
+  }
 
   override def ang2pix(theta:Double,phi:Double):Int = {
     
@@ -336,46 +264,7 @@ object SARSPix extends CubedProps(0.82,1.1) {
 
     val c=new SARSPix(args(0).toInt)
 
-    //basic test
-    for (ipix<-c.pixNums) {
-      val (f,ii,jj)=c.pix2coord(ipix)
-          //coords
-          val (q,i,j)=c.face2localBinIndex(ii,jj)
-          //println(s"\npix=$ipix f=$f q=$q ($i,$j)")
-          //pos
-          val Array(theta,phi)=c.pix2ang(ipix)
-          //ang2pix
-          val p=new Point3D(theta,phi)
-          //println(s"center=  ai=${toDegrees(phi)} bij=${toDegrees(Pi/2-theta)} $p")
-          val (fb,qb,ib,jb)=c.getLocalIndex(p)
-          //println(s"back f=$fb q=$qb ($ib,$jb)")
-          require(f==fb & qb==q & ib==i & jb==j)
-    }
-
-    c.writeCenters(s"SARScenters$N.txt")
-      /*
-    val fc=args(1).toInt
-    val ic=args(2).toInt
-    val jc=args(3).toInt
-
-    c.writeNeighbours(c.coord2pix(fc,ic,jc))
-
-    val ipix=c.coord2pix(fc,ic,jc)
-
-    val Array(tc,phic)=c.pix2ang(ipix)
-    val pcen=new Point3D(tc,phic)
-
-    //println(s"input pixel=$ipix ($fc,$ic,$jc)  angles=($tc,$phic) :"+pcen)
-
-
-    val n=c.neighbours(ipix)
-    for (in <- n) {
-      val (f,i,j)=c.pix2coord(in)
-      val ang=c.pix2ang(in)
-      val p=new Point3D(ang(0),ang(1))
-      //println(s"voisin pixel=$in ($f,$i,$j): angles=${ang(0)},${ang(1)} "+p)
-    }
-       */
+    //c.writeCenters(s"SARScenters$N.txt")
   } //main
 
 
