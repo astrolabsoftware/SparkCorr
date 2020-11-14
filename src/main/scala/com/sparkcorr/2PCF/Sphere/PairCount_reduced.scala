@@ -116,7 +116,6 @@ object PairCount_reduced {
       .withColumn("phi_s",F.radians(ra_name))
       .drop(ra_name,dec_name)
 
-    input.describe().show()
     println("input data size="+input.count())
 
    //from here start countning time
@@ -146,53 +145,29 @@ object PairCount_reduced {
       }
 
     }
-    val tpixD=timer.step
-    timer.print(s"reducing pixelization $tilingR(${rawgridR.Nbase}): NpixD=${rawgridR.Npix}\n")
-
 
     //broadcast object to executors
     val gridR=sc.broadcast(rawgridR)
-    timer.step
-    timer.print("broadcast")
 
     //create cells
-
-    //spark udf
-   //def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>gridR.value.ang2pix(theta,phi))
-   //def Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=>gridR.value.pix2ang(ipix))
-
-
     //add index
-    val pixmap1=input
-      .map(r=>gridR.value.ang2pix(r.getDouble(0),r.getDouble(1))).toDF("cellpix")
-     // .withColumn("cellpix",Ang2Pix($"theta_s",$"phi_s")).drop("theta_s","phi_s")
-      //.cache
-
-
-    pixmap1.describe().show
-    timer.step
-    timer.print("ang2pix full data")
-
-
-    val pixmap=pixmap1
+    val pixmap=input
+      .map(r=>gridR.value.ang2pix(r.getDouble(0),r.getDouble(1)))
+      .toDF("cellpix")
       .groupBy("cellpix").count()
-      //.cache()
+      .persist(MEMORY_ONLY)
 
-    pixmap.describe().show
-    timer.step
-    timer.print("groupby+count full data")
+    //actions
+    println(pixmap.count)
 
     val newinput=pixmap
       .map(r=>(gridR.value.pix2ang(r.getInt(0)),r.getLong(1))).toDF("ptg","w")
-      //.withColumn("ptg",Pix2Ang($"cellpix")).drop("cellpix")
       .withColumn("theta_s",$"ptg"(0)).withColumn("phi_s",$"ptg"(1)).drop("ptg")
-    //.cache
+      .persist(MEMORY_ONLY)
 
-
-    newinput.describe().show
-    timer.step
-    timer.print("pix2ang on reduced data")
-
+    val NpixD=newinput.count
+    val tr=timer.step
+    timer.print(s"reduced data")
 
     val tilingJ=params.get("tilingJ","cubedSphere").toLowerCase
     //joininmg pixelization
@@ -214,15 +189,13 @@ object PairCount_reduced {
     //broadcast object to executors
     val gridJ=sc.broadcast(rawgridJ)
 
-    val tpixJ=timer.step
-    timer.print(s"joining pixelization $tilingJ(${rawgridJ.Nbase}): NpixJ=${rawgridJ.Npix}\n")
+    println(s"joining pixelization $tilingJ(${rawgridJ.Nbase}): NpixJ=${rawgridJ.Npix}\n")
 
 
     //add join index
     val indexedInput=newinput
       .map(r=>(r.getLong(0),gridJ.value.ang2pix(r.getDouble(1),r.getDouble(2)),r.getDouble(1),r.getDouble(2)))
       .toDF("w","ipix","theta_s","phi_s")
-
 
     val source=indexedInput
       .withColumn("id",F.monotonicallyIncreasingId)
@@ -244,8 +217,11 @@ object PairCount_reduced {
     timer.print("input source")
     source.show(5)
 
-    // 2. duplicates
+    //clean
+    pixmap.unpersist()
+    newinput.unpersist()
 
+    // 2. duplicates
     //map way
     val neib=source.map(r=>(r.getLong(0),gridJ.value.neighbours(r.getInt(1)),r.getLong(2),r.getDouble(3),r.getDouble(4),r.getDouble(5)))
     .toDF("w","neighbours","id","x_s","y_s","z_s")
@@ -304,7 +280,6 @@ object PairCount_reduced {
       .drop("logr")
       .withColumn("prod",$"w"*$"w2")
       .drop("w","w2")
-    //  .persist(StorageLevel.MEMORY_AND_DISK)
 
     //println("edges:")
     //edges.printSchema
@@ -361,8 +336,9 @@ object PairCount_reduced {
 
     println("Summary: ************************************")
     println("@"+tilingJ+"("+rawgridJ.Nbase+")")
-    println("x@ imin imax Ndata Ndup nedges nbaseD NpixD nbaseJ NpixJ nodes part1 part2 part3 tp ts td tj tb t")
-    println(f"x@@ $imin $imax $Ns $Ndup $nedges%g ${rawgridR.Nbase} ${rawgridR.Npix} ${rawgridJ.Nbase} ${rawgridJ.Npix} $nodes $np1 $np2 $np3 ${tpixD.toInt} ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
+    println("@"+tilingR+"("+rawgridR.Nbase+")")
+    println("x@ imin imax Ndata Ndup nedges nbaseD NpixD nbaseJ NpixJ nodes part1 part2 part3 tr ts td tj tb t")
+    println(f"r@@ $imin $imax $Ns $Ndup $nedges%g ${rawgridR.Nbase} ${rawgridR.Npix} ${rawgridJ.Nbase} ${rawgridJ.Npix} $nodes $np1 $np2 $np3 ${tr.toInt} ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
 
 
 

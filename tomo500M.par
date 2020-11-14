@@ -1,4 +1,3 @@
-
 #binning
 Nbins=20
 bin_min=2.5
@@ -10,8 +9,9 @@ imin=6
 imax=10
 
 tilingJ=cubedSphere
-#tilingR=SARSPix
-tilingR=Healpix
+
+tilingR=SARSPix
+
 
 # input data
 data1=/global/cscratch1/sd/plaszczy/tomo500M.parquet

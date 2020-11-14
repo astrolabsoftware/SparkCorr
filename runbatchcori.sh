@@ -12,6 +12,7 @@ exit
 fi
 
 myexec="2PCF.Sphere.PairCount_reduced"
+#myexec="2PCF.Sphere.PairCount_unreduced"
 parfile=$1_$RANDOM
 \cp $1 $parfile
 
@@ -31,7 +32,7 @@ imax=$(grep ^imax $parfile | cut -d "=" -f2)
 f=$(grep ^data1 $1 | cut -d "=" -f2)
 s=$(basename $f)
 data=${s%".parquet"}
-prefix="${data}_${imin}_${imax}_${nodes}R"
+prefix="${data}_${imin}_${imax}_${nodes}"
 
 slfile="run_$prefix.sl"
 echo $slfile

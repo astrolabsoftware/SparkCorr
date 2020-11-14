@@ -223,7 +223,7 @@ object PairCount_unreduced {
       .withColumnRenamed("y_s","y_t")
       .withColumnRenamed("z_s","z_t")
       .repartition(numPart,$"ipix")
-      .persist(MEMORY_ONLY)
+      .persist(MEMORY_AND_DISK)
 
     println("*** caching duplicates: "+dup.columns.mkString(", "))
     val Ndup=dup.count
