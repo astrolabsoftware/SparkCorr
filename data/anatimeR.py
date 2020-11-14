@@ -34,10 +34,10 @@ t1/=sumt/100
 t2/=sumt/100
 t3/=sumt/100
 
-bar(ind,t0,1,label="reduction")
-bar(ind,t1,1,label="source",bottom=t0)
-bar(ind,t2,1,bottom=t0+t1,label="duplicate")
-bar(ind,t3,1,bottom=t0+t1+t2,label="join")
+bar(ind,t1,1,label="source")
+bar(ind,t2,1,bottom=t1,label="duplicate")
+bar(ind,t3,1,bottom=t1+t2,label="join")
+bar(ind,t0,1,label="reduction",bottom=t1+t2+t3)
 xticks(ind,p.nodes)
 ylim(0,130)
 legend()
