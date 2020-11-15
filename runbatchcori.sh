@@ -11,8 +11,8 @@ echo "##########################################################################
 exit
 fi
 
-myexec="2PCF.Sphere.PairCount_reduced"
-#myexec="2PCF.Sphere.PairCount_unreduced"
+#myexec="2PCF.Sphere.PairCount_reduced"
+myexec="2PCF.Sphere.PairCount_unreduced"
 parfile=$1_$RANDOM
 \cp $1 $parfile
 
@@ -44,7 +44,7 @@ cat > $slfile <<EOF
 #!/bin/bash
 
 #SBATCH -q debug
-#SBATCH -t 00:25:00
+#SBATCH -t 00:20:00
 #SBATCH -N $nodes
 #SBATCH -C haswell
 #SBATCH -e ${prefix}_%j.err

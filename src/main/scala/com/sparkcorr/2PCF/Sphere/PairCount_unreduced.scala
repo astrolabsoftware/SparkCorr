@@ -153,16 +153,11 @@ object PairCount_unreduced {
     //broadcast object to executors
     val gridJ=sc.broadcast(rawgridJ)
 
-    //spark udf
-    //def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>gridJ.value.ang2pix(theta,phi))
-
-    timer.step
-    timer.print(s"Building "+tilingJ+"("+rawgridJ.Nbase+")")
-
     //add index
     val indexedInput=input
       .map(r=>(r.getLong(0),gridJ.value.ang2pix(r.getDouble(1),r.getDouble(2)),r.getDouble(1),r.getDouble(2)))
       .toDF("id","ipix","theta_s","phi_s")
+    .persist(MEMORY_ONLY)
 
     val source=indexedInput
       //.withColumn("ipix",Ang2Pix($"theta_s",$"phi_s"))
@@ -172,6 +167,8 @@ object PairCount_unreduced {
       .drop("theta_s","phi_s")
       .repartition(numPart,$"ipix")
       .persist(MEMORY_ONLY)
+
+    indexedInput.unpersist()
 
     val np1=source.rdd.getNumPartitions
     println("source #part="+np1)
@@ -183,37 +180,13 @@ object PairCount_unreduced {
     timer.print("input source")
     source.show(5)
 
-    /*
-    val Nain=source.na.drop.count
-    println(s"Nans=${Ns-Nain}")
-    require(Nain==Ns)
-
-    val Nsize=rawgridJ.SIZE
-    val Npix=rawgridJ.Npix
-    println(s"expecting Npix=$Npix Size=$Nsize") 
-    val bad=source.filter($"ipix"<0 || $"ipix">=Nsize)
-    val bc=bad.count
-    println("bad size="+bc)
-    bad.show(truncate=false)
-    require(bc==0,"wrong pixel index")
-     */
-
     // 2. duplicates
-    /* udf way
-    //def pix_neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>gridJ.value.neighbours(ipix))
-    val dfn=source.withColumn("neighbours",pix_neighbours($"ipix"))
-      .drop("ipix")
-      .withColumn("ipix",F.explode($"neighbours"))
-      .drop("neighbours")
-     */
-
-
     //map way
     val neib=source.map(r=>(r.getLong(0),gridJ.value.neighbours(r.getInt(1)),r.getDouble(2),r.getDouble(3),r.getDouble(4)))
     .toDF("id","neighbours","x_s","y_s","z_s")
 
-
   val dfn=neib.withColumn("ipix",F.explode($"neighbours")).drop("neighbours")
+    .persist(MEMORY_AND_DISK)
 
     //add input source (with same labels)
     val cols=dfn.columns
@@ -224,6 +197,8 @@ object PairCount_unreduced {
       .withColumnRenamed("z_s","z_t")
       .repartition(numPart,$"ipix")
       .persist(MEMORY_AND_DISK)
+
+    dfn.unpersist()
 
     println("*** caching duplicates: "+dup.columns.mkString(", "))
     val Ndup=dup.count

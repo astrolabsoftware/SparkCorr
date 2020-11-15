@@ -6,8 +6,8 @@ bin_max=250
 bin_type=log
 
 #bin range
-imin=9
-imax=19
+imin=0
+imax=1
 
 tilingJ=cubedSphere
 tilingR=SARSPix
