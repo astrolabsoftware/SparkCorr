@@ -23,7 +23,7 @@ def getTimes(fn):
 p=getTimes(sys.argv[1])
 
 figure()
-ind=[0,3,6]
+ind=arange(p.index.size)*3 
 t0=p.tr.values
 t1=p.ts.values
 t2=p.td.values

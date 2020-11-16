@@ -108,6 +108,7 @@ FACE4=fillFace(FACE0,4)
 FACE5=fillFace(FACE0,5)
 
 FACES=[FACE0,FACE1,FACE2,FACE3,FACE4,FACE5]
+#pour une seule face
 #FACES=[FACE0]
 
 #write

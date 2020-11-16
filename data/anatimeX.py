@@ -8,11 +8,18 @@ def getTimes(fn):
     p=pandas.read_csv(fn,sep="\s+")
     nodes=unique(p.nodes)
     tt=[]
+    NpixJ=float(p['NpixJ'].values[1])/1e3
+    imin=p['imin'].values[1]
+    imax=p['imax'].values[1]
+    Ndata=float(p['Ndata'].values[1])/1e6
     for n in nodes:
         pn=p[p['nodes']==n] 
-        tt.append([n,mean(pn.t),std(pn.t),mean(pn.ts),mean(pn.td),mean(pn.tj),mean(pn.tb)])
+        tt.append([Ndata,n,imin,imax,NpixJ,mean(pn.t),std(pn.t),mean(pn.ts),mean(pn.td),mean(pn.tj),mean(pn.tb)])
 
-    pt=pandas.DataFrame(data=tt,columns=["nodes","t","sig","ts","td","tj","tb"])
+
+    pt=pandas.DataFrame(data=tt,columns=["Ndata","nodes","imin","imax","NpixJ","t","sig","ts","td","tj","tb"])
+
+    
     return pt
 
 
