@@ -11,8 +11,8 @@ echo "##########################################################################
 exit
 fi
 
-#myexec="2PCF.Sphere.PairCount_reduced"
-myexec="2PCF.Sphere.PairCount_unreduced"
+myexec="2PCF.Sphere.PairCount_reduced"
+#myexec="2PCF.Sphere.PairCount_unreduced"
 parfile=$1_$RANDOM
 \cp $1 $parfile
 
@@ -43,7 +43,7 @@ IMG=registry.services.nersc.gov/plaszczy/spark_desc:v$SPARKVERSION
 cat > $slfile <<EOF
 #!/bin/bash
 
-#SBATCH -q regular
+#SBATCH -q debug
 #SBATCH -t 00:15:00
 #SBATCH -N $nodes
 #SBATCH -C haswell
