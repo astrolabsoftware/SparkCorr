@@ -43,8 +43,8 @@ IMG=registry.services.nersc.gov/plaszczy/spark_desc:v$SPARKVERSION
 cat > $slfile <<EOF
 #!/bin/bash
 
-#SBATCH -q debug
-#SBATCH -t 00:05:00
+#SBATCH -q regular
+#SBATCH -t 00:15:00
 #SBATCH -N $nodes
 #SBATCH -C haswell
 #SBATCH -e ${prefix}_%j.err
