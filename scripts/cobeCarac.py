@@ -98,7 +98,11 @@ for ip in range(N*N):
     Air[i,j]=sqrt(4*p2*q2-(b2+d2-a2-c2)**2)/4
 #losange
     #A[i,j]=p*q/2
-    e[i,j]=sqrt(p2/q2)
+    p=sqrt(p2)
+    q=sqrt(q2)
+    e[i,j]=(p-q)/(p+q)
+    
+    cen=(A+B+C+D)/4.
     cen=(A+B+C+D)/4.
     CA=dist(cen,A)
     CB=dist(cen,B)
@@ -144,24 +148,33 @@ Rsqin=Rsq/sqrt(2)
 
 imshowXY(arange(N-1),arange(N-1),Air/Aexp,vmin=0.85,vmax=1.15)
 title("area")
+yticks(gca().get_xticks())  
+ylim(gca().get_xlim())
 savefig("cobe_area2.pdf")
 
-imshowXY(arange(N-1),arange(N-1),abs(e-1),vmin=0,vmax=0.8)
+imshowXY(arange(N-1),arange(N-1),abs(e),vmin=0,vmax=0.3)
 title("ellipticity")
+yticks(gca().get_xticks())  
+ylim(gca().get_xlim())
 savefig("cobe_e2.pdf")
 
 imshowXY(arange(N-1),arange(N-1),Rmax/Rsq,vmin=0.85,vmax=1.35)
 title("outer radius")
+yticks(gca().get_xticks())  
+ylim(gca().get_xlim())
 savefig("cobe_rout2.pdf")
 
 
 imshowXY(arange(N-1),arange(N-1),Rint/Rsqin,vmin=0.7,vmax=1.1)
 title("inner radius")
+yticks(gca().get_xticks())  
+ylim(gca().get_xlim())
 savefig("cobe_rin2.pdf")
 
 #histoR
 
 figure()
+axes([0.145,0.2,0.95-0.125,0.95-0.22])
 
 range=[0.6,1.5]
 #hist(Rin/Rsqin,bins=80,range=range,label=r"$R_{in}$")

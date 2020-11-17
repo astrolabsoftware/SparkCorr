@@ -65,7 +65,9 @@ for ip in range(N*N):
     Air[i,j]=sqrt(4*p2*q2-(b2+d2-a2-c2)**2)/4
 #losange
     #A[i,j]=p*q/2
-    e[i,j]=sqrt(p2/q2)
+    p=sqrt(p2)
+    q=sqrt(q2)
+    e[i,j]=(p-q)/(p+q)
     cen=(A+B+C+D)/4.
     CA=dist(cen,A)
     CB=dist(cen,B)
@@ -109,24 +111,34 @@ Rsqin=Rsq/sqrt(2)
 
 imshowXY(arange(N-1),arange(N-1),Air/Aexp,vmin=0.85,vmax=1.15)
 title("area")
+yticks(gca().get_xticks())  
+ylim(gca().get_xlim())
 savefig("cubed_area2.pdf")
 
-imshowXY(arange(N-1),arange(N-1),abs(e-1),vmin=0,vmax=0.8)
+#imshowXY(arange(N-1),arange(N-1),e,vmin=0,vmax=1)
+imshowXY(arange(N-1),arange(N-1),abs(e)vmin=0,vmax=.30)
 title("ellipticity")
+yticks(gca().get_xticks())  
+ylim(gca().get_xlim())
 savefig("cubed_e2.pdf")
 
 
 imshowXY(arange(N-1),arange(N-1),Rmax/Rsq,vmin=0.85,vmax=1.35)
 title("outer radius")
+yticks(gca().get_xticks())  
+ylim(gca().get_xlim())
 savefig("cubed_rout2.pdf")
 
 imshowXY(arange(N-1),arange(N-1),Rint/Rsqin,vmin=0.7,vmax=1.1)
 title("inner radius")
-savefig("cobe_rin2.pdf")
+yticks(gca().get_xticks())  
+ylim(gca().get_xlim())
+savefig("cubed_rin2.pdf")
 
 
 #histo R
 figure()
+axes()
 
 range=[0.6,1.5]
 #hist(Rin/Rsqin,bins=80,range=range,label=r"$R_{in}$")
@@ -139,7 +151,7 @@ xlim(range)
 #xticks(linspace(0.7,1.5,9))
 semilogy()
 show()
-savefig("cubed_radius.pdf")
+#savefig("cubed_radius.pdf")
 
 print("Rmin={:.3f}".format(amin(Rint.flat/Rsqin)))
 print("Rmax={:.3f}".format(amax(Rmax.flat/Rsq)))
