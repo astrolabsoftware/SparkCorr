@@ -107,7 +107,7 @@ for ip in range(N*N):
     CA=dist(cen,A)
     CB=dist(cen,B)
     CC=dist(cen,C)
-    CD=dist(cen,B)  
+    CD=dist(cen,D)  
     ri=array([CA,CB,CC,CD])
 
     Rmax[i,j]=amax(ri)
@@ -174,7 +174,7 @@ savefig("cobe_rin2.pdf")
 #histoR
 
 figure()
-axes([0.145,0.2,0.95-0.125,0.95-0.22])
+axes([0.10,0.2,0.85,0.75])
 
 range=[0.6,1.5]
 #hist(Rin/Rsqin,bins=80,range=range,label=r"$R_{in}$")

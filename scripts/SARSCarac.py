@@ -7,10 +7,14 @@ fn=sys.argv[1]
 #read file
 print("reading "+fn)
 
-#nodes
-nodes=loadtxt(fn)
+#nodes : there Npix+1 of thgem
+rawnodes=loadtxt(fn)
 
-N=int(sqrt(nodes.shape[0]))
+N=int(sqrt(rawnodes.shape[0]))
+nodes=rawnodes.reshape(N,N,3)
+
+
+Npix=N-1
 
 def dist(p1,p2):
     return sqrt(sum((p1-p2)**2))
@@ -18,84 +22,64 @@ def dist(p1,p2):
 def dist2(p1,p2):
     return sum((p1-p2)**2)
 
-#print("writing centers.txt")
-ff=open("centers.txt",'w')
+#base =c
+def hauteur(a,b,c) :
+    p=(a+b+c)/2
+    return 2*sqrt(p*(p-a)*(p-b)*(p-c))/c
+
 
 #cells
 Air=zeros((N-1,N-1))
 e=zeros((N-1,N-1))
 Rmax=zeros((N-1,N-1))
-Rmin=zeros((N-1,N-1))
 Rint=zeros((N-1,N-1))
-for ip in range(N*N):
-    i,j=ip//N,ip%N
-    #skip borders
-    if (i+1)%N==0 or (j+1)%N==0:
-        continue
-    A=nodes[ip]
-    B=nodes[ip+1]
-    C=nodes[ip+N+1]
-    D=nodes[ip+N]
+#for ip in range(N*N):
+#    i,j=ip//N,ip%N
+    
+for i in range(N-1):
+    for j in range(N-1):
 
-    p2=dist2(A,C)
-    q2=dist2(B,D)
+        A=nodes[i,j]
+        B=nodes[i+1,j]
+        C=nodes[i+1,j+1]
+        D=nodes[i,j+1]
 
-    a2=dist2(A,B)
-    b2=dist2(B,C)
-    c2=dist2(C,D)
-    d2=dist2(D,A)
+        p2=dist2(A,C)
+        q2=dist2(B,D)
 
-    Air[i,j]=sqrt(4*p2*q2-(b2+d2-a2-c2)**2)/4
-#losange
-    #A[i,j]=p*q/2
-    p=sqrt(p2)
-    q=sqrt(q2)
-    e[i,j]=(p-q)/(p+q)
+        a2=dist2(A,B)
+        b2=dist2(B,C)
+        c2=dist2(C,D)
+        d2=dist2(D,A)
 
+        Air[i,j]=sqrt(4*p2*q2-(b2+d2-a2-c2)**2)/4
 
-    cen=(A+B+C+D)/4.
-    cen=cen/sqrt(sum(cen**2))
-    CA=dist(cen,A)
-    CB=dist(cen,B)
-    CC=dist(cen,C)
-    CD=dist(cen,B)
-    ri=array([CA,CB,CC,CD])
-    #line=" ".join([str(x) for x in cen])+"\n"
-    #ff.write(line)
-    Rmax[i,j]=amax(ri)
-    Rmin[i,j]=amin(ri)
+        p=sqrt(p2)
+        q=sqrt(q2)
+        e[i,j]=(p-q)/(p+q)
 
-    a=CA
-    b=CB
-    c=sqrt(a2)
-    p=(a+b+c)/2
-    h1=2*sqrt(p*(p-a)*(p-b)*(p-c))/c
+        #center
+        cen=(A+B+C+D)/4.
+        cen=cen/sqrt(sum(cen**2))
+        
+        OA=dist(cen,A)
+        OB=dist(cen,B)
+        OC=dist(cen,C)
+        OD=dist(cen,D)
+        ri=array([OA,OB,OC,OD])
+        #si=2*arcsin(ri/2)
+        
+        Rmax[i,j]=amax(ri)
 
-    a=CB
-    b=CC
-    c=sqrt(b2)
-    p=(a+b+c)/2
-    h2=2*sqrt(p*(p-a)*(p-b)*(p-c))/c
- 
-    a=CC
-    b=CD
-    c=sqrt(c2)
-    p=(a+b+c)/2
-    h3=2*sqrt(p*(p-a)*(p-b)*(p-c))/c
-
-    a=CD
-    b=CA
-    c=sqrt(d2)
-    p=(a+b+c)/2
-    h4=2*sqrt(p*(p-a)*(p-b)*(p-c))/c
+        h1=hauteur(OA,OB,sqrt(a2))
+        h2=hauteur(OB,OC,sqrt(b2))
+        h3=hauteur(OC,OD,sqrt(c2))
+        h4=hauteur(OD,OA,sqrt(d2))
    
-    h=array([h1,h2,h3,h4])
-    Rint[i,j]=amin(h)
+        h=array([h1,h2,h3,h4])
+        Rint[i,j]=amin(h)
 
 
-
-##
-ff.close()
 
 
 Aexp=4*pi/6/(N-1)**2
@@ -129,6 +113,8 @@ ylim(gca().get_xlim())
 #histo R
 figure()
 
+#axes([0.10,0.2,0.8,0.73])
+axes([0.10,0.2,0.85,0.75])
 range=[0.6,1.5]
 hist(Rint.flat/Rsqin,bins=80,range=range,label="inner")
 hist(Rmax.flat/Rsq,color='red',bins=80,alpha=0.7,range=range,label="outer")
@@ -142,5 +128,5 @@ show()
 savefig("sars_radius.pdf")
 
 
-print("Rmin={:.3f}".format(amin(Rint.flat/Rsqin)))
-print("Rmax={:.3f}".format(amax(Rmax.flat/Rsq)))
+print("Rin={:.3f}".format(amin(Rint.flat/Rsqin)))
+print("Rout={:.3f}".format(amax(Rmax.flat/Rsq)))

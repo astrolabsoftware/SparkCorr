@@ -72,7 +72,7 @@ for ip in range(N*N):
     CA=dist(cen,A)
     CB=dist(cen,B)
     CC=dist(cen,C)
-    CD=dist(cen,B)
+    CD=dist(cen,D)
     ri=array([CA,CB,CC,CD])
     Rmax[i,j]=amax(ri)
     Rmin[i,j]=amin(ri)
@@ -116,7 +116,7 @@ ylim(gca().get_xlim())
 savefig("cubed_area2.pdf")
 
 #imshowXY(arange(N-1),arange(N-1),e,vmin=0,vmax=1)
-imshowXY(arange(N-1),arange(N-1),abs(e)vmin=0,vmax=.30)
+imshowXY(arange(N-1),arange(N-1),abs(e),vmin=0,vmax=.30)
 title("ellipticity")
 yticks(gca().get_xticks())  
 ylim(gca().get_xlim())
@@ -138,8 +138,7 @@ savefig("cubed_rin2.pdf")
 
 #histo R
 figure()
-axes()
-
+axes([0.10,0.2,0.85,0.75])
 range=[0.6,1.5]
 #hist(Rin/Rsqin,bins=80,range=range,label=r"$R_{in}$")
 hist(Rint.flat/Rsqin,bins=80,range=range,label="inner")

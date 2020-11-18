@@ -1,6 +1,6 @@
 from pylab import *
 from scipy import r_
-
+import sys
 
 class Point:
     def __init__(self, *args, **kwargs):
@@ -80,7 +80,9 @@ def fillFace(face0,fnum):
 
 ########
 #NPIX /face
+assert len(sys.argv)==3
 N=int(sys.argv[1])//2
+fn=sys.argv[2]
 
 # Nnodes= N+1
 
@@ -107,12 +109,11 @@ FACE3=fillFace(FACE0,3)
 FACE4=fillFace(FACE0,4)
 FACE5=fillFace(FACE0,5)
 
-FACES=[FACE0,FACE1,FACE2,FACE3,FACE4,FACE5]
+#FACES=[FACE0,FACE1,FACE2,FACE3,FACE4,FACE5]
 #pour une seule face
-#FACES=[FACE0]
+FACES=[FACE0]
 
 #write
-fn="eaq{}.txt".format(sys.argv[1])
 print("writing "+fn)
 f=open(fn,"w")
 Nx,Ny=FACE0.shape
@@ -120,6 +121,7 @@ Nx,Ny=FACE0.shape
 for FACE in FACES :
     for i in range(Nx):
         for j in range(Ny):
-            line="{}\t{}\t{}\n".format(FACE[i,j].x,FACE[i,j].y,FACE[i,j].z)
-            f.write(line)
+            line="{}\t{}\t{}".format(FACE[i,j].x,FACE[i,j].y,FACE[i,j].z)
+            #print("node ({},{}) ".format(i,j)+line)
+            f.write(line+"\n")
 f.close()

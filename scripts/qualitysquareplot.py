@@ -5,8 +5,7 @@ import pandas as pd
 
 fig_width_pt=256.0748
 inches_per_pt = 1.0/72.27               # Convert pt to inches
-golden_mean = (sqrt(5)-1.0)/2.0         # Aesthetic ratio
-ratio=0.7
+ratio=0.83
 fig_width = fig_width_pt*inches_per_pt  # width in inches
 fig_height =fig_width*ratio       # height in inches
 fig_size = [fig_width,fig_height]
