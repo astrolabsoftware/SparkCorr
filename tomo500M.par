@@ -5,8 +5,8 @@ bin_max=250
 bin_type=log
 
 #bin range
-imin=6
-imax=10
+imin=11
+imax=19
 
 tilingJ=SARSPix
 tilingR=SARSPix
