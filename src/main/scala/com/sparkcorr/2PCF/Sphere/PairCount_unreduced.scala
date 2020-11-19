@@ -107,8 +107,6 @@ object PairCount_unreduced {
       .withColumn("phi_s",F.radians(ra_name))
       .drop(ra_name,dec_name)
 
-    //find automatically imax
-
     //choose range
     require(params.contains("imin") && params.contains("imax"))
     val imin:Int=params.get("imin",0)
@@ -157,10 +155,9 @@ object PairCount_unreduced {
     val indexedInput=input
       .map(r=>(r.getLong(0),gridJ.value.ang2pix(r.getDouble(1),r.getDouble(2)),r.getDouble(1),r.getDouble(2)))
       .toDF("id","ipix","theta_s","phi_s")
-    .persist(MEMORY_ONLY)
+      .persist(MEMORY_ONLY)
 
     val source=indexedInput
-      //.withColumn("ipix",Ang2Pix($"theta_s",$"phi_s"))
       .withColumn("x_s",F.sin($"theta_s")*F.cos($"phi_s"))
       .withColumn("y_s",F.sin($"theta_s")*F.sin($"phi_s"))
       .withColumn("z_s",F.cos($"theta_s"))
