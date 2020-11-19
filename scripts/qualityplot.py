@@ -19,7 +19,7 @@ params = {'backend': 'ps',
 #          'text.usetex': True,
           'figure.figsize': fig_size}
 rcParams.update(params)
-#figure()
+figure()
 offset=0.15
 #axes([0.2,0.2,0.95-0.2,0.95-0.2])
 

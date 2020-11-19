@@ -6,13 +6,12 @@ p=pandas.read_csv("sa_binning.csv",sep="\s+")
 
 #cols=[pp for pp in p.columns if pp!="Nj" and pp !="NpixJ(k)"]  
 
-cols=['td','w','Nd', 'NpixD(M)','tu','Nj', 'NpixJ(k)']
+cols=['id','td','tu','w','NpixD(M)','NpixJ(k)']
 
 
 
 
-
-p[cols].to_latex("hp_setup.tex",index=True) 
+p[cols].to_latex("bin_setup.tex",index=False) 
 
 
 p1=psa[['td','tu','w','Nd','NpixD(M)']] 

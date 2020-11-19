@@ -7,13 +7,13 @@
 #args="cs 180 100000000"
 #args="sars 180 100000000"
 
-myexec="Tiling.SARSPix"
+#myexec="Tiling.SARSPix"
 
 #myexec="Tiling.BenchPix"
 
 #myexec="Binning.LogBinning"
 
-#myexec="2PCF.BinSetup"
+myexec="2PCF.BinSetup"
 #myexec="2PCF.Sphere.PairCount_unreduced"
 #myexec="2PCF.Sphere.PairCount_reduced"
 

@@ -9,9 +9,9 @@ bin_type=log
 imin=6
 imax=10
 
-tilingJ=cubedSphere
-#tilingR=SARSPix
-tilingR=Healpix
+tilingJ=SARSPix
+tilingR=SARSPix
+
 
 
 # input data
