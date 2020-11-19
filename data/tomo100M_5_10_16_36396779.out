@@ -1,0 +1,176 @@
+NERSCLOG(verbose): key=mods-test
+NERSCLOG(verbose): adding stdout streamhandler
+NERSCLOG(verbose): missing <prio> prefix in stream output will be present in message for syslog
+1 2020-11-19T09:08:37.856693-08:00 nid00655 mods-test - p0-20201118t175133 [nerscjson@42] {"category": "mods-test", "service": "spark", "duration_seconds": 0, "event_timestamp": "2020-11-19T09:08:37.392853-08:00", "is_compute": true, "is_staff": false, "job_id": "36396779", "num_nodes": "16", "repo": "m1727", "subservice": null, "subsystem": "Haswell", "system": "Cori", "username": "plaszczy", "version": "2.4.4"}
+data sent to mods
+SPARKVERSION=2.4.4
+SPARK_WORKER_DIR=/global/cscratch1/sd/plaszczy/spark/36396779
+SPARK_VERSION=2.4.4
+SPARK_SLAVES=/global/cscratch1/sd/plaszczy/spark/36396779/slaves
+SPARK_LOCAL_DIRS=/tmp
+SPARK_HOME=/usr/local/bin/spark-2.4.4
+SPARKURL=spark://nid00655:7077
+SPARK_NO_DAEMONIZE=no
+SPARK_MASTER_HOST=nid00655
+SPARK_CONF_DIR=/global/cscratch1/sd/plaszczy/spark/36396779/conf
+SPARK_HELPER=/usr/local/bin/spark-2.4.4/helpers/
+calling srun -N 15 -n 15 -x nid00655 env -u SHIFTER_VOLUME shifter /usr/local/bin/spark-2.4.4/sbin/start-slave.sh spark://nid00655:7077
+mem=1600
+cores=480
+
+#binning
+Nbins=20
+bin_min=2.5
+bin_max=250
+bin_type=log
+
+#bin range
+imin=5
+imax=10
+
+#tilingJ=cubedSphere
+tilingJ=SARSPix
+tilingR=SARSPix
+
+# input data
+data1=/global/cscratch1/sd/plaszczy/tomo100M.parquet
+ra_name=RA
+dec_name=DEC
+calling /usr/local/bin/spark-2.4.4/sbin/spark-config.sh
+calling shifter /usr/local/bin/spark-2.4.4/sbin/start-master.sh
+starting org.apache.spark.deploy.master.Master, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.master.Master-1-nid00655.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00656.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00680.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00677.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00686.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00681.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid12829.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00679.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00682.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00658.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00684.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00688.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00657.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00683.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid00687.out
+starting org.apache.spark.deploy.worker.Worker, logging to /global/cscratch1/sd/plaszczy/spark/36396779/spark-plaszczy-org.apache.spark.deploy.worker.Worker-1-nid12828.out
+Parsing tomo100M.par_26274: --> Nbins=20
+Parsing tomo100M.par_26274: --> bin_min=2.5
+Parsing tomo100M.par_26274: --> bin_max=250
+Parsing tomo100M.par_26274: --> bin_type=log
+Parsing tomo100M.par_26274: --> imin=5
+Parsing tomo100M.par_26274: --> imax=10
++----+----------------------------------------+------------------+
+|ibin|interval                                |width             |
++----+----------------------------------------+------------------+
+|5   |[7.905694150420946, 9.952679263837432]  |2.0469851134164854|
+|6   |[9.952679263837432, 12.529680840681802] |2.5770015768443706|
+|7   |[12.529680840681802, 15.77393361200483] |3.244252771323028 |
+|8   |[15.77393361200483, 19.858205868107035] |4.084272256102205 |
+|9   |[19.858205868107035, 24.999999999999996]|5.141794131892961 |
+|10  |[24.999999999999996, 31.473135294854174]|6.473135294854178 |
++----+----------------------------------------+------------------+
+
+Parsing tomo100M.par_26274: --> data1=/global/cscratch1/sd/plaszczy/tomo100M.parquet
+Parsing tomo100M.par_26274: --> ra_name=RA
+Parsing tomo100M.par_26274: --> dec_name=DEC
+reading input data=/global/cscratch1/sd/plaszczy/tomo100M.parquet
+root
+ |-- RA: float (nullable = true)
+ |-- DEC: float (nullable = true)
+ |-- z: float (nullable = true)
+
+input data size=97736948
+Parsing tomo100M.par_26274: --> tilingR=SARSPix
+53055810
+
+reduced data: 35.6s (0.59min)
+----------------------------------------
+Parsing tomo100M.par_26274: --> tilingJ=SARSPix
+joining pixelization sarspix(128): NpixJ=98304
+
+source #part=1440
+root
+ |-- w: long (nullable = false)
+ |-- ipix: integer (nullable = false)
+ |-- id: long (nullable = false)
+ |-- x_s: double (nullable = true)
+ |-- y_s: double (nullable = true)
+ |-- z_s: double (nullable = true)
+
+*** caching source: w, ipix, id, x_s, y_s, z_s
+Source size=53.06 M
+
+input source: 7.7s (0.13min)
+----------------------------------------
++---+-----+------------+--------------------+--------------------+-------------------+
+|  w| ipix|          id|                 x_s|                 y_s|                z_s|
++---+-----+------------+--------------------+--------------------+-------------------+
+|  4|98095|103079215225| 0.19762031023058244| 0.13796554462732674|-0.9705213658029654|
+|  1|98095|103079216149| 0.20125864173452004| 0.14312804705424295|-0.9690249332569387|
+|  6|63754|103079217001|-0.43926907060483306|   -0.15317780062592| 0.8852001157960679|
+|  2|63754|103079217021|-0.43931783059389923|-0.15246845724932692| 0.8852983752759745|
+|  4|63754|103079217057|-0.44118321285137757|-0.15768622628986076| 0.8834548243892264|
++---+-----+------------+--------------------+--------------------+-------------------+
+only showing top 5 rows
+
+*** caching duplicates: w2, id2, x_t, y_t, z_t, ipix
+duplicates size=477.49 M
++---+------------+-------------------+------------------+-------------------+------+
+| w2|         id2|                x_t|               y_t|                z_t|  ipix|
++---+------------+-------------------+------------------+-------------------+------+
+|  2| 85899372176|-0.5545114659160266|0.5994334194275559|-0.5772318510278579|158741|
+|  1|214748425212|-0.5555179276738872|0.6025000084717472|-0.5730563426264946|158741|
+|  4|214748425266|-0.5523924501337746|0.6045515628160373|-0.5739163605717232|158741|
+|  2|343597447703|-0.5548616230635967|0.5995396715509208|-0.5767848485248596|158741|
+|  2|343597447727|-0.5561066601163985|0.5994879595606184|-0.5756384011825748|158741|
++---+------------+-------------------+------------------+-------------------+------+
+only showing top 5 rows
+
+
+dup cache: 60.9s (1.01min)
+----------------------------------------
+dup partitions=1440
+edges numParts=1440
+==> joining bin, prod
+
+join: 0.6s (0.01min)
+----------------------------------------
+#bins=6
++---+-----------+
+|bin|       Nbin|
++---+-----------+
+|  0| 4820614147|
+|  1| 7436640102|
+|  2|11353806206|
+|  3|17448008463|
+|  4|26579894562|
+|  5|40730263699|
++---+-----------+
+
+
+binning: 48.1s (0.80min)
+----------------------------------------
+TOT TIME=2.547999030766667 mins
+Summary: ************************************
+@sarspix(128)
+@sarspix(3782)
+x@ imin imax Ndata Ndup nedges nbaseD NpixD nbaseJ NpixJ nodes part1 part2 part3 tr ts td tj tb t
+r@@ 5 10 97736948 477488790 1.08369e+11 3782 85821144 128 98304 16 1440 1440 1440 35 7 60 0 48 2.55
++----+----------------------------------------+------------------+-----------+
+|ibin|interval                                |width             |Nbin       |
++----+----------------------------------------+------------------+-----------+
+|5   |[7.905694150420946, 9.952679263837432]  |2.0469851134164854|4820614147 |
+|6   |[9.952679263837432, 12.529680840681802] |2.5770015768443706|7436640102 |
+|7   |[12.529680840681802, 15.77393361200483] |3.244252771323028 |11353806206|
+|8   |[15.77393361200483, 19.858205868107035] |4.084272256102205 |17448008463|
+|9   |[19.858205868107035, 24.999999999999996]|5.141794131892961 |26579894562|
+|10  |[24.999999999999996, 31.473135294854174]|6.473135294854178 |40730263699|
++----+----------------------------------------+------------------+-----------+
+
++------------+
+|   sum(Nbin)|
++------------+
+|108369227179|
++------------+
+
