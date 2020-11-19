@@ -116,7 +116,8 @@ object PairCount_reduced {
       .withColumn("phi_s",F.radians(ra_name))
       .drop(ra_name,dec_name)
 
-    println("input data size="+input.count())
+    val Ndata=input.count()
+    println(s"input data size=$Ndata")
 
    //from here start countning time
    //1 compress data
@@ -338,7 +339,7 @@ object PairCount_reduced {
     println("@"+tilingJ+"("+rawgridJ.Nbase+")")
     println("@"+tilingR+"("+rawgridR.Nbase+")")
     println("x@ imin imax Ndata Ndup nedges nbaseD NpixD nbaseJ NpixJ nodes part1 part2 part3 tr ts td tj tb t")
-    println(f"r@@ $imin $imax $Ns $Ndup $nedges%g ${rawgridR.Nbase} ${rawgridR.Npix} ${rawgridJ.Nbase} ${rawgridJ.Npix} $nodes $np1 $np2 $np3 ${tr.toInt} ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
+    println(f"r@@ $imin $imax $Ndata $Ndup $nedges%g ${rawgridR.Nbase} ${rawgridR.Npix} ${rawgridJ.Nbase} ${rawgridJ.Npix} $nodes $np1 $np2 $np3 ${tr.toInt} ${tsource.toInt} ${tdup.toInt} ${tjoin.toInt} ${tbin.toInt} $fulltime%.2f")
 
 
 
