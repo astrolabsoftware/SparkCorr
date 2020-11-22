@@ -14,7 +14,7 @@
 #myexec="Binning.LogBinning"
 
 myexec="2PCF.BinSetup"
-#myexec="2PCF.Sphere.PairCount_unreduced"
+#myexec="2PCF.Sphere.PairCount_exact"
 #myexec="2PCF.Sphere.PairCount_reduced"
 
 args=$*

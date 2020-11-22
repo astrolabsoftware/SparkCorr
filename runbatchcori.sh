@@ -11,8 +11,8 @@ echo "##########################################################################
 exit
 fi
 
-myexec="2PCF.Sphere.PairCount_reduced"
-#myexec="2PCF.Sphere.PairCount_unreduced"
+myexec="2PCF.Sphere.PairCount_exact"
+#myexec="2PCF.Sphere.PairCount_reduced"
 parfile=$1_$RANDOM
 \cp $1 $parfile
 

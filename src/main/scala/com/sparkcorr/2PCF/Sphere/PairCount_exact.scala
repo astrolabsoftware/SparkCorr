@@ -95,17 +95,6 @@ object PairCount_unreduced {
     val tilingJ=params.get("tilingJ","cubedSphere").toLowerCase
 
 
-    //suppose parquet for the moment
-    val df_all=spark.read.parquet(f1)
-    println("reading input data="+f1)
-    df_all.printSchema
-    
-    //read RA,DEC , add id, convert to theta/phi
-    val input=df_all.select(ra_name,dec_name)
-      .withColumn("id",F.monotonicallyIncreasingId)
-      .withColumn("theta_s",F.radians(F.lit(90)-F.col(dec_name)))
-      .withColumn("phi_s",F.radians(ra_name))
-      .drop(ra_name,dec_name)
 
     //choose range
     require(params.contains("imin") && params.contains("imax"))
@@ -126,6 +115,28 @@ object PairCount_unreduced {
 
     val timer=new Timer
     val start=timer.time
+
+
+    //suppose parquet for the moment
+    val df_all=spark.read.parquet(f1)
+    println("reading input data="+f1)
+    df_all.printSchema
+    
+    //read RA,DEC , add id, convert to theta/phi
+    val input=df_all.select(ra_name,dec_name)
+      .withColumn("id",F.monotonicallyIncreasingId)
+      .withColumn("theta_s",F.radians(F.lit(90)-F.col(dec_name)))
+      .withColumn("phi_s",F.radians(ra_name))
+      .drop(ra_name,dec_name)
+
+    /*
+    input.describe().show
+    timer.step
+    timer.print(s"input")
+    */
+  
+
+
 
     val rawgridJ=tilingJ match {
       case "sarspix" => {
@@ -151,11 +162,20 @@ object PairCount_unreduced {
     //broadcast object to executors
     val gridJ=sc.broadcast(rawgridJ)
 
+    //timer.step
+    //timer.print("grid")
+
     //add index
     val indexedInput=input
       .map(r=>(r.getLong(0),gridJ.value.ang2pix(r.getDouble(1),r.getDouble(2)),r.getDouble(1),r.getDouble(2)))
       .toDF("id","ipix","theta_s","phi_s")
       .persist(MEMORY_ONLY)
+
+  /*
+    indexedInput.describe("ipix").show
+    timer.step
+    timer.print(s"ang2pix")
+  */
 
     val source=indexedInput
       .withColumn("x_s",F.sin($"theta_s")*F.cos($"phi_s"))
@@ -177,9 +197,11 @@ object PairCount_unreduced {
     timer.print("input source")
     source.show(5)
 
+
     // 2. duplicates
     //map way
-    val neib=source.map(r=>(r.getLong(0),gridJ.value.neighbours(r.getInt(1)),r.getDouble(2),r.getDouble(3),r.getDouble(4)))
+    val neib=source
+      .map(r=>(r.getLong(0),gridJ.value.neighbours(r.getInt(1)),r.getDouble(2),r.getDouble(3),r.getDouble(4)))
     .toDF("id","neighbours","x_s","y_s","z_s")
 
   val dfn=neib.withColumn("ipix",F.explode($"neighbours")).drop("neighbours")
