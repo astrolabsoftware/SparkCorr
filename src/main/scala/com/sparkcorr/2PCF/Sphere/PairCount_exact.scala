@@ -34,7 +34,7 @@ import healpix.essentials.Scheme.{NESTED,RING}
 
 
 //companion
-object PairCount_unreduced {
+object PairCount_exact {
  
  //main
   def main(args:Array[String]):Unit= {
@@ -43,7 +43,7 @@ object PairCount_unreduced {
     if (args.size!= 2){
       val sep=List.tabulate(25)(i=>"*").reduce(_+_) 
       println(sep)
-      println(">>>> Usage: PairCount_unreduced paramfile numPart")
+      println(">>>> Usage: PairCount_exact paramfile numPart")
       println(sep)
       return
     }
@@ -54,7 +54,7 @@ object PairCount_unreduced {
 
     val spark = SparkSession
       .builder()
-      .appName("PairCount_unreduced")
+      .appName("PairCount_exact")
       .getOrCreate()
     
     val sc:SparkContext = spark.sparkContext
