@@ -7,7 +7,7 @@ bin_type=log
 
 #bin range
 imin=0
-imax=15
+imax=10
 
 #tilingJ=cubedSphere
 tilingJ=SARSPix
