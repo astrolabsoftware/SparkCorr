@@ -129,14 +129,6 @@ object PairCount_exact {
       .withColumn("phi_s",F.radians(ra_name))
       .drop(ra_name,dec_name)
 
-    /*
-    input.describe().show
-    timer.step
-    timer.print(s"input")
-    */
-  
-
-
 
     val rawgridJ=tilingJ match {
       case "sarspix" => {
@@ -162,20 +154,12 @@ object PairCount_exact {
     //broadcast object to executors
     val gridJ=sc.broadcast(rawgridJ)
 
-    //timer.step
-    //timer.print("grid")
-
     //add index
     val indexedInput=input
       .map(r=>(r.getLong(0),gridJ.value.ang2pix(r.getDouble(1),r.getDouble(2)),r.getDouble(1),r.getDouble(2)))
       .toDF("id","ipix","theta_s","phi_s")
       .persist(MEMORY_ONLY)
 
-  /*
-    indexedInput.describe("ipix").show
-    timer.step
-    timer.print(s"ang2pix")
-  */
 
     val source=indexedInput
       .withColumn("x_s",F.sin($"theta_s")*F.cos($"phi_s"))

@@ -20,7 +20,7 @@ import Dependencies._
 lazy val root = (project in file(".")).
  settings(
    inThisBuild(List(
-     version      := "0.9"
+     version      := "1.0"
    )),
    organization := "com.github.astrolabsoftware",
    name := "SparkCorr",
@@ -31,5 +31,15 @@ lazy val root = (project in file(".")).
      scalaTest % Test
    )
  )
+
+developers := List(
+ Developer(
+   "StephanePlaszczynski",
+   "Stephane Plaszczynski",
+   "plaszczy@lal.in2p3.fr",
+   url("https://github.com/plaszczy")
+ )
+)
+
 
 licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
