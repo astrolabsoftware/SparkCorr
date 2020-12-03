@@ -3,10 +3,10 @@
 #myexec="Tiling.CubedSphere"
 #myexec="Tiling.PixelSize"
 
-#myexec="Tiling.BenchPix"
+myexec="Tiling.BenchPix"
 #myexec="2PCF.BinSetup"
 #myexec="2PCF.Sphere.PairCount_reduced"
-myexec="2PCF.Sphere.PairCount_unreduced"
+#myexec="2PCF.Sphere.PairCount_unreduced"
 args=$*
 
 

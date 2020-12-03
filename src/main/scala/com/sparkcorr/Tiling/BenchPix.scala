@@ -37,9 +37,9 @@ object BenchPix {
 
   def main(args:Array[String]):Unit= {
 
-    if (args.size!=3){
+    if (args.size!=4){
       println("**********************************************")
-      println(">>>> Usage: BenchPix cs/sa/hp N Ngen")
+      println(">>>> Usage: BenchPix cs/sa/hp nbase Ngen numpart")
       println("**********************************************")
       return
     }
@@ -48,6 +48,7 @@ object BenchPix {
     val tile=args(0)
     val Nf:Int=args(1).toInt
     val N:Long=args(2).toLong
+    val numpart:Int=args(3).toInt
 
     Locale.setDefault(Locale.US)
 
@@ -65,14 +66,10 @@ object BenchPix {
 
     val sc=spark.sparkContext
     val conf =sc.getConf
-
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-
+    conf.set("spark.kryoserializer.buffer", "1024")
 
     import spark.implicits._
-
-    val timer=new Timer()
-    val startime=timer.step
 
     val griddriver = tile match {
       case "cs" => new CubedSphere(Nf)
@@ -82,15 +79,20 @@ object BenchPix {
     }
     val grid=sc.broadcast(griddriver)
 
-    timer.step
-    timer.print("grid creation")
-
-    val df=spark.range(0,N)
+    val df=spark.range(0,N,1,numPartitions=numpart)
       .withColumn("theta",F.acos(F.rand*2-1.0))
       .withColumn("phi",F.rand*2*Pi).drop("id")
+    .cache
+
+    println(df.count)
+
+    val timer=new Timer()
+    val startime=timer.step
 
     //add pixelnum
-   val df1=df.map(r=> grid.value.ang2pix(r.getDouble(0),r.getDouble(1))).toDF("ipix")
+   val df1=df.map(r=> grid.value.ang2pix(r.getDouble(0),r.getDouble(1))).toDF("ipix").cache
+
+    df.unpersist
 
     df1.select(F.min($"ipix"),F.max($"ipix")).show()
     val t1=timer.step
@@ -112,7 +114,8 @@ object BenchPix {
     val t3=timer.step
     timer.print(s"neighbours")
 
-    println(s"TOT time=${(t1+t2+t3)/60} mins")
+    val tot=t1+t2+t3
+    println(s"TOT time for $tile: $tot s - ${tot/60} mins")
 
 
 
