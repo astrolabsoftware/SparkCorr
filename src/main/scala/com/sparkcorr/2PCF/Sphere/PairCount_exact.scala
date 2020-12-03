@@ -34,7 +34,7 @@ import healpix.essentials.Scheme.{NESTED,RING}
 
 
 //companion
-object PairCount_unreduced {
+object PairCount_exact {
  
  //main
   def main(args:Array[String]):Unit= {
@@ -43,7 +43,7 @@ object PairCount_unreduced {
     if (args.size!= 2){
       val sep=List.tabulate(25)(i=>"*").reduce(_+_) 
       println(sep)
-      println(">>>> Usage: PairCount_unreduced paramfile numPart")
+      println(">>>> Usage: PairCount_exact paramfile numPart")
       println(sep)
       return
     }
@@ -54,7 +54,7 @@ object PairCount_unreduced {
 
     val spark = SparkSession
       .builder()
-      .appName("PairCount_unreduced")
+      .appName("PairCount_exact")
       .getOrCreate()
     
     val sc:SparkContext = spark.sparkContext
@@ -95,17 +95,6 @@ object PairCount_unreduced {
     val tilingJ=params.get("tilingJ","cubedSphere").toLowerCase
 
 
-    //suppose parquet for the moment
-    val df_all=spark.read.parquet(f1)
-    println("reading input data="+f1)
-    df_all.printSchema
-    
-    //read RA,DEC , add id, convert to theta/phi
-    val input=df_all.select(ra_name,dec_name)
-      .withColumn("id",F.monotonicallyIncreasingId)
-      .withColumn("theta_s",F.radians(F.lit(90)-F.col(dec_name)))
-      .withColumn("phi_s",F.radians(ra_name))
-      .drop(ra_name,dec_name)
 
     //choose range
     require(params.contains("imin") && params.contains("imax"))
@@ -126,6 +115,20 @@ object PairCount_unreduced {
 
     val timer=new Timer
     val start=timer.time
+
+
+    //suppose parquet for the moment
+    val df_all=spark.read.parquet(f1)
+    println("reading input data="+f1)
+    df_all.printSchema
+    
+    //read RA,DEC , add id, convert to theta/phi
+    val input=df_all.select(ra_name,dec_name)
+      .withColumn("id",F.monotonicallyIncreasingId)
+      .withColumn("theta_s",F.radians(F.lit(90)-F.col(dec_name)))
+      .withColumn("phi_s",F.radians(ra_name))
+      .drop(ra_name,dec_name)
+
 
     val rawgridJ=tilingJ match {
       case "sarspix" => {
@@ -157,6 +160,7 @@ object PairCount_unreduced {
       .toDF("id","ipix","theta_s","phi_s")
       .persist(MEMORY_ONLY)
 
+
     val source=indexedInput
       .withColumn("x_s",F.sin($"theta_s")*F.cos($"phi_s"))
       .withColumn("y_s",F.sin($"theta_s")*F.sin($"phi_s"))
@@ -177,9 +181,11 @@ object PairCount_unreduced {
     timer.print("input source")
     source.show(5)
 
+
     // 2. duplicates
     //map way
-    val neib=source.map(r=>(r.getLong(0),gridJ.value.neighbours(r.getInt(1)),r.getDouble(2),r.getDouble(3),r.getDouble(4)))
+    val neib=source
+      .map(r=>(r.getLong(0),gridJ.value.neighbours(r.getInt(1)),r.getDouble(2),r.getDouble(3),r.getDouble(4)))
     .toDF("id","neighbours","x_s","y_s","z_s")
 
   val dfn=neib.withColumn("ipix",F.explode($"neighbours")).drop("neighbours")

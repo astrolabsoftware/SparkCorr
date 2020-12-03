@@ -6,8 +6,8 @@ bin_max=250
 bin_type=log
 
 #bin range
-imin=5
-imax=10
+imin=11
+imax=19
 
 #tilingJ=cubedSphere
 tilingJ=SARSPix
@@ -15,5 +15,6 @@ tilingR=SARSPix
 
 # input data
 data1=/global/cscratch1/sd/plaszczy/tomo100M.parquet
+#data1=/global/homes/p/plaszczy/data/tomo100M.parquet
 ra_name=RA
 dec_name=DEC

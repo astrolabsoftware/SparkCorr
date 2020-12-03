@@ -67,15 +67,12 @@ object BenchPix {
     val conf =sc.getConf
 
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    conf.set("spark.kryoserializer.buffer", "4096")
-    //conf.set("spark.broadcast.blockSize","100")
-    //conf.set("spark.kryo.registrationRequired", "true")
-    conf.registerKryoClasses(Array(classOf[CubedSphere],classOf[SARSPix],classOf[HealpixGrid]))
 
 
     import spark.implicits._
 
     val timer=new Timer()
+    val startime=timer.step
 
     val griddriver = tile match {
       case "cs" => new CubedSphere(Nf)
@@ -85,52 +82,38 @@ object BenchPix {
     }
     val grid=sc.broadcast(griddriver)
 
-    //val grid=new CubedSphere(Nf)
-    //sc.broadcast(grid.pixcenter)
-
-    //as array
-    //val pixc:Array[ Array[Double] ]=grid.pixcenter.map{ case (t,f) => Array(t,f) case null=>null }
-    //val pixc:Array[(Double,Double)]=grid.pixcenter
-    //sc.broadcast(pixc)
-
     timer.step
     timer.print("grid creation")
 
-    def Ang2Pix=spark.udf.register("Ang2Pix",(theta:Double,phi:Double)=>grid.value.ang2pix(theta,phi))
-    val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> grid.value.pix2ang(ipix))
-    //val Pix2Ang=spark.udf.register("Pix2Ang",(ipix:Int)=> {val p=pixc(ipix); Array(p._1,p._2)})
-
-
-    var df=spark.range(0,N)
+    val df=spark.range(0,N)
       .withColumn("theta",F.acos(F.rand*2-1.0))
       .withColumn("phi",F.rand*2*Pi).drop("id")
 
     //add pixelnum
-    df=df.withColumn("ipix",Ang2Pix($"theta",$"phi"))
+   val df1=df.map(r=> grid.value.ang2pix(r.getDouble(0),r.getDouble(1))).toDF("ipix")
 
-    df.select(F.min($"ipix"),F.max($"ipix")).show()
-    timer.step
+    df1.select(F.min($"ipix"),F.max($"ipix")).show()
+    val t1=timer.step
     timer.print(s"ang2pix")
 
     //add pixel center
-    df=df.withColumn("ang",Pix2Ang($"ipix"))
-    df=df.withColumn("theta_c",$"ang"(0)).withColumn("phi_c",$"ang"(1)).drop("ang")
+    val df2=df1.map(r=>grid.value.pix2ang(r.getInt(0))).toDF("ang")
+      .withColumn("theta_c",$"ang"(0)).withColumn("phi_c",$"ang"(1)).drop("ang")
 
-    df.select(F.min($"theta_c"),F.min($"phi_c")).show()
+    df2.select(F.min($"theta_c"),F.min($"phi_c")).show()
 
-    timer.step
+    val t2=timer.step
     timer.print("pix2ang")
 
-    df=df.persist(MEMORY_ONLY)
+    val df3=df1.map(r=>grid.value.neighbours(r.getInt(0))).toDF("neib")
 
-    def Neighbours=spark.udf.register("pix_neighbours",(ipix:Int)=>grid.value.neighbours(ipix))
+    df3.select(F.size($"neib").as("size")).select(F.min($"size")).show
 
-    val dup=df.withColumn("neigbours",Neighbours($"ipix"))
-      .drop("ipix").withColumn("ipix",F.explode($"neigbours")).drop("neighbours").cache()
-
-    dup.select(F.min($"ipix"),F.max($"ipix")).show()
-    timer.step
+    val t3=timer.step
     timer.print(s"neighbours")
+
+    println(s"TOT time=${(t1+t2+t3)/60} mins")
+
 
 
   }

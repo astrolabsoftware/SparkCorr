@@ -29,7 +29,7 @@ p=getTimes(sys.argv[1])
 #p3=getTimes("tomo1G_0_1.dat")
 
 figure()
-ind=[0,3,6]
+ind=arange(p.index.size)*3 
 t1=p.ts.values
 t2=p.td.values
 t3=p['tj'].values+p['tb'].values
