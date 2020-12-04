@@ -242,6 +242,7 @@ class SARSPix(val nbase:Int) extends CubedSphere(nbase) {
 // companion
 object SARSPix extends CubedProps(0.82,1.1) {
 
+
   def main(args:Array[String]):Unit= {
     Locale.setDefault(Locale.US)
 

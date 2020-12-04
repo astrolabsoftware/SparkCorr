@@ -32,6 +32,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   val Npix:Long=6L*Nbase*Nbase
   val SIZE:Long=10L*Nbase*Nbase-4L
 
+  //equiangular
   val a=1/math.sqrt(3.0)
   val step=Pi/2/N
 
@@ -52,29 +53,25 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   /** get pixel centers 
   * output is a (theta,phi) tuple with 0<theta<pi, 0<phi<2pi
     */ 
- 
+
   //pure function
   override def pix2ang(ipix:Int):Array[Double]= {
     val (face,i,j)=pix2coord(ipix)
 
-     //equiangular
-    val alpha=Array.tabulate(N+1)(i=>i*step-Pi/4)
+    //local angles
+    val ai:Double=i*step-Pi/4
+    val aip1:Double=(i+1)*step-Pi/4
+    val aj:Double=j*step-Pi/4
+    val ajp1:Double=(j+1)*step-Pi/4
 
-    val (x1,y1)=(a*math.tan(alpha(i)),a*math.tan(alpha(j)))
-    val (x2,y2)=(a*math.tan(alpha(i+1)),a*math.tan(alpha(j)))
-    val (x3,y3)=(a*math.tan(alpha(i)),a*math.tan(alpha(j+1)))
-    val (x4,y4)=(a*math.tan(alpha(i+1)),a*math.tan(alpha(j+1)))
+    //local coordinates
+    val (x1,y1)=(a*math.tan(ai),a*math.tan(aj))
+    val (x2,y2)=(a*math.tan(aip1),a*math.tan(aj))
+    val (x3,y3)=(a*math.tan(ai),a*math.tan(ajp1))
+    val (x4,y4)=(a*math.tan(aip1),a*math.tan(ajp1))
 
-    /** project coordinates from face to unit sphere. index is the face */
-    val projector=new Array[(Double,Double)=>(Double,Double,Double)](6)
-    projector(0)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
-    projector(1)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
-    projector(2)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
-    projector(3)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(x/r,-a/r,y/r)}
-    projector(4)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
-    projector(5)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
 
-    val proj=projector(face)
+    val proj=CubedSphere.face2Sphere(face)
 
     val XYZ1=proj(x1,y1)
     val p1=new Point3D(XYZ1._1,XYZ1._2,XYZ1._3)
@@ -141,10 +138,10 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
     //protection
     val xx=math.max(-1.0,math.min(1.0,x))
     val yy=math.max(-1.0,math.min(1.0,y))
-    val alpha=math.atan(xx)
-    val beta=math.atan(yy)
-    val i:Int=math.floor((alpha+Pi/4)/step).toInt
-    val j:Int=math.floor((beta+Pi/4)/step).toInt
+    val a=math.atan(xx)
+    val b=math.atan(yy)
+    val i:Int=math.floor((a+Pi/4)/step).toInt
+    val j:Int=math.floor((b+Pi/4)/step).toInt
     (i,j)
   }
   
@@ -312,7 +309,18 @@ object CubedSphere extends CubedProps(0.77,1.26) {
   val ang2Local_y=ang2Local.map{
      case (f:Function2[Double,Double,(Double,Double)]) => (x:Double,y:Double)=> f(x,y)._2}
 
-   
+  val a=1/math.sqrt(3.0)
+
+
+    /** project cartesian coordinates from face to sphere. index is the face */
+    val face2Sphere=new Array[(Double,Double)=>(Double,Double,Double)](6)
+    face2Sphere(0)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y); (a/r,x/r,y/r)}
+    face2Sphere(1)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-x/r,a/r,y/r)}
+    face2Sphere(2)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-a/r,-x/r,y/r)}
+    face2Sphere(3)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(x/r,-a/r,y/r)}
+    face2Sphere(4)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(-y/r,x/r,a/r)}
+    face2Sphere(5)=(x,y)=>{val r=math.sqrt(a*a+x*x+y*y);(y/r,x/r,-a/r)}
+
 
   def main(args:Array[String]):Unit= {
 
