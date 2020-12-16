@@ -46,10 +46,11 @@ sphereMapper.SetInputConnection(sphereSource.GetOutputPort())
 sphereActor = vtk.vtkActor()
 sphereActor.SetMapper(sphereMapper)
 
-sphereActor.GetProperty().SetColor(0.9,0.9,0.9)
 #sphereActor.GetProperty().SetOpacity(0.1)
 #sphereActor.GetProperty().SetRepresentationToWireframe()
 
+sphereActor.GetProperty().SetColor(0.9,0.9,0.9)
+sphereActor.GetProperty().SetOpacity(0.1)
 
 ##3 tiling#############
 tiles=vtk.vtkAppendPolyData()
@@ -127,7 +128,7 @@ ren1 = vtk.vtkRenderer()
 
 #actors
 ren1.AddActor(cubeActor)
-#ren1.AddActor(sphereActor)
+ren1.AddActor(sphereActor)
 ren1.AddActor(tilesActor)
 ren1.AddActor(spikeActor)
 
