@@ -15,33 +15,74 @@
  */
 package com.sparkcorr.Tiling
 /**
-  * Abstract class from which all tilings of the (unit) sphere 
-  * should derive
-  *  angles convention: in radians 0<theta<Pi, 0<phi<2*Pi
+  * (Abstract) base class for all tilings of the unit sphere
+  *  There are 4 abstract functions to be implemented
+  * 
+  *  - pix2ang : from a pixel number determine the angles
+  * 
+  *  - ang2pix: from two angles dtermine the pixel number
+  * 
+  *  - neighbours : from a pixel number dtermine its neighbors indices
+  * 
+  *  - pixNums return the valid indices.
+  * 
+  *  All angles are in radians and 
+  *  follow the mathematical convention for spherical coordinates
+  *  ie. co-latiutde: 0<theta<Pi azimuth: 0<phi<2Pi
+  * 
+  * @author S. Plaszczynski
   */
-
 abstract class SphereTiling {
 
+  /**
+    * pixel index center
+    * 
+    * @param ipix pixel index
+    * @return size 2 Array of angles [theta,phi] (see header for conventions)  
+    */
   def pix2ang(ipix:Int):Array[Double]
+
+
+  /**
+    * pixel number according to angles
+    * 
+    * @param theta colatitude (0<theta<Pi)
+    * @param phi azimuth (0<phi<Pi)
+    * @return pixel index
+    */
   def ang2pix(theta:Double,phi:Double):Int
 
-  //neighbours index array
+  /** neighbours index array
+    * 
+    * @param ipix pixel index
+    * @return Array of pixel indices (variable size)
+    */
   def neighbours(ipix:Int):Array[Int]
 
 
-  //fixed size 8 array adding -1 if no : assumes 7 pixels min
+  /**
+    *  automatic translation to 8 neighbouring indices 
+    *  putting -1 if there is less.
+    * 
+    *  undefined behaviour if more than 8
+    */
   def neighbours8(ipix:Int):Array[Int]= {
     val a=neighbours(ipix)
     if (a.size==8) a else a:+ -1
   }
 
-  //list of valid pixel indices
+  /** list of valid pixel indices
+    * 
+    * @return an indexedseq of indices
+    */
   def pixNums:IndexedSeq[Int]
 
+  /** resolution parameter */
   val Nbase:Int
+  /** number of pixels */
   val Npix:Long
 
-  //size of the array holding pixels
+  /** size of the array holding pixels*/
   val SIZE:Long
 
 }
