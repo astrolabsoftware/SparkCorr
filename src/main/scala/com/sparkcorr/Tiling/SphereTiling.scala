@@ -30,7 +30,8 @@ package com.sparkcorr.Tiling
   *  follow the mathematical convention for spherical coordinates
   *  ie. co-latiutde: 0<theta<Pi azimuth: 0<phi<2Pi
   * 
-  * @author S. Plaszczynski
+  * @author Stephane Plaszczynski
+  * 
   */
 abstract class SphereTiling {
 
@@ -44,7 +45,7 @@ abstract class SphereTiling {
 
 
   /**
-    * pixel number according to angles
+    * pixel index for these angles
     * 
     * @param theta colatitude (0<theta<Pi)
     * @param phi azimuth (0<phi<Pi)
