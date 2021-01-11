@@ -15,7 +15,7 @@
  */
 package com.sparkcorr.Tiling
 /**
-  * (Abstract) base class for all tilings of the unit sphere
+  * (Abstract) base class for all tilings on the unit sphere
   *  There are 4 abstract functions to be implemented
   * 
   *  - pix2ang : from a pixel number determine the angles

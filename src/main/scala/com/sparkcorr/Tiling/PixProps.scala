@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 package com.sparkcorr.Tiling
-
+/**
+  * Abstract class to encapulate pixelization properties
+  * 
+  *  @author Stephane Plaszczynski
+  */
 abstract class PixProps {
 
+  /** number of pixels
+    */
   def Npix(nbase:Int):Long
-
-   //N below which all pix radius are greater than R
-  //R in arcmin
-
+  /**
+    *  Nbase below which all pixel radii are greater than R
+    */
   def pixRadiusGt(R:Double):Int
-  //N above which all pixels have radii lower than R
-  //R in arcmin
+  /** 
+    * Nbase above which all pixels have radii lower than R
+    */
   def pixRadiusLt(R:Double):Int
 
 }

@@ -60,18 +60,35 @@ class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends SphereTiling with
   val SIZE=Npix
 }
 
-
+/**
+  * Implementation of pixel properties for the Healpix tiling 
+  * 
+  *  @constructor creates a dedicated PixProps for Healpix
+  *  @param Rin inner radius in arcmin
+  *  @param Rout outer radius in arcmin
+  *  
+  *  @see [[https://arxiv.org/abs/2012.08455]] for inner/outer radii
+  */
 class HealpixProps(val Rin:Double,val Rout:Double)  extends PixProps {
-  //N below which all pix radius are greater than R
-  //R in arcmin
+  /**
+    * nside below which all pixel radii are greater than R
+  
+    *  @param R radius in arcmin
+    */
   def pixRadiusGt(R:Double):Int = {
     val Nsq:Double=toDegrees(sqrt(Pi/12)/R)*60
     val N:Int=floor(log(Nsq*Rin)/log(2.0)).toInt
     val nside=1<<N
     nside
   }
+
   //N above which all pixels have radii lower than R
   //R in arcmin
+  /**
+    * nside above which all pixel radii are lower than R
+  
+    *  @param R radius in arcmin
+    */
   def pixRadiusLt(R:Double):Int = {
     val Nsq=toDegrees(sqrt(Pi/6)/R)*60
     val N=ceil(log(Nsq*Rout)/log(2.0)).toInt
@@ -79,13 +96,17 @@ class HealpixProps(val Rin:Double,val Rout:Double)  extends PixProps {
     nside
   }
 
+  /**
+    * number of pixels
+    */
   def Npix(nside:Int):Long=12L*nside*nside
 
 }
 
-/** companion for simple factory creation */
+/**
+  * companion object for simple factory creation 
+  */
 object HealpixGrid extends HealpixProps(0.65,1.48) {
-
   /** most simple way for creating a Healpix tiling
     * 
     * @param nside healpix resolution
