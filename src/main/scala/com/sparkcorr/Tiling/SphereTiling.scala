@@ -42,8 +42,6 @@ abstract class SphereTiling {
     * @return size 2 Array of angles [theta,phi] (see header for conventions)  
     */
   def pix2ang(ipix:Int):Array[Double]
-
-
   /**
     * pixel index for these angles
     * 
@@ -52,15 +50,12 @@ abstract class SphereTiling {
     * @return pixel index
     */
   def ang2pix(theta:Double,phi:Double):Int
-
   /** neighbours index array
     * 
     * @param ipix pixel index
     * @return Array of pixel indices (variable size)
     */
   def neighbours(ipix:Int):Array[Int]
-
-
   /**
     *  automatic translation to 8 neighbouring indices 
     *  putting -1 if there is less.

@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 package com.sparkcorr.Tiling
-
-/**
-  *  encapsulation of some healpix functions within SphereTiling abstract class
-  * 
-  */
-
 import healpix.essentials.HealpixBase
 import healpix.essentials.Pointing
 import healpix.essentials.Vec3
@@ -30,8 +24,11 @@ import scala.math.{log,toDegrees,floor,ceil,Pi,sqrt}
 /** Add serialization to external Pointing objects*/
 class ExtPointing extends Pointing with java.io.Serializable
 
-/** Basic object calling java Healpix functions */
-
+/**
+  *  encapsulation of some healpix functions within SphereTiling abstract class
+  * 
+  * @author S.Plaszczynski and J.Peloton
+  */
 class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends SphereTiling with Serializable{
 
    override def pixNums:IndexedSeq[Int]=
