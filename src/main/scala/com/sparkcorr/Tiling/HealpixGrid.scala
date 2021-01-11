@@ -15,6 +15,10 @@
  */
 package com.sparkcorr.Tiling
 
+/**
+  *  encapsulation of some healpix functions within SphereTiling abstract class
+  * 
+  */
 
 import healpix.essentials.HealpixBase
 import healpix.essentials.Pointing
@@ -22,8 +26,11 @@ import healpix.essentials.Vec3
 import healpix.essentials.Scheme
 import scala.math.{log,toDegrees,floor,ceil,Pi,sqrt}
 
+
+/** Add serialization to external Pointing objects*/
 class ExtPointing extends Pointing with java.io.Serializable
 
+/** Basic object calling java Healpix functions */
 
 class HealpixGrid(hp : HealpixBase, ptg : ExtPointing) extends SphereTiling with Serializable{
 
@@ -76,9 +83,16 @@ class HealpixProps(val Rin:Double,val Rout:Double)  extends PixProps {
 
 }
 
-//companion for simple factory
+/** companion for simple factory creation */
 object HealpixGrid extends HealpixProps(0.65,1.48) {
 
+  /** most simple way for creating a Healpix tiling
+    * 
+    * @param nside healpix resolution
+    * @param sch healpix scheme, ie RING or NESTED
+    * 
+    *  @example val grid=HealpixGrid(1024, healpix.essentials.Scheme.NESTED)
+    */
   def apply(nside:Long,sch:Scheme)=new HealpixGrid(new HealpixBase(nside, sch), new ExtPointing)
 
 
