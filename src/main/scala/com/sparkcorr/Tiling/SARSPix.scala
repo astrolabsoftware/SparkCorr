@@ -20,8 +20,6 @@ import com.sparkcorr.Geometry.{Point,Point3D}
 import scala.math.{Pi,sqrt,cos,sin,acos,toDegrees,abs,floor,ceil}
 import scala.collection.mutable.ArrayBuffer
 
-import org.apache.log4j.{Level, Logger}
-
 import java.io._
 import java.util.Locale
 
@@ -309,9 +307,6 @@ object SARSPix extends CubedProps(0.82,1.1) {
     }
 
 
-   // Set verbosity
-    Logger.getLogger("org").setLevel(Level.WARN)
-    Logger.getLogger("akka").setLevel(Level.WARN)
     Locale.setDefault(Locale.US)
 
     val N=args(0).toInt

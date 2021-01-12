@@ -18,7 +18,12 @@ package com.sparkcorr.Tiling
 
 import scala.math.{Pi,sqrt,ceil,floor,toDegrees}
 
-
+/** Properties for the Cubed Sphere (and derived) pixelization 
+  *  @constructor minimal inner and maximal outer radii
+  *  @param Rin minimal inner radius in arcmin
+  *  @param Rout maximal outer radius in arcmin
+  *  @see [[https://arxiv.org/abs/2012.08455]] for values for [[CubedSphere]] and [[SARSPix]]
+  */
 class CubedProps(val Rin:Double, val Rout:Double) extends PixProps{
 
   //N below which all pix radius are greater than R

@@ -25,7 +25,7 @@ import scala.math.{log,toDegrees,floor,ceil,Pi,sqrt}
 class ExtPointing extends Pointing with java.io.Serializable
 
 /**
-  *  encapsulation of some healpix functions within SphereTiling abstract class
+  *  Encapsulation of some healpix functions within [[SphereTiling]] abstract class
   * 
   * @author S.Plaszczynski and J.Peloton
   */

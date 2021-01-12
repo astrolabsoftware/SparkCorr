@@ -22,7 +22,6 @@ import scala.math.{Pi,sqrt,toRadians,ceil,floor,toDegrees,abs}
 
 import scala.util.Random
 
-import org.apache.log4j.{Level, Logger}
 import java.io._
 import java.util.Locale
 /**
@@ -350,9 +349,6 @@ object CubedSphere extends CubedProps(0.77,1.26) {
     }
 
 
-   // Set verbosity
-    Logger.getLogger("org").setLevel(Level.WARN)
-    Logger.getLogger("akka").setLevel(Level.WARN)
     Locale.setDefault(Locale.US)
 
     val N=args(0).toInt
