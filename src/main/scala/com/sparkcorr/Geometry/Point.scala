@@ -32,6 +32,7 @@ import scala.math
   *  val sum=p+p2
   *  print(sum/10)
   *  }}}
+  *  @author Stephane Plaszczynski
   */
 class Point (val coord:List[Double]){
 
@@ -92,7 +93,7 @@ class Point (val coord:List[Double]){
   *  val p=Point(1,2,3)
   *  val pnorm=new Point3D(p/p.norm)
   *  val (r,theta,phi)=pnorm.toAngle()
-  *  print(r,p.x) 
+  *  print(r,pnorm.x) 
   *  }}}
   */
 class Point3D(val x:Double,val y:Double,val z:Double) extends Point(x::y::z::Nil) {
