@@ -60,7 +60,15 @@ import java.util.Locale
   * 
   *  There are 6 Nbase^2^ pixels per face and 6 Nbase^2^ 
   *  pixels on the entire sphere
-
+  * 
+  *  @example {{{
+  *  val c=new SARSPix(10)
+  *  for (ipix<-c.pixNums) {
+  *      val Array(theta,phi)=c.pix2ang(ipix)
+  *      val ipixb=c.ang2pix(theta,phi)
+  *      require(ipix==ipixb)
+  *  }
+  *  }}}
   *  @constructor creates SARSpix tiling with resolution nbase
   *  @param nbase Number of points on one face in one dimension (even number)
   *  @note [[https://arxiv.org/abs/2012.08455]]
