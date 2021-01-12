@@ -15,7 +15,7 @@
  */
 package com.sparkcorr.Tiling
 
-import com.sparkcorr.Geometry.{Point,Point3D,arr2}
+import com.sparkcorr.Geometry.{Point,Point3D}
 
 import scala.math
 import scala.math.{Pi,sqrt,toRadians,ceil,floor,toDegrees,abs}
@@ -39,30 +39,33 @@ import java.util.Locale
   * 
   * @note [[https://arxiv.org/abs/2012.08455]]
   * @constructor creates cubedsphere tiling with resolution Nbase
-  * @param Nbase Number of points on a face in one dimension (even number)
-  *  there are 6 Nbase^2^
-  *  pixels per cube face and 6Nbase^2^ 
+  * @param Nbase Number of points on a face in one dimension (even number).
+  *  There are 6 Nbase^2^ pixels per face and 6 Nbase^2^ 
   *  pixels over the sphere
   * 
-  *  @inheritdoc
   *  @author Stephane Plaszczynski
   */
 class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
   /** shorthand for Nbase */
-  val N:Int=Nbase
+  protected val N:Int=Nbase
+
   val Npix:Long=6L*Nbase*Nbase
-  val SIZE:Long=10L*Nbase*Nbase-4L
+
+  /** Largest possible index of the pixelization . 
+    * Do not use to access data. use [[CubedSphere.pixNums]] instead
+    */
+  val maxIndex:Long=10L*Nbase*Nbase-4L
 
   /** convenience for 1/sqrt(3) */
-  val a=1/math.sqrt(3.0)
+  private val a=1/math.sqrt(3.0)
   /** step for the face binning */
-  val step=Pi/2/N
+  private val step=Pi/2/N
 
   override def pixNums:IndexedSeq[Int]=
     for {f <- 0 to 5; i<-0 until N; j<-0 until N} yield coord2pix(f,i,j)
 
-  /**transformation from local coordinates to pixel number */
+  /**transformation from local CubedSphere coordinates to pixel number */
   def coord2pix(f:Int,i:Int,j:Int):Int= (i*N+j)*10+f
 
   /**transformation from pixel number to local coordinates*/

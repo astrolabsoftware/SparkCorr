@@ -15,7 +15,7 @@
  */
 package com.sparkcorr.Tiling
 
-import com.sparkcorr.Geometry.{Point,Point3D,arr2}
+import com.sparkcorr.Geometry.{Point,Point3D}
 
 import scala.math.{Pi,sqrt,cos,sin,acos,toDegrees,abs,floor,ceil}
 import scala.collection.mutable.ArrayBuffer
@@ -25,14 +25,54 @@ import org.apache.log4j.{Level, Logger}
 import java.io._
 import java.util.Locale
 
+/** 
+  * =The SimilAr Radius Sphere pixelization=
+  *
+  *  based on [[doc/partioningSphere.pdf]]
+  *  This is not the full construction but the one described at the very
+  *  beginning of section 3.3.
+  * 
+  *  It relies on the projection of the faces of an inscribed cube that
+  *  are further subdivided into 4 quadrants. 
+  *  Althought not having exact same areas pixels have quite compact
+  *  inner and outer radii (see note).
+  * 
+  *  The face numbering convention is the following : 
+  *  - 0 for x=1 plane, 
+  *  - 1 for y=1 plane
+  *  - 2 for x=-1
+  *  - 3 for y=-1
+  *  - 4 for z=1 (top) 
+  *  - 5 for z=-1 (bottom).
+  * 
+  *  The quadrant numbering convention (on face 0) is
+  * {{{
+  *  | 2 | 0 |
+  *  |---|---|
+  *  | 3 | 1 |
+  *  }}}
+  * 
+  *  - The ``local index`` is in the form (face,quadrant,i,j) where face is in [0,5] , 
+  *  quadrant in [0,3] and (i,j) in [0,Nbase/2-1]
+  *  - The ``face index`` is the [[CubedSphere]] one in the form (face,I,J)
+  *  - ```(theta,phi)``` angles on the sphere are in radians in 
+  *  classical spherical conventions, ie. 0<theta<Pi and 0<phi<2Pi
+  * 
+  *  There are 6 Nbase^2^ pixels per face and 6 Nbase^2^ 
+  *  pixels on the entire sphere
 
+  *  @constructor creates SARSpix tiling with resolution nbase
+  *  @param nbase Number of points on one face in one dimension (even number)
+  *  @note [[https://arxiv.org/abs/2012.08455]]
+  *  @author Stephane Plaszczynski
+  */
 class SARSPix(val nbase:Int) extends CubedSphere(nbase) {
 
 
   require(nbase%2==0,"nside for SARS must be even")
 
 
-  // convert face (I,J) coordinates to local (q,i,j) ones
+  /** convert face (I,J) coordinates to local (q,i,j) ones for nodes numbers*/
   def face2localNodeIndex(I:Int,J:Int):(Int,Int,Int)={
     if (J<=N/2)
         if (I<=N/2) (3,N/2-I,N/2-J) else (1,I-N/2,N/2-J)
@@ -40,6 +80,7 @@ class SARSPix(val nbase:Int) extends CubedSphere(nbase) {
         if (I<=N/2) (2,N/2-I,J-N/2) else (0,I-N/2,J-N/2)
   }
 
+  /** convert face (I,J) coordinates to local (q,i,j) ones for bin numbers*/
   def face2localBinIndex(I:Int,J:Int):(Int,Int,Int)={
     if (J<=N/2-1)
         if (I<=N/2-1) (3,N/2-1-I,N/2-1-J) else (1,I-N/2,N/2-J-1)
@@ -48,7 +89,7 @@ class SARSPix(val nbase:Int) extends CubedSphere(nbase) {
   }
 
 
-  // convert local (q,i,j) coordinates to face ones (I,J)
+  /** convert local (q,i,j) coordinates to face ones (I,J) for nodes*/
   def local2faceNodeIndex(q:Int,i:Int,j:Int):(Int,Int)= q match {
     case 0 => (i+N/2,j+N/2)
     case 1 => (i+N/2,N/2-j)
@@ -56,7 +97,7 @@ class SARSPix(val nbase:Int) extends CubedSphere(nbase) {
     case 3 => (N/2-i,N/2-j)
   }
 
-  //same for bin number
+  /** convert local (q,i,j) coordinates to face ones (I,J) for bin numbers*/
   def local2faceBinIndex(q:Int,i:Int,j:Int):(Int,Int)= q match {
     case 3 => (N/2-1-i,N/2-1-j)
     case 1 => (N/2+i,N/2-1-j)
@@ -64,6 +105,7 @@ class SARSPix(val nbase:Int) extends CubedSphere(nbase) {
     case 0 => (i+N/2,j+N/2)
   }
 
+  /** get quadrant number from point p and face*/
   def getQuadrant(face:Int,p:Point3D):Int={
     val (x,y,z)=(p.x,p.y,p.z)
     // switch to face 0
@@ -80,14 +122,18 @@ class SARSPix(val nbase:Int) extends CubedSphere(nbase) {
     (z0<0)*(1<<0)+(y0<0)*(1<<1)
   }
 
-
+  /**
+    *  get face and quadrant numbers for point p
+    */
   def getFaceQuadrant(p:Point3D):(Int,Int)={
     val face:Int=getFace(p)
     val q:Int=getQuadrant(face,p)
     (face,q)
   }
 
-  //returns local coordinates (f,q,i,j)
+  /**
+    *  get local coordinates (f,q,i,j) for point p
+    */
   def getLocalIndex(p:Point3D):(Int,Int,Int,Int)={
 
     val (x,y,z)=(p.x,p.y,p.z)
@@ -147,7 +193,7 @@ class SARSPix(val nbase:Int) extends CubedSphere(nbase) {
   }
 
   //local point on face 0
-  def getNode0(q:Int,itry:Int,jtry:Int):Point3D={
+  private def getNode0(q:Int,itry:Int,jtry:Int):Point3D={
   
     if (itry==0 & jtry==0) {
       val p0=new Point3D(Pi/2,0.0)

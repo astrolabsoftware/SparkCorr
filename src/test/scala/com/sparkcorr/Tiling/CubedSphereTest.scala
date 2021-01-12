@@ -107,7 +107,7 @@ class CubedSphereTest extends FunSuite with BeforeAndAfter {
       assert(face>=0 & face<=5,s"\n fail face=$face")
       val (x,y)=CubedSphere.ang2Local(face)(t,p)
       val (i,j)=c.ang2LocalIndex(face,t,p)
-      assert((i>= 0) & (i< c.N) & (j>=0) & (j< c.N) ,s"\n fail f=$face i=$i j=$j")
+      assert((i>= 0) & (i< c.Nbase) & (j>=0) & (j< c.Nbase) ,s"\n fail f=$face i=$i j=$j")
     }
 
   }

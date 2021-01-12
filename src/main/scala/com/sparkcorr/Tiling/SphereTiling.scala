@@ -82,7 +82,4 @@ abstract class SphereTiling {
   /** number of pixels */
   val Npix:Long
 
-  /** size of the array holding pixels*/
-  val SIZE:Long
-
 }

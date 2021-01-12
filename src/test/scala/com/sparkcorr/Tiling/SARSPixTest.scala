@@ -76,8 +76,8 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
 
 
   test("face2localIndex + local2faceIndex") {
-    for (I <- 0 until c.N) {
-      for (J <- 0 until c.N) {
+    for (I <- 0 until c.Nbase) {
+      for (J <- 0 until c.Nbase) {
         val (q,i,j)=c.face2localBinIndex(I,J)
         assert(c.local2faceBinIndex(q,i,j)==(I,J))
       }
@@ -91,7 +91,7 @@ class SARSPixTest extends FunSuite with BeforeAndAfter {
 
     for (t<-tet;p<-phi){
       val ipix=c.ang2pix(t,p)
-      assert(ipix>=0 & ipix<c.SIZE)
+      assert(ipix>=0 & ipix<c.maxIndex)
     }
 
   }
