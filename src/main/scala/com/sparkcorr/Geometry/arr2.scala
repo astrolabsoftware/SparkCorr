@@ -16,16 +16,32 @@
 package com.sparkcorr.Geometry
 
 
-//@ val projector=Map[Int,(Double,Double)=>(Double,Double,Double)]() 
 
-//* a utility for 2D squared arrays of objects*/
-
+/** Utility class for a 2D squared array of same type objects
+  *  @constructor create a NxN matrix of type A objects
+  *  @param N size in one dimension (the other is automatically the same)
+  *  @example {{{
+  *  // some object:
+  *  case class Point(x:Double,y:Double,z:Double)
+  *  p1=Point(1,2,3)
+  *  // here is the arr2:
+  *  val a=arr2[Point](5)
+  *  // enter the matrix (note: do not need double parenthesis)
+  *  a(0,0)=p1
+  *  // access the element
+  *  print(a(0,0))
+  *  }}}
+  *  @author Stephane Plaszczynski
+*/
 class arr2[A: Manifest](N:Int) extends Serializable {
   val size=N
+  /** the actual stored array */
   val a=Array.ofDim[A](N,N)
 
-  //rw elements with parentheses
+  /** read elements with single parenthesis, as `print(a(0,0))` */
   def apply(i:Int,j:Int):A=a(i)(j)
+
+  /** write  elements with single parenthesis, as `a(0,0)=2` */
   def update(i:Int,j:Int,v:A)=a(i)(j)=v
 
 }

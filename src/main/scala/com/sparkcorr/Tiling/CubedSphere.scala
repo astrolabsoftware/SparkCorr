@@ -26,20 +26,19 @@ import org.apache.log4j.{Level, Logger}
 import java.io._
 import java.util.Locale
 /**
-  * class that implements the cubed sphere tiling with equiangular nodes
+  * Class that implements the cubed sphere tiling with equiangular nodes
   * 
-  * Local coordinates are in the form (face,i,j) 
-  *  with 0<face<5 and (i,j) in [0,Nbase-1]
+  *  - Local coordinates are in the form (face,i,j) with 0<face<5 and (i,j) in [0,Nbase-1]
   * 
-  *  Face numbering convention is that 0 is on the x=1 plane, 
-  *  the next 3 ones are azimuthal rotations,
+  *  - Face numbering convention : 0 is on the x=1 plane, 
+  *  then the next 3 ones are in direct azimuthal rotations,
   *  face 4 is the on top and 5 the bottom.
   *  
-  *  (theta,phi) angles on the sphere are in 
-  *  classical spherical coordinates, ie. 0<theta<Pi and 0<phi<2Pi
+  *  - (theta,phi) angles on the sphere are in radians with  
+  *  classical spherical conventions, ie. 0<theta<Pi and 0<phi<2Pi
   * 
   * @note [[https://arxiv.org/abs/2012.08455]]
-  * @constructor creates cubedsphere tiling
+  * @constructor creates cubedsphere tiling with resolution Nbase
   * @param Nbase Number of points on a face in one dimension (even number)
   *  there are 6 Nbase^2^
   *  pixels per cube face and 6Nbase^2^ 
@@ -60,19 +59,13 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   /** step for the face binning */
   val step=Pi/2/N
 
-
-  /** valid pixel numbers.
-    * 
-    * not contiguous (do not assume it is in the [0,6N^2-1] range, it is not)
-    * you should access the valid indices with the following function
-    */
   override def pixNums:IndexedSeq[Int]=
     for {f <- 0 to 5; i<-0 until N; j<-0 until N} yield coord2pix(f,i,j)
 
-  /**transformationm from local coordinates to pixel number */
+  /**transformation from local coordinates to pixel number */
   def coord2pix(f:Int,i:Int,j:Int):Int= (i*N+j)*10+f
 
-  /**transformationm from pixel number to local coordinates*/
+  /**transformation from pixel number to local coordinates*/
   def pix2coord(ipix:Int):(Int,Int,Int)= { val ij=ipix/10; (ipix%10,ij/N,ij%N)}
 
   /** check pixel number is valid*/
@@ -121,11 +114,6 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   }
 
 
-
-  /** find pixel number corresponding to a given direction 
-    *  for the equal angle case
-    *  use classical spherical coordinates, ie. 0<theta<Pi and 0<phi<2Pi
-    */
   override def ang2pix(theta:Double,phi:Double):Int = {
     val face:Int=getFace(theta,phi)
     val (i,j)=ang2LocalIndex(face,theta,phi)
@@ -134,7 +122,6 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   }
 
   /** get face number from angles */
-
   def getFace(theta:Double,phi:Double):Int={
     val testface=((phi+Pi/4)%(2*Pi)/(Pi/2)).toInt
     val y=CubedSphere.ang2Local_y(testface)(theta,phi)
@@ -145,7 +132,7 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
 
   }
 
-  // this is FP!
+  /** get face number from Point on the sphere */
   def getFace(p:Point3D):Int={
     p.coord.zip(List((0,2),(1,3),(4,5))).foldLeft((0.0,0))( (acc,x)=> {val v =abs(x._1)
       if (v>acc._1)
@@ -171,7 +158,6 @@ class CubedSphere(val Nbase:Int) extends SphereTiling with Serializable {
   
 
 
-  /** get the pixel neighbors (generally 8 sometimes 7) */
   override def neighbours(ipix:Int):Array[Int]={
     val (f:Int,i:Int,j:Int)=pix2coord(ipix)
 

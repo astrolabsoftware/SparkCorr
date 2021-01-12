@@ -27,7 +27,7 @@ package com.sparkcorr.Tiling
   *  - pixNums return the valid indices.
   * 
   *  All angles are in radians and 
-  *  follow the mathematical convention for spherical coordinates
+  *  follow the mathematical convention for classical spherical coordinates
   *  ie. co-latiutde: 0<theta<Pi azimuth: 0<phi<2Pi
   * 
   * @author Stephane Plaszczynski
@@ -36,38 +36,42 @@ package com.sparkcorr.Tiling
 abstract class SphereTiling {
 
   /**
-    * pixel index center
+    * pixel center angles for a given index
     * 
     * @param ipix pixel index
     * @return size 2 Array of angles [theta,phi] (see header for conventions)  
     */
   def pix2ang(ipix:Int):Array[Double]
+
   /**
-    * pixel index for these angles
+    * pixel index from angles on the sphere
     * 
     * @param theta colatitude (0<theta<Pi)
-    * @param phi azimuth (0<phi<Pi)
+    * @param phi azimuth (0<phi<2Pi)
     * @return pixel index
     */
   def ang2pix(theta:Double,phi:Double):Int
-  /** neighbours index array
+
+  /** List of neighbour indices
     * 
     * @param ipix pixel index
     * @return Array of pixel indices (variable size)
     */
   def neighbours(ipix:Int):Array[Int]
+
   /**
     *  automatic translation to 8 neighbouring indices 
     *  putting -1 if there is less.
     * 
     *  undefined behaviour if more than 8
+    *  @deprecated
     */
   def neighbours8(ipix:Int):Array[Int]= {
     val a=neighbours(ipix)
     if (a.size==8) a else a:+ -1
   }
 
-  /** list of valid pixel indices
+  /** list of valid pixel indices for this pixelization (do not assume it is contiguous)
     * 
     * @return an indexedseq of indices
     */
