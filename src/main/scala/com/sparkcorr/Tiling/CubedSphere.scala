@@ -25,7 +25,8 @@ import scala.util.Random
 import java.io._
 import java.util.Locale
 /**
-  * Class that implements the cubed sphere tiling with equiangular nodes
+  *  =CubedSphere=
+  * Cubed sphere tiling of the sphere with equiangular nodes
   * 
   *  - Local coordinates are in the form (face,i,j) with 0<face<5 and (i,j) in [0,Nbase-1]
   * 
@@ -36,11 +37,14 @@ import java.util.Locale
   *  - (theta,phi) angles on the sphere are in radians with  
   *  classical spherical conventions, ie. 0<theta<Pi and 0<phi<2Pi
   * 
+  *   
+  *  There are Nbase^2^ pixels per face and 6 Nbase^2^ 
+  *  pixels over the sphere. 
+  *  Nbase is an integer but more robusts results are obtained with even values.
+  * 
   * @note [[https://arxiv.org/abs/2012.08455]]
   * @constructor creates cubedsphere tiling with resolution Nbase
   * @param Nbase Number of points on a face in one dimension (even number).
-  *  There are 6 Nbase^2^ pixels per face and 6 Nbase^2^ 
-  *  pixels over the sphere
   * 
   *  @author Stephane Plaszczynski
   */
