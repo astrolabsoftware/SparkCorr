@@ -26,7 +26,7 @@ import java.util.Locale
 /** 
   * =The SimilAr Radius Sphere pixelization=
   *
-  *  based on [[doc/partioningSphere.pdf]]
+  *  based on [[partioningSphere.pdf]]
   *  This is not the full construction but the one described at the very
   *  beginning of section 3.3.
   * 

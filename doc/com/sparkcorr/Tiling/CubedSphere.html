@@ -1,0 +1,829 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>CubedSphere - com.sparkcorr.Tiling.CubedSphere</title>
+          <meta name="description" content="CubedSphere - com.sparkcorr.Tiling.CubedSphere" />
+          <meta name="keywords" content="CubedSphere com.sparkcorr.Tiling.CubedSphere" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      <script type="text/javascript" src="../../../lib/modernizr.custom.js"></script><script type="text/javascript" src="../../../lib/diagrams.js" id="diagrams-js"></script>
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'com.sparkcorr.Tiling.CubedSphere';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <a href="CubedSphere$.html" title="See companion object"><img alt="Class/Object" src="../../../lib/class_to_object_big.png" /></a>
+        <p id="owner"><a href="../../package.html" class="extype" name="com">com</a>.<a href="../package.html" class="extype" name="com.sparkcorr">sparkcorr</a>.<a href="package.html" class="extype" name="com.sparkcorr.Tiling">Tiling</a></p>
+        <h1><a href="CubedSphere$.html" title="See companion object">CubedSphere</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="CubedSphere$.html" title="See companion object">object CubedSphere</a>
+            | <a href="package.html" class="extype" name="com.sparkcorr.Tiling">package Tiling</a>
+          </div></span></h3><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">CubedSphere</span><span class="result"> extends <a href="SphereTiling.html" class="extype" name="com.sparkcorr.Tiling.SphereTiling">SphereTiling</a> with <span class="extype" name="java.io.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><h3>CubedSphere</h3><p>Cubed sphere tiling of the sphere with equiangular nodes</p><ul><li>Local coordinates are in the form (face,i,j) with 0&lt;face&lt;5 and (i,j) in [0,Nbase-1]</li><li>Face numbering convention : 0 is on the x=1 plane,
+ then the next 3 ones are in direct azimuthal rotations,
+ face 4 is the on top and 5 the bottom.</li><li>(theta,phi) angles on the sphere are in radians with
+ classical spherical conventions, ie. 0&lt;theta&lt;Pi and 0&lt;phi&lt;2Pi</li></ul><p> There are Nbase<sup>2</sup> pixels per face and 6 Nbase<sup>2</sup>
+ pixels over the sphere.
+ Nbase is an integer but more robusts results are obtained with even values.
+</p></div><div class="comment cmt">
+        <h6>Author:</h6>
+        <p>Stephane Plaszczynski</p>
+      </div><dl class="attributes block"> <dt>Note</dt><dd><span class="cmt"><p><a href="https://arxiv.org/abs/2012.08455" target="_blank">https://arxiv.org/abs/2012.08455</a></p></span></dd></dl><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="java.io.Serializable">Serializable</span>, <a href="SphereTiling.html" class="extype" name="com.sparkcorr.Tiling.SphereTiling">SphereTiling</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block">
+            <span class="toggle">Known Subclasses</span>
+            <div class="subClasses hiddenContent"><a href="SARSPix.html" class="extype" name="com.sparkcorr.Tiling.SARSPix">SARSPix</a></div>
+          </div><div class="toggleContainer block diagram-container" id="inheritance-diagram-container">
+                <span class="toggle diagram-link">Type Hierarchy</span>
+                <div class="diagram" id="inheritance-diagram"><svg class="class-diagram" id="graph1" viewBox="0.00 0.00 220.00 155.00" height="155pt" width="220pt" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><g transform="scale(1 1) rotate(0) translate(4 151)" class="graph" id="page0,1_graph0"><polygon points="-4,4 -4,-151 216,-151 216,4 -4,4" stroke="transparent" fill="white"></polygon><g class="cluster" id="clust1"></g><g class="cluster" id="clust2"></g><!-- node0 --><g class="node this class" id="graph1_0"><g id="a_this class|graph1_0"><a xlink:title="com.sparkcorr.Tiling.CubedSphere (this class)" xlink:href="#inheritance-diagram"><polygon points="158.5,-86 54.5,-86 54.5,-61 158.5,-61 158.5,-86" stroke="#115f3b" fill="#0a955b"></polygon><image xlink:href="../../../lib/class_diagram.png" y="-80.5" x="64.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-70.5" x="85.5" text-anchor="start">CubedSphere</text></a></g></g><!-- node1 --><g class="node class" id="graph1_1"><g id="a_class|graph1_1"><a xlink:title="com.sparkcorr.Tiling.SARSPix" xlink:href="SARSPix.html#inheritance-diagram"><polygon points="150,-25 63,-25 63,0 150,0 150,-25" stroke="#115f3b" fill="#0a955b"></polygon><image xlink:href="../../../lib/class_diagram.png" y="-19.5" x="73.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-9.5" x="94.5" text-anchor="start">SARSPix</text></a></g></g><!-- node0&#45;&gt;node1 --><g class="edge inheritance" id="graph1_0_1"><g id="a_inheritance|graph1_0_1"><a xlink:title="SARSPix is a subtype of CubedSphere"><path d="M106.5,-55.69C106.5,-45.92 106.5,-33.85 106.5,-25.13" stroke="#d4d4d4" fill="none"></path><polygon points="104.75,-55.84 106.5,-60.84 108.25,-55.84 104.75,-55.84" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node2 --><g class="node class" id="graph1_2"><g id="a_class|graph1_2"><a xlink:title="com.sparkcorr.Tiling.SphereTiling" xlink:href="SphereTiling.html#inheritance-diagram"><polygon points="99,-147 0,-147 0,-122 99,-122 99,-147" stroke="#115f3b" fill="#0a955b"></polygon><image xlink:href="../../../lib/class_diagram.png" y="-141.5" x="10.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-131.5" x="31.5" text-anchor="start">SphereTiling</text></a></g></g><!-- node2&#45;&gt;node0 --><g class="edge inheritance" id="graph1_2_0"><g id="a_inheritance|graph1_2_0"><a xlink:title="CubedSphere is a subtype of SphereTiling"><path d="M64.45,-118.03C74.1,-108.04 86.45,-95.26 95.26,-86.13" stroke="#d4d4d4" fill="none"></path><polygon points="62.98,-117.03 60.76,-121.84 65.49,-119.46 62.98,-117.03" stroke="#d4d4d4" fill="none"></polygon></a></g></g><!-- node3 --><g class="node trait" id="graph1_3"><g id="a_trait|graph1_3"><a xlink:title="java.io.Serializable"><polygon points="212,-147 117,-147 117,-122 212,-122 212,-147" stroke="#37657d" fill="#498aad"></polygon><image xlink:href="../../../lib/trait_diagram.png" y="-141.5" x="127.5" preserveAspectRatio="xMinYMin meet" height="15px" width="15px"></image><text fill="#ffffff" font-size="10.00" font-family="Arial" y="-131.5" x="148.5" text-anchor="start">Serializable</text></a></g></g><!-- node3&#45;&gt;node0 --><g class="edge inheritance" id="graph1_3_0"><g id="a_inheritance|graph1_3_0"><a xlink:title="CubedSphere is a subtype of Serializable"><path d="M149.29,-118.03C139.47,-108.04 126.91,-95.26 117.94,-86.13" stroke="#d4d4d4" fill="none"></path><polygon points="148.29,-119.5 153.04,-121.84 150.78,-117.05 148.29,-119.5" stroke="#d4d4d4" fill="none"></polygon></a></g></g></g></svg></div>
+              </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By Inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="com.sparkcorr.Tiling.CubedSphere"><span>CubedSphere</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="com.sparkcorr.Tiling.SphereTiling"><span>SphereTiling</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show All</span></li>
+            </ol>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="com.sparkcorr.Tiling.CubedSphere#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;init&gt;(Nbase:Int):com.sparkcorr.Tiling.CubedSphere"></a>
+      <a id="&lt;init&gt;:CubedSphere"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">CubedSphere</span><span class="params">(<span name="Nbase">Nbase: <span class="extype" name="scala.Int">Int</span></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@&lt;init&gt;(Nbase:Int):com.sparkcorr.Tiling.CubedSphere" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">creates cubedsphere tiling with resolution Nbase</p><div class="fullcomment"><div class="comment cmt"><p>creates cubedsphere tiling with resolution Nbase</p></div><dl class="paramcmts block"><dt class="param">Nbase</dt><dd class="cmt"><p>Number of points on a face in one dimension (even number).</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@##():Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#N" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="N:Int"></a>
+      <a id="N:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">N</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@N:Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">shorthand for Nbase</p><div class="fullcomment"><div class="comment cmt"><p>shorthand for Nbase</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#Nbase" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Nbase:Int"></a>
+      <a id="Nbase:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Nbase</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@Nbase:Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Number of points on a face in one dimension (even number).</p><div class="fullcomment"><div class="comment cmt"><p>Number of points on a face in one dimension (even number).</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.sparkcorr.Tiling.CubedSphere">CubedSphere</a> → <a href="SphereTiling.html" class="extype" name="com.sparkcorr.Tiling.SphereTiling">SphereTiling</a></dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#Npix" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Npix:Long"></a>
+      <a id="Npix:Long"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Npix</span><span class="result">: <span class="extype" name="scala.Long">Long</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@Npix:Long" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">number of pixels</p><div class="fullcomment"><div class="comment cmt"><p>number of pixels</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.sparkcorr.Tiling.CubedSphere">CubedSphere</a> → <a href="SphereTiling.html" class="extype" name="com.sparkcorr.Tiling.SphereTiling">SphereTiling</a></dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#ang2LocalIndex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ang2LocalIndex(face:Int,theta:Double,phi:Double):(Int,Int)"></a>
+      <a id="ang2LocalIndex(Int,Double,Double):(Int,Int)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ang2LocalIndex</span><span class="params">(<span name="face">face: <span class="extype" name="scala.Int">Int</span></span>, <span name="theta">theta: <span class="extype" name="scala.Double">Double</span></span>, <span name="phi">phi: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@ang2LocalIndex(face:Int,theta:Double,phi:Double):(Int,Int)" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">given face and angles returns the local index</p>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#ang2pix" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ang2pix(theta:Double,phi:Double):Int"></a>
+      <a id="ang2pix(Double,Double):Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ang2pix</span><span class="params">(<span name="theta">theta: <span class="extype" name="scala.Double">Double</span></span>, <span name="phi">phi: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@ang2pix(theta:Double,phi:Double):Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">pixel index from angles on the sphere
+</p><div class="fullcomment"><div class="comment cmt"><p>pixel index from angles on the sphere
+</p></div><dl class="paramcmts block"><dt class="param">theta</dt><dd class="cmt"><p>colatitude (0&lt;theta&lt;Pi)</p></dd><dt class="param">phi</dt><dd class="cmt"><p>azimuth (0&lt;phi&lt;2Pi)</p></dd><dt>returns</dt><dd class="cmt"><p>pixel index</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.sparkcorr.Tiling.CubedSphere">CubedSphere</a> → <a href="SphereTiling.html" class="extype" name="com.sparkcorr.Tiling.SphereTiling">SphereTiling</a></dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@clone():Object" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#coord2pix" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="coord2pix(f:Int,i:Int,j:Int):Int"></a>
+      <a id="coord2pix(Int,Int,Int):Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">coord2pix</span><span class="params">(<span name="f">f: <span class="extype" name="scala.Int">Int</span></span>, <span name="i">i: <span class="extype" name="scala.Int">Int</span></span>, <span name="j">j: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@coord2pix(f:Int,i:Int,j:Int):Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">transformation from local CubedSphere coordinates to pixel number</p>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@equals(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#getFace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getFace(p:com.sparkcorr.Geometry.Point3D):Int"></a>
+      <a id="getFace(Point3D):Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getFace</span><span class="params">(<span name="p">p: <a href="../Geometry/Point3D.html" class="extype" name="com.sparkcorr.Geometry.Point3D">Point3D</a></span>)</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@getFace(p:com.sparkcorr.Geometry.Point3D):Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">get face number from Point on the sphere</p>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#getFace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="getFace(theta:Double,phi:Double):Int"></a>
+      <a id="getFace(Double,Double):Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getFace</span><span class="params">(<span name="theta">theta: <span class="extype" name="scala.Double">Double</span></span>, <span name="phi">phi: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@getFace(theta:Double,phi:Double):Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">get face number from angles</p>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@hashCode():Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#isValidPix" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isValidPix(ipix:Int):Boolean"></a>
+      <a id="isValidPix(Int):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isValidPix</span><span class="params">(<span name="ipix">ipix: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@isValidPix(ipix:Int):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">check pixel number is valid</p>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#maxIndex" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="maxIndex:Long"></a>
+      <a id="maxIndex:Long"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">maxIndex</span><span class="result">: <span class="extype" name="scala.Long">Long</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@maxIndex:Long" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Largest possible index of the pixelization .</p><div class="fullcomment"><div class="comment cmt"><p>Largest possible index of the pixelization .
+Do not use to access data. use <a href="#pixNums:IndexedSeq[Int]" class="extmbr" name="com.sparkcorr.Tiling.CubedSphere#pixNums">CubedSphere.pixNums</a> instead
+</p></div></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#neighbours" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="neighbours(ipix:Int):Array[Int]"></a>
+      <a id="neighbours(Int):Array[Int]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">neighbours</span><span class="params">(<span name="ipix">ipix: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Int">Int</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@neighbours(ipix:Int):Array[Int]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">List of neighbour indices
+</p><div class="fullcomment"><div class="comment cmt"><p>List of neighbour indices
+</p></div><dl class="paramcmts block"><dt class="param">ipix</dt><dd class="cmt"><p>pixel index</p></dd><dt>returns</dt><dd class="cmt"><p>Array of pixel indices (variable size)</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.sparkcorr.Tiling.CubedSphere">CubedSphere</a> → <a href="SphereTiling.html" class="extype" name="com.sparkcorr.Tiling.SphereTiling">SphereTiling</a></dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#pix2ang" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="pix2ang(ipix:Int):Array[Double]"></a>
+      <a id="pix2ang(Int):Array[Double]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pix2ang</span><span class="params">(<span name="ipix">ipix: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Double">Double</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@pix2ang(ipix:Int):Array[Double]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">pixel center angles for a given index
+</p><div class="fullcomment"><div class="comment cmt"><p>pixel center angles for a given index
+</p></div><dl class="paramcmts block"><dt class="param">ipix</dt><dd class="cmt"><p>pixel index</p></dd><dt>returns</dt><dd class="cmt"><p>size 2 Array of angles [theta,phi] (see header for conventions)</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.sparkcorr.Tiling.CubedSphere">CubedSphere</a> → <a href="SphereTiling.html" class="extype" name="com.sparkcorr.Tiling.SphereTiling">SphereTiling</a></dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#pix2coord" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pix2coord(ipix:Int):(Int,Int,Int)"></a>
+      <a id="pix2coord(Int):(Int,Int,Int)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pix2coord</span><span class="params">(<span name="ipix">ipix: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: (<span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>, <span class="extype" name="scala.Int">Int</span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@pix2coord(ipix:Int):(Int,Int,Int)" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">transformation from pixel number to local coordinates</p>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#pixNums" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="pixNums:IndexedSeq[Int]"></a>
+      <a id="pixNums:IndexedSeq[Int]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pixNums</span><span class="result">: <span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<span class="extype" name="scala.Int">Int</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@pixNums:IndexedSeq[Int]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">list of valid pixel indices for this pixelization (do not assume it is contiguous)
+</p><div class="fullcomment"><div class="comment cmt"><p>list of valid pixel indices for this pixelization (do not assume it is contiguous)
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an indexedseq of indices</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.sparkcorr.Tiling.CubedSphere">CubedSphere</a> → <a href="SphereTiling.html" class="extype" name="com.sparkcorr.Tiling.SphereTiling">SphereTiling</a></dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@toString():String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#writeCenters" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="writeCenters(fn:String):Unit"></a>
+      <a id="writeCenters(String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">writeCenters</span><span class="params">(<span name="fn">fn: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@writeCenters(fn:String):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">output pixel centers into file</p><div class="fullcomment"><div class="comment cmt"><p>output pixel centers into file</p></div><dl class="paramcmts block"><dt class="param">fn</dt><dd class="cmt"><p>filename</p></dd></dl></div>
+    </li><li name="com.sparkcorr.Tiling.CubedSphere#writeNeighbours" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="writeNeighbours(ipix:Int):Unit"></a>
+      <a id="writeNeighbours(Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">writeNeighbours</span><span class="params">(<span name="ipix">ipix: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@writeNeighbours(ipix:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">given a pixel number write all neigbour indices into a
+file named &quot;neighbours.txt&quot;
+</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="com.sparkcorr.Tiling.SphereTiling#neighbours8" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="neighbours8(ipix:Int):Array[Int]"></a>
+      <a id="neighbours8(Int):Array[Int]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: ">neighbours8</span><span class="params">(<span name="ipix">ipix: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Int">Int</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#com.sparkcorr.Tiling.CubedSphere@neighbours8(ipix:Int):Array[Int]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" alt="Permalink" />
+      </a>
+    </span>
+      <p class="shortcomment cmt"> automatic translation to 8 neighbouring indices
+ putting -1 if there is less.</p><div class="fullcomment"><div class="comment cmt"><p> automatic translation to 8 neighbouring indices
+ putting -1 if there is less.</p><p> undefined behaviour if more than 8</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="SphereTiling.html" class="extype" name="com.sparkcorr.Tiling.SphereTiling">SphereTiling</a></dd><dt>Deprecated</dt><dd class="cmt"></dd></dl></div>
+    </li></ol>
+            </div>
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="com.sparkcorr.Tiling.SphereTiling">
+              <h3>Inherited from <a href="SphereTiling.html" class="extype" name="com.sparkcorr.Tiling.SphereTiling">SphereTiling</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
