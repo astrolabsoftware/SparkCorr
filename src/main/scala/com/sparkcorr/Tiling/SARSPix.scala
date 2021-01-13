@@ -26,7 +26,7 @@ import java.util.Locale
 /** 
   * =The SimilAr Radius Sphere pixelization=
   *
-  *  based on [[partioningSphere.pdf]]
+  *  based on [[https://github.com/LSSTDESC/SparkCorr/blob/master/doc/partioningSphere.pdf this paper]] (also available in the doc directory).
   *  This is not the full construction but the one described at the very
   *  beginning of section 3.3.
   * 
