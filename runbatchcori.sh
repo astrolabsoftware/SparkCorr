@@ -11,8 +11,8 @@ echo "##########################################################################
 exit
 fi
 
-#myexec="2PCF.Sphere.PairCount_exact"
-myexec="2PCF.Sphere.PairCount_reduced"
+myexec="2PCF.Sphere.PairCount_exact"
+#myexec="2PCF.Sphere.PairCount_reduced"
 parfile=$1_$RANDOM
 \cp $1 $parfile
 
@@ -53,7 +53,7 @@ cat > $slfile <<EOF
 #SBATCH --volume="/global/cscratch1/sd/$USER/tmpfiles:/tmp:perNodeCache=size=200G"
 
 #init
-source $HOME/desc-spark/scripts/init_spark.sh
+source $HOME/desc-spark/scripts/sparkinit.sh
 
 #jars
 LIBS=$HOME/SparkLibs
