@@ -66,6 +66,7 @@ part=\$((\$ncores*3))
 
 cat $parfile
 
+#no shifter needed since in sparkinit: si
 shifter spark-submit $SPARKOPTS --jars \$JARS --class com.sparkcorr.$myexec $PWD/target/scala-${SCALA_VERSION_SPARK}/sparkcorr_${SCALA_VERSION_SPARK}-$VERSION.jar $parfile \$part
 
 \rm $parfile
