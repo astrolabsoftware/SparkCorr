@@ -53,16 +53,23 @@ import treecorr
 
 # Some parameters you can play with here that will affect both serial (not really "serial", since
 # it still uses OpenMP -- just running on 1 node) and parallel runs.
-nbins=11
+nbins=20
 min_sep = 2.5         # arcmin
-max_sep = 31.5
+max_sep = 250
+bin_type="Log"
+
+#max_sep=31.5
+#bin_type="Linear"
+
+
+
 low_mem = False     # Set to True to use less memory during processing.
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 nproc = comm.Get_size()
 
-file_name= "~/data/tomo10M.parquet"
+file_name=sys.argv[1]
 patch_file = os.path.basename(file_name).split(".")[0]+"_patches.fits"
 ra_col='RA'
 dec_col='DEC'
@@ -108,7 +115,7 @@ def run_serial():
                          patch_centers=patch_file,log_file=log_file,verbose=3)
 
 
-    gg = treecorr.NNCorrelation(nbins=nbins, min_sep=min_sep,max_sep=max_sep,sep_units='arcmin', verbose=1, log_file=log_file)
+    gg = treecorr.NNCorrelation(nbins=nbins, min_sep=min_sep,max_sep=max_sep,bin_type=bin_type,sep_units='arcmin', verbose=1, log_file=log_file)
 
     #gg=treecorr.NNCorrelation(min_sep=2.5,max_sep=250,nbins=20,sep_units='arcmin')
 
